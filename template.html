@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="pl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Train Display</title>
+    <style>
+        
+    </style>
+</head>
+<body>
+    <div id="top_bar">
+        <div class="scroll-text">
+            <span>IC 12345 KONOPNICKA</span>
+        </div>
+        <div id="carriage_info">
+            <img src="carriage.svg" alt="carriage">
+            <span id="carriage_number">16</span>
+        </div>
+    </div>
+    <hr>
+    <div id="route_box">
+        Warszawa Wschodnia - Wrocław Główny
+    </div>
+    <hr>
+    <div id="stations_box">
+        <div id="next_station">
+            17:44 WARSZAWA CENTRALNA
+        </div>
+        <div style="display: none;" id="next_station_delay">
+            <span id="old-time">17:44 (+1440)</span>
+            <span id="new-time">17:44</span>
+            <span>WARSZAWA CENTRALNA</span>
+        </div>
+        <div id="rest_stations">
+            <span>Warszawa Zachodnia</span>
+            <span>Jakaś Stacja</span>
+        </div>
+    </div>
+    <div id="bottom_bar">
+        <div id="date">
+            01.01.2014
+        </div>
+        <div id="time">
+            17:44
+        </div>
+        <div id="temperature">
+            29°C
+        </div>
+        <div id="current_speed">
+            8 km/h
+        </div>
+        <div id="logo">
+            <img src="logo.png">
+        </div>
+    </div>
+</body>

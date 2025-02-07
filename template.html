@@ -9,13 +9,14 @@
         
     </style>
 </head>
+
 <body>
     <div id="top_bar">
-        <div class="scroll-text">
-            <span>IC 12345 KONOPNICKA</span>
+        <div class="box_scroll">
+            <div id="train_name" class="scroll">IC 12345 TESTOWA NAZWA</div>
         </div>
         <div id="carriage_info">
-            <img src="carriage.svg" alt="carriage">
+            <img src="wagon.svg" alt="carriage">
             <span id="carriage_number">16</span>
         </div>
     </div>
@@ -52,7 +53,83 @@
             8 km/h
         </div>
         <div id="logo">
-            <img src="logo.png">
+            <img src="logo.svg" alt="logo">
+            <span>Train Driver 2</span>
         </div>
     </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.7/dist/gsap.min.js"></script>
+    <script src="gasp_simless_loop.js"></script>
+    <script type="text/javascript">
+        function scrollText() {
+            const elements = document.querySelectorAll('.scroll');
+
+            elements.forEach(element => {
+                const parentWidth = element.parentElement.offsetWidth;
+                const textWidth = element.offsetWidth;
+                const textLength = element.textContent.length;
+                const elementId = element.id;
+                let maxTextLength;
+                let addText = '';
+
+                maxTextLength = 21;
+                addText = '    ';
+
+                if (textLength > maxTextLength) {
+                    element.textContent += addText;
+
+                    // Marquee effect infinite loop
+                    const textClone = element.cloneNode(true);
+                    textClone.classList.add('clone');
+                    element.parentElement.appendChild(textClone);
+
+                    // Second clone for the seamless loop
+                    const textClone2 = element.cloneNode(true);
+                    textClone2.classList.add('clone');
+                    element.parentElement.appendChild(textClone2);
+
+                    const texts = gsap.utils.toArray(`#${elementId}`),
+                        loop = horizontalLoop(texts, { paused: false, repeat: -1, speed: 1 });
+                }
+            });
+        }
+
+        function dynamicWrapText(elementId) {
+            const container = document.getElementById(elementId);
+            const originalText = container.textContent;
+            container.textContent = originalText;
+            container.style.whiteSpace = 'nowrap';
+
+            if (container.scrollWidth > container.clientWidth) {
+                const words = originalText.split(' ');
+                let wrappedText = '';
+                let currentLine = '';
+
+                for (let i = 0; i < words.length; i++) {
+                    const word = words[i];
+                    const testLine = currentLine + (currentLine ? ' ' : '') + word;
+                    container.textContent = testLine;
+
+                    if (container.scrollWidth > container.clientWidth) {
+                        wrappedText += `<div id="left">${currentLine}</div>`;
+                        currentLine = word;
+                    } else {
+                        currentLine = testLine;
+                    }
+                }
+                wrappedText += `<div id="right">${currentLine}</div>`;
+                container.innerHTML = wrappedText;
+                container.style.whiteSpace = '';
+                let left = document.getElementById('left');
+                let right = document.getElementById('right');
+                left.classList.add('line_left');
+                right.classList.add('line_right');
+            } else {
+                container.style.whiteSpace = '';
+            }
+        }
+
+        dynamicWrapText('route_box');
+        window.onload = scrollText;
+    </script>
 </body>

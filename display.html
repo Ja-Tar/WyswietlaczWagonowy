@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="pl">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Train Display</title>
+    <style>
+        body {
+            margin: 0;
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #000; /* Same as the template */
+        }
+        iframe {
+            width: 1920px; /* Stała szerokość */
+            height: 1050px; /* Stała wysokość */
+            transform-origin: top left;
+        }
+    </style>
+</head>
+<body>
+    <iframe id="container" frameborder="0"></iframe>
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const trainNumber = urlParams.get('train');
+        const wagonNumber = urlParams.get('wagon');
+        const iframe = document.querySelector('#container'); // Updated to select the iframe by ID
+
+        function resizeIframe() {
+            const scale = Math.min(window.innerWidth / 1920, window.innerHeight / 1050);
+            iframe.style.width = `${1920 * scale}px`;
+            iframe.style.height = `${1050 * scale}px`;
+        }
+
+        window.addEventListener('resize', resizeIframe);
+        resizeIframe();
+
+        /* fetch template.html */
+        fetch('template.html')
+            .then(response => response.text())
+            .then(data => {
+                /* replace placeholders with actual values */
+                data = data.replace('{{trainNumber}}', trainNumber);
+                data = data.replace('{{wagonNumber}}', wagonNumber);
+                /* write the data to the iframe */
+                iframe.contentDocument.open();
+                iframe.contentDocument.write(data); // Use write method for the iframe
+                iframe.contentDocument.close(); // Close the document to render the content
+            })
+            .catch(error => {
+                console.error('Error fetching template:', error);
+            });
+    </script>
+</body>
+
+</html>

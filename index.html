@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Wagonowy Ekran TD2</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
         body {
             margin: 0;
@@ -72,6 +73,27 @@
             background-color: #ff6600;
             color: #fff;
         }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 2vh 1vw;
+            }
+
+            #train_div label,
+            #wagon_div label {
+                font-size: 5vw;
+            }
+
+            #train_number,
+            #wagon_number {
+                font-size: 5vw;
+                width: 80%;
+            }
+
+            #submit {
+                font-size: 4vw;
+            }
+        }
     </style>
 </head>
 
@@ -80,11 +102,11 @@
         <div id="train_div">
             <label for="train_number">Numer Pociągu:</label>
             <!-- 4 to 6 numbers background text 00000 -->
-            <input type="number" id="train_number" min="1000" max="999999" placeholder="123456" required>
+            <input type="number" id="train_number" min="1000" max="999999" placeholder="123456" required inputmode="numeric">
         </div>
         <div id="wagon_div">
             <label for="wagon_number">Numer Wagonu:</label>
-            <input type="number" id="wagon_number" min="1" max="99" value="1" required>
+            <input type="number" id="wagon_number" min="1" max="99" value="1" required inputmode="numeric">
         </div>
         <button id="submit">Zobacz Ekran</button>
     </div>

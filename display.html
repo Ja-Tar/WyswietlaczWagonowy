@@ -27,6 +27,7 @@
 
 <body>
     <iframe id="container" frameborder="0"></iframe>
+    <script src="train_name.js" module></script>
     <script>
         const urlParams = new URLSearchParams(window.location.search);
         const trainNumber = urlParams.get('train');
@@ -72,43 +73,88 @@
             timeDiv.textContent = `${hours < 10 ? '0' + hours : hours}:${minutes < 10 ? '0' + minutes : minutes}`;
         }
 
-        async function changeValues() {
-            if (iframe.contentDocument) {
-                iframe.contentDocument.getElementById('carriage_number').textContent = wagonNumber;
-                iframe.contentDocument.getElementById('train_name').innerHTML = "";
+        async function setTemperature() {
+            let temperatureDiv = iframe.contentDocument.getElementById('temperature');
 
-                let temperatureDiv = iframe.contentDocument.getElementById('temperature');
-                let currentSpeedDiv = iframe.contentDocument.getElementById('current_speed');
+            let url = 'https://api.td2.info.pl/?method=getWeather';
 
+            const options = { method: 'GET' };
+            try {
+                const response = await fetch(url, options);
+                const data = await response.json();
+                if (data.success) {
+                    let temperature = data.message.main.temp; // temperature in Kelvin
+                    temperature = Math.round(temperature - 273.15); // convert to Celsius
+                    temperatureDiv.textContent = `${temperature}°C`;
+                } else {
+                    console.error('Error fetching weather data');
+                }
+            } catch (fetchError) {
+                console.error(fetchError);
                 temperatureDiv.textContent = '--°C';
-                currentSpeedDiv.textContent = '-- km/h';
+            }
+        }
 
-                let error = false;
+        async function setDataFromStacjownik() {
+            let currentSpeedDiv = iframe.contentDocument.getElementById('current_speed');
 
-                const url = 'https://api.td2.info.pl/?method=getTrainsOnline';
-                const options = { method: 'GET' };
-                try {
-                    const response = await fetch(url, options);
-                    const data = await response.json();
-                    console.log(data.message.length);
-                    if (data.message.length > 0) {
-                        const train = data.message.find(train => train.trainNo === parseInt(trainNumber));
-                        if (train) {
-                            iframe.contentDocument.getElementById('train_name').textContent = trainNumber;
-                        } else {
-                            console.error('Train not found');
-                            error = true;
-                        }
+            let url = "https://stacjownik.spythere.eu/api/getActiveTrainList";
+
+            const options = { method: 'GET' };
+            try {
+                //throw new Error('An error has occurred'); 
+                const response = await fetch(url, options);
+                const data = await response.json();
+
+                if (data.length > 0) {
+                    let train = data.find(train => train.trainNo === parseInt(trainNumber));
+                    if (train) {
+                        let speed = train.speed;
+                        currentSpeedDiv.textContent = `${speed} km/h`;
+
+                        iframe.contentDocument.getElementById('train_name').textContent = getTrainName(trainNumber, train.stockString, train.timetable.category);
+
+                        let route = train.timetable.route.split('|'); // before split: DOBRZYNIEC|Wielichowo Główne
+                        route = route.map(station => station.toLowerCase().split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' '));
+                        iframe.contentDocument.getElementById('route_box').textContent = route.join(' - ');
+                        
+                        setRouteStations(train.timetable.stopList); // Pass correct stopPoints to the setRouteStations function
+                        return true;
                     } else {
                         console.error('Train not found');
-                        error = true;
+                        return false;
                     }
-                } catch (fetchError) {
-                    console.error(fetchError);
-                    error = true;
+                } else {
+                    console.error('No active trains found');
+                    return false;
+                }
+            } catch (fetchError) {
+                console.error(fetchError);
+                return false;
+            }
+        }
+
+        function setRouteStations(stopPoints) {
+            // Implementation for getRouteStations function
+            // TODO: Add logic to process stopPoints and display them accordingly
+        }
+
+        async function changeValues() {
+            if (iframe.contentDocument) {
+                await getAPIsForTrainName();
+                iframe.contentDocument.getElementById('carriage_number').textContent = wagonNumber;
+
+                let success = false;
+
+                try {
+                    success = await setDataFromStacjownik();
+                } catch (error) {
+                    console.error('Error fetching train data:', error);
                 }
 
-                if (error) {
+                setTemperature();
+
+                if (!success) {
                     iframe.contentDocument.getElementById('main_display').style.visibility = 'hidden';
                     iframe.contentDocument.getElementById('loader_box').style.display = 'none';
                     iframe.contentDocument.getElementById('error_box').style.display = 'flex';
@@ -124,8 +170,10 @@
             }
         }
 
-        iframe.onload = changeValues; 
-        setInterval(setDateAndTime, 1000);
+        iframe.onload = changeValues;
+        setInterval(setDateAndTime, 1000); // 1 second
+        setInterval(setTemperature, 600000); // 10 minutes
+        setInterval(changeValues, 60000); // 1 minute
     </script>
 </body>
 

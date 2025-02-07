@@ -92,6 +92,12 @@
             line-height: 1.2;
         }
 
+        .line_one {
+            text-align: center;
+            overflow: hidden;
+            line-height: 1.2;
+        }
+
         #next_station {
             font-size: 6vw;
             text-align: center;
@@ -233,10 +239,10 @@
             17:44
         </div>
         <div id="temperature">
-            29°C
+            --°C
         </div>
         <div id="current_speed">
-            8 km/h
+            -- km/h
         </div>
         <div id="logo">
             <img src="logo.svg" alt="logo">
@@ -303,6 +309,9 @@
                         break;
                     }
                 }
+            } else {
+                right.remove();
+                left.classList.add('line_one');
             }
         }
     </script>

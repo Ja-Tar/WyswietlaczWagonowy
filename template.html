@@ -5,7 +5,79 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Train Display</title>
+    <link rel="stylesheet" href="VeranaSans/stylesheet.css">
     <style>
+        body {
+            margin: 0;
+            padding: 4vh 2vw;
+            font-family: 'Verana Sans', Arial, sans-serif;
+            line-height: 1;
+            background-color: #002366;
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        hr {
+            width: 100%;
+            border: 1px solid #fff;
+        }
+
+        .box_scroll {
+            display: flex;
+            overflow: hidden;
+            white-space: nowrap;
+            width: 100%;
+            text-align: center;
+            font-size: 6vw;
+            margin-right: 1vw;
+        }
+
+        #top_bar {
+            width: 100%;
+            padding: 0.1vh;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        #carriage_info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #fff;
+            color: #002366;
+            font-size: 6vw;
+            font-weight: bolder;
+            padding: 0vh 1vw;
+            gap: 1vw;
+        }
+
+        #carriage_info img {
+            width: 10vw;
+        }
+
+        #route_box {
+            font-size: 6vw;
+            text-align: center;
+            white-space: nowrap;
+            overflow: hidden;
+            margin-top: 1vh;
+            width: 100%;
+        }
+
+        .line_left {
+            text-align: left;
+            width: 99%;
+        }
+
+        .line_right {
+            padding-top: 3vh;
+            width: 100%;
+            text-align: right;
+            line-height: 1.2;
+        }
+
         
     </style>
 </head>

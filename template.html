@@ -20,6 +20,18 @@
             overflow: hidden;
         }
 
+        #main_display {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 1vh;
+            visibility: hidden;
+        }
+
         hr {
             width: 100%;
             border: 1px solid #fff;
@@ -100,7 +112,6 @@
 
         #rest_stations span:last-child::after {
             content: "";
-            /* Remove comma after the last item */
         }
 
         #bottom_bar {
@@ -121,7 +132,7 @@
         #time,
         #temperature,
         #current_speed {
-            font-size: 2.5vw; /* Adjust font size for readability */
+            font-size: 2.5vw;
         }
 
         #logo {
@@ -135,39 +146,84 @@
         }
 
         #logo span {
-            font-size: 2.5vw; /* Adjust font size for readability */
+            font-size: 2.5vw;
             font-style: italic;
+        }
+
+        #error_box {
+            position: absolute;
+            z-index: 1;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+
+        }
+        
+        #error_message {
+            transition: opacity 0.3s ease;
+        }
+
+        #error_box img {
+            width: 20vw;
+        }
+        
+        #loader_box {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        #loader_box img {
+            width: 10vw;
         }
     </style>
 </head>
 
 <body>
-    <div id="top_bar">
-        <div class="box_scroll">
-            <div id="train_name" class="scroll">IC 12345 TESTOWA NAZWA</div>
+    <div id="main_display">
+        <div id="top_bar">
+            <div class="box_scroll">
+                <div id="train_name" class="scroll">IC 12345 TESTOWA NAZWA</div>
+            </div>
+            <div id="carriage_info">
+                <img src="wagon.svg" alt="carriage">
+                <span id="carriage_number">16</span>
+            </div>
         </div>
-        <div id="carriage_info">
-            <img src="wagon.svg" alt="carriage">
-            <span id="carriage_number">16</span>
+        <hr>
+        <div id="route_box">
+            Warszawa Wschodnia - Wrocław Główny
+        </div>
+        <hr>
+        <div id="stations_box">
+            <div id="next_station">
+                17:44 WARSZAWA CENTRALNA
+            </div>
+            <div style="display: none;" id="next_station_delay">
+                <span id="old-time">17:44 (+1440)</span>
+                <span id="new-time">17:44</span>
+                <span>WARSZAWA CENTRALNA</span>
+            </div>
+            <div id="rest_stations">
+                <span>17:50 Warszawa Wschodnia</span>
+            </div>
         </div>
     </div>
-    <hr>
-    <div id="route_box">
-        Warszawa Wschodnia - Wrocław Główny
+    <div id="error_box" style="display: none;">
+        <img src="warningSmall.svg" alt="error">
     </div>
-    <hr>
-    <div id="stations_box">
-        <div id="next_station">
-            17:44 WARSZAWA CENTRALNA
-        </div>
-        <div style="display: none;" id="next_station_delay">
-            <span id="old-time">17:44 (+1440)</span>
-            <span id="new-time">17:44</span>
-            <span>WARSZAWA CENTRALNA</span>
-        </div>
-        <div id="rest_stations">
-            <span>17:50 Warszawa Wschodnia</span>
-        </div>
+    <div id="loader_box">
+        <img src="loaders/oval.svg" alt="loader">
     </div>
     <div id="bottom_bar">
         <div id="date">

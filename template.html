@@ -17,6 +17,7 @@
             display: flex;
             flex-direction: column;
             align-items: center;
+            overflow: hidden;
         }
 
         hr {
@@ -61,13 +62,14 @@
             font-size: 6vw;
             text-align: center;
             white-space: nowrap;
-            overflow: hidden;
             margin-top: 1vh;
             width: 100%;
         }
 
         .line_left {
             text-align: left;
+            overflow: hidden;
+            overflow-x: auto;
             width: 99%;
         }
 
@@ -78,7 +80,64 @@
             line-height: 1.2;
         }
 
-        
+        #next_station {
+            font-size: 6vw;
+            text-align: center;
+            line-height: normal;
+            color: #ff6600;
+            padding: 4vh 0;
+        }
+
+        #rest_stations {
+            font-size: 2.8vw;
+            text-align: center;
+            line-height: normal;
+        }
+
+        #rest_stations span::after {
+            content: ", ";
+        }
+
+        #rest_stations span:last-child::after {
+            content: "";
+            /* Remove comma after the last item */
+        }
+
+        #bottom_bar {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #fff;
+            color: #002366;
+            padding: 1vh 4vw;
+            font-weight: bold;
+        }
+
+        #date,
+        #time,
+        #temperature,
+        #current_speed {
+            font-size: 2.5vw; /* Adjust font size for readability */
+        }
+
+        #logo {
+            display: flex;
+            align-items: center;
+            gap: 1vw;
+        }
+
+        #logo img {
+            width: 10vw;
+        }
+
+        #logo span {
+            font-size: 2.5vw; /* Adjust font size for readability */
+            font-style: italic;
+        }
     </style>
 </head>
 
@@ -107,8 +166,7 @@
             <span>WARSZAWA CENTRALNA</span>
         </div>
         <div id="rest_stations">
-            <span>Warszawa Zachodnia</span>
-            <span>Jakaś Stacja</span>
+            <span>17:50 Warszawa Wschodnia</span>
         </div>
     </div>
     <div id="bottom_bar">
@@ -168,40 +226,35 @@
 
         function dynamicWrapText(elementId) {
             const container = document.getElementById(elementId);
-            const originalText = container.textContent;
-            container.textContent = originalText;
-            container.style.whiteSpace = 'nowrap';
+            const originalText = container.textContent.trim();
+            container.innerHTML = '<div id="left"></div><div id="right"></div>';
+            const left = document.getElementById('left');
+            const right = document.getElementById('right');
+            left.classList.add('line_left');
+            right.classList.add('line_right');
+            left.textContent = originalText;
 
-            if (container.scrollWidth > container.clientWidth) {
+            if (left.scrollWidth > left.clientWidth) {
                 const words = originalText.split(' ');
-                let wrappedText = '';
-                let currentLine = '';
-
+                let leftWords = [];
                 for (let i = 0; i < words.length; i++) {
-                    const word = words[i];
-                    const testLine = currentLine + (currentLine ? ' ' : '') + word;
-                    container.textContent = testLine;
-
-                    if (container.scrollWidth > container.clientWidth) {
-                        wrappedText += `<div id="left">${currentLine}</div>`;
-                        currentLine = word;
-                    } else {
-                        currentLine = testLine;
+                    leftWords.push(words[i]);
+                    left.textContent = leftWords.join(' ');
+                    if (left.scrollWidth > left.clientWidth) {
+                        leftWords.pop();
+                        right.textContent = " " + words.slice(i).join(' ');
+                        left.textContent = leftWords.join(' ');
+                        break;
                     }
                 }
-                wrappedText += `<div id="right">${currentLine}</div>`;
-                container.innerHTML = wrappedText;
-                container.style.whiteSpace = '';
-                let left = document.getElementById('left');
-                let right = document.getElementById('right');
-                left.classList.add('line_left');
-                right.classList.add('line_right');
-            } else {
-                container.style.whiteSpace = '';
             }
         }
 
-        dynamicWrapText('route_box');
-        window.onload = scrollText;
+        window.onload = function () {
+            scrollText();
+            dynamicWrapText('route_box');
+        };
     </script>
 </body>
+
+</html>

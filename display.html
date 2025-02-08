@@ -164,16 +164,21 @@
 
             // get first next stop
             if (nextStopsList.length > 0) {
+                let restStationsDiv = iframe.contentDocument.getElementById('rest_stations');
+
                 let firstNextStop = nextStopsList[0]; 
                 console.log('First next stop:', firstNextStop); 
                 let departureTime = firstNextStop.departureTimestamp;
+                if (firstNextStop.terminatesHere === true) {
+                    departureTime = firstNextStop.arrivalTimestamp;
+                    restStationsDiv.innerHTML = '';
+                }
                 departureTime = new Date(departureTime);
                 departureTime = departureTime.toLocaleTimeString('pl-PL', { hour: '2-digit', minute: '2-digit' });
                 
                 iframe.contentDocument.getElementById('next_station').textContent = `${departureTime} ${firstNextStop.stopNameRAW}`;
 
                 if (nextStopsList.length > 1) {
-                    let restStationsDiv = iframe.contentDocument.getElementById('rest_stations');
                     restStationsDiv.innerHTML = '';
                     
                     let restStations = nextStopsList.slice(1);

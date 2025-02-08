@@ -63,7 +63,9 @@
 
         function setDateAndTime() {
             let dateDiv = iframe.contentDocument.getElementById('date');
-            let timeDiv = iframe.contentDocument.getElementById('time');
+            let minDiv = iframe.contentDocument.getElementById('min');
+            let colonDiv = iframe.contentDocument.getElementById('colon');
+            let secDiv = iframe.contentDocument.getElementById('sec');
 
             let date = new Date();
             let hours = date.getHours();
@@ -73,7 +75,13 @@
             let year = date.getFullYear();
 
             dateDiv.textContent = `${day < 10 ? '0' + day : day}.${month < 10 ? '0' + month : month}.${year}`;
-            timeDiv.textContent = `${hours < 10 ? '0' + hours : hours}:${minutes < 10 ? '0' + minutes : minutes}`;
+            minDiv.textContent = `${hours < 10 ? '0' + hours : hours}`;
+            secDiv.textContent = `${minutes < 10 ? '0' + minutes : minutes}`;
+            if (colonDiv.style.visibility === 'visible') {
+                colonDiv.style.visibility = 'hidden';
+            } else {
+                colonDiv.style.visibility = 'visible';
+            }
         }
 
         async function setTemperature() {
@@ -233,7 +241,7 @@
         }
 
         iframe.onload = changeValues;
-        setInterval(setDateAndTime, 5000); // 5 seconds
+        setInterval(setDateAndTime, 1000); // 1 seconds
         setInterval(setTemperature, 600000); // 10 minutes
         setInterval(changeValues, 60000); // 1 minute
     </script>

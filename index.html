@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Wagonowy Ekran TD2</title>
+    <title>Wyświetlacz wagonowy TD2</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
         body {
@@ -111,6 +111,13 @@
         <button id="submit">Zobacz Ekran</button>
     </div>
     <script>
+        document.getElementById('input_box').addEventListener('keydown', function (e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                document.getElementById('submit').click();
+            }
+        });
+
         document.getElementById('submit').addEventListener('click', function () {
             const trainNumber = document.getElementById('train_number');
             const wagonNumber = document.getElementById('wagon_number');

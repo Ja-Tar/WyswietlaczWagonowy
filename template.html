@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Train Display</title>
+    <title>Wyświetlacz Wagonowy TD2</title>
     <link rel="stylesheet" href="VeranaSans/stylesheet.css">
     <style>
         body {
@@ -18,6 +18,7 @@
             flex-direction: column;
             align-items: center;
             overflow: hidden;
+            height: 100vh;
         }
 
         #main_display {
@@ -30,6 +31,7 @@
             justify-content: center;
             gap: 1vh;
             visibility: hidden;
+            flex: 1;
         }
 
         hr {
@@ -74,8 +76,8 @@
             font-size: 6vw;
             text-align: center;
             white-space: nowrap;
-            margin-top: 1vh;
             width: 100%;
+            line-height: 1.2;
         }
 
         .line_left {
@@ -86,16 +88,24 @@
         }
 
         .line_right {
-            padding-top: 3vh;
+            padding-top: 2vh;
             width: 100%;
             text-align: right;
-            line-height: 1.2;
-        }
+        }        
 
         .line_one {
             text-align: center;
             overflow: hidden;
-            line-height: 1.2;
+        }
+
+        #stations_box {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: start;
+            align-items: center;
+            width: 100%;
+            margin-bottom: 15vh;
         }
 
         #next_station {
@@ -103,21 +113,19 @@
             text-align: center;
             line-height: normal;
             color: #ff6600;
-            padding: 4vh 0;
+            margin: 4vh 0;
         }
 
         #rest_stations {
             font-size: 2.8vw;
             text-align: center;
             line-height: normal;
-        }
-
-        #rest_stations span::after {
-            content: ", ";
-        }
-
-        #rest_stations span:last-child::after {
-            content: "";
+            margin: 0 2vw;
+            display: flex;
+            align-items: start;
+            flex-wrap: wrap;
+            column-gap: 1vw;
+            justify-content: center; /* Updated to ensure proper centering */
         }
 
         #bottom_bar {
@@ -297,18 +305,9 @@
             left.textContent = originalText;
 
             if (left.scrollWidth > left.clientWidth) {
-                const words = originalText.split(' ');
-                let leftWords = [];
-                for (let i = 0; i < words.length; i++) {
-                    leftWords.push(words[i]);
-                    left.textContent = leftWords.join(' ');
-                    if (left.scrollWidth > left.clientWidth) {
-                        leftWords.pop();
-                        right.textContent = " " + words.slice(i).join(' ');
-                        left.textContent = leftWords.join(' ');
-                        break;
-                    }
-                }
+                const route = originalText.split(' - ');
+                right.textContent = route.pop();
+                left.textContent = route.pop()  + ' -';
             } else {
                 right.remove();
                 left.classList.add('line_one');

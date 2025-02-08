@@ -1,7 +1,5 @@
 window.nameCorrectionsAPI_URL = "https://raw.githubusercontent.com/Thundo54/tablice-td2-api/master/namesCorrections.json";
 window.operatorConvertAPI_URL = 'https://raw.githubusercontent.com/Thundo54/tablice-td2-api/master/operatorConvert.json';
-window.operatorConvertData = {};
-window.nameCorrectionsData = {};
 
 window.trainCategory = {
     "E": ['EI', 'EC', 'EN'],
@@ -23,8 +21,8 @@ window.operatorFullNames = {
     "": " "
 };
 
-async function getAPIsForTrainName() {
-    if (window.nameCorrectionsData && window.operatorConvertData) {
+async function getAPIsForTrainName(apiVersion) {
+    if (localStorage.getItem('apiVersion') === apiVersion && window.operatorConvertData && window.nameCorrectionsData) {
         console.log("APIs already loaded.");
         return;
     }
@@ -44,19 +42,19 @@ async function getAPIsForTrainName() {
     } catch (error) {
         console.error("Error loading operator convert data:", error);
     }
+
+    localStorage.setItem('apiVersion', apiVersion);
 }
 
 function getTrainName(trainNumber, stockString, trainCategory) {
-    // Implementation for getTrainName function
+    console.log("Getting train name for:", trainNumber, stockString, trainCategory);
 
-    // For example, you can retrieve and return the name of the train based on the train number.
     let operator = '';
     let trainNumberPrefix = '';
     let trainNo = trainNumber;
     let endTrainName = '';
 
-    return `IC ${trainNumber} JAKAŚ NAZWA`; // Placeholder implementation
-
+    //return `IC ${trainNumber} JAKAŚ NAZWA`; // Placeholder implementation
 
     // Operator recognition
 
@@ -110,7 +108,7 @@ function getTrainName(trainNumber, stockString, trainCategory) {
 
     for (let j = 0; j < window.operatorConvertData.trainNames.length; j++) {
         let trainNameData = window.operatorConvertData.trainNames[j];
-        let trainOperatorBefore = processedData.operator;
+        let trainOperatorBefore = operator;
         let trainNoIs = trainNameData.trainNo;
 
         for (let k = 0; k < trainNoIs.length; k++) {

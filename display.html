@@ -196,6 +196,8 @@
                         stopElement.textContent = `${stopTime} ${stopName}` + (index < restStations.length - 1 ? ', ' : '');
                         restStationsDiv.appendChild(stopElement);
                     });
+                } else {
+                    restStationsDiv.innerHTML = '';
                 }
             }
 

@@ -170,7 +170,7 @@
             let nextStopsList = []; 
 
             stopPoints.forEach(stopPoint => {
-                if ((stopPoint.stopped === 0 && stopPoint.confirmed === 0) || (stopPoint.stopped === 1 && stopPoint.confirmed === 1)) {
+                if (stopPoint.confirmed === 0) {
                     nextStopsList.push(stopPoint);
                 }
             });

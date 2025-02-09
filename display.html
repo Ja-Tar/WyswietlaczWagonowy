@@ -168,9 +168,9 @@
 
                 let firstNextStop = nextStopsList[0]; 
                 console.log('First next stop:', firstNextStop); 
-                let departureTime = firstNextStop.departureTimestamp;
-                if (firstNextStop.terminatesHere === true) {
-                    departureTime = firstNextStop.arrivalTimestamp;
+                let departureTime = firstNextStop.arrivalTimestamp;
+                if (firstNextStop.beginsHere === true) {
+                    departureTime = firstNextStop.departureTimestamp;
                     restStationsDiv.innerHTML = '';
                 }
                 departureTime = new Date(departureTime);
@@ -184,9 +184,9 @@
                     let restStations = nextStopsList.slice(1);
 
                     restStations.forEach((stopPoint, index) => {
-                        let stopTime = stopPoint.departureTimestamp;
-                        if (stopPoint.terminatesHere === true) {
-                            stopTime = stopPoint.arrivalTimestamp;
+                        let stopTime = stopPoint.arrivalTimestamp;
+                        if (stopPoint.beginsHere === true) {
+                            stopTime = stopPoint.departureTimestamp;
                         }
                         stopTime = new Date(stopTime);
                         stopTime = stopTime.toLocaleTimeString('pl-PL', { hour: '2-digit', minute: '2-digit' });

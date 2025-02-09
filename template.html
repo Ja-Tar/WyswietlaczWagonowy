@@ -313,6 +313,22 @@
                 left.classList.add('line_one');
             }
         }
+
+        function overflowRestStations() {
+            const restStations = document.getElementById('rest_stations');
+            const mainDisplay = document.getElementById('main_display');
+            let fontSize = parseFloat(window.getComputedStyle(restStations).fontSize);
+
+            while (mainDisplay.scrollHeight > mainDisplay.clientHeight && fontSize > 1) {
+                fontSize -= 0.1;
+                restStations.style.fontSize = `${fontSize}vw`;
+            }
+
+            while (mainDisplay.scrollHeight < mainDisplay.clientHeight && fontSize < 2.8) {
+                fontSize += 0.1;
+                restStations.style.fontSize = `${fontSize}vw`;
+            }
+        }
     </script>
 </body>
 

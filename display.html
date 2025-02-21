@@ -264,8 +264,6 @@
                 iframe.contentWindow.overflowRestStations();
                 window.addEventListener('resize', iframe.contentWindow.overflowRestStations);
 
-                setTemperature();
-
                 if (!success) {
                     iframe.contentDocument.getElementById('main_display').style.visibility = 'hidden';
                     iframe.contentDocument.getElementById('loader_box').style.display = 'none';
@@ -282,7 +280,11 @@
             }
         }
 
-        iframe.onload = changeValues;
+        iframe.onload = function() {
+            changeValues();
+            setTemperature();
+        }
+
         setInterval(setDateAndTime, 1000); // 1 second
         setInterval(setTemperature, 600000); // 10 minutes
         setInterval(changeValues, 10000); // 10 seconds

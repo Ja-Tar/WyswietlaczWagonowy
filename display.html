@@ -35,6 +35,7 @@
         const urlParams = new URLSearchParams(window.location.search);
         const trainNumber = urlParams.get('train');
         const wagonNumber = urlParams.get('wagon');
+        const displayType = urlParams.get('type');
         const iframe = document.querySelector('#container'); 
 
         function resizeIframe() {
@@ -197,18 +198,40 @@
             // get first next stop
             if (nextStopsList.length > 0) {
                 let restStationsDiv = iframe.contentDocument.getElementById('rest_stations');
+                const nextStation = iframe.contentDocument.getElementById('next_station');
+                const nextStationDelay = iframe.contentDocument.getElementById('next_station_delay');
+                const oldDelayTime = iframe.contentDocument.getElementById('old_time');
+                const newDelayTime = iframe.contentDocument.getElementById('new_time');
+                const nextStationDelayName = iframe.contentDocument.getElementById('next_station_delay_name');
 
                 let firstNextStop = nextStopsList[0]; 
                 //console.log('First next stop:', firstNextStop); 
                 let departureTime = firstNextStop.arrivalTimestamp;
+                let departureDelay = firstNextStop.arrivalDelay;
+                let realDepartureTime = firstNextStop.arrivalRealTimestamp;
                 if (firstNextStop.beginsHere === true) {
                     departureTime = firstNextStop.departureTimestamp;
+                    departureDelay = firstNextStop.departureDelay;
+                    realDepartureTime = firstNextStop.departureRealTimestamp;
                     restStationsDiv.innerHTML = '';
                 }
+
                 departureTime = new Date(departureTime);
                 departureTime = departureTime.toLocaleTimeString('pl-PL', { hour: '2-digit', minute: '2-digit' });
+
+                realDepartureTime = new Date(realDepartureTime);
+                realDepartureTime = realDepartureTime.toLocaleTimeString('pl-PL', { hour: '2-digit', minute: '2-digit' });
                 
-                iframe.contentDocument.getElementById('next_station').textContent = `${departureTime} ${firstNextStop.stopNameRAW}`;
+                nextStation.textContent = `${departureTime} ${firstNextStop.stopNameRAW}`;
+                oldDelayTime.innerHTML = `<del>${departureTime}</del> (+${departureDelay})`;
+                newDelayTime.textContent = `${realDepartureTime}`;
+                nextStationDelayName.textContent = `${firstNextStop.stopNameRAW}`;
+
+                if (departureDelay > 3) {
+                    oldDelayTime.style.display = '';
+                } else {
+                    oldDelayTime.style.display = 'none';
+                }
 
                 if (nextStopsList.length > 1) {
                     restStationsDiv.innerHTML = '';
@@ -237,6 +260,16 @@
         }
 
         async function changeValues() {
+            nextStationDelay = iframe.contentDocument.getElementById('next_station_delay');
+            nextStation = iframe.contentDocument.getElementById('next_station');
+
+            if (displayType === 'delay') {
+                nextStationDelay.style.display = '';
+                nextStationDelay.classList.add('currently_displayed');
+                nextStation.style.display = 'none';
+                nextStation.classList.remove('currently_displayed');
+            }
+
             if (!trainNumber || !wagonNumber) {
                 iframe.contentDocument.getElementById('main_display').style.visibility = 'visible';
                 iframe.contentDocument.getElementById('loader_box').style.display = 'none';
@@ -244,9 +277,7 @@
 
                 if (iframe.contentDocument.getElementById('route_box').childElementCount === 0) {
                     console.error('Train or wagon number not provided - displaying template only');
-                    iframe.contentWindow.scrollText();
-                    iframe.contentWindow.dynamicWrapText('route_box');
-                    iframe.contentWindow.overflowRestStations();
+                    applyResponsiveStyles();
                     window.addEventListener('resize', iframe.contentWindow.overflowRestStations);
                 }
 
@@ -267,8 +298,6 @@
                     console.error('Error fetching train data:', error);
                 }
 
-                iframe.contentWindow.overflowRestStations();
-
                 if (!success) {
                     iframe.contentDocument.getElementById('main_display').style.visibility = 'hidden';
                     iframe.contentDocument.getElementById('loader_box').style.display = 'none';
@@ -277,12 +306,19 @@
                     iframe.contentDocument.getElementById('main_display').style.visibility = 'visible';
                     iframe.contentDocument.getElementById('loader_box').style.display = 'none';
 
-                    iframe.contentWindow.scrollText();
-                    iframe.contentWindow.dynamicWrapText('route_box');
+                    applyResponsiveStyles();
                 }
             } else {
                 console.error('iframe.contentDocument is not available yet');
             }
+        }
+
+        function applyResponsiveStyles() {
+            iframe.contentWindow.scrollText();
+            if (iframe.contentDocument.getElementById('route_box').childElementCount === 0) {
+                iframe.contentWindow.dynamicWrapText('route_box');
+            }
+            iframe.contentWindow.overflowRestStations();
         }
 
         iframe.onload = function() {
@@ -293,8 +329,7 @@
         setInterval(setDateAndTime, 1000); // 1 second
         setInterval(setTemperature, 600000); // 10 minutes
         setInterval(changeValues, 15000); // 15 seconds
-        window.addEventListener('resize', iframe.contentWindow.overflowRestStations);
-        window.addEventListener('resize', iframe.contentWindow.scrollText);
+        window.addEventListener('resize', applyResponsiveStyles);
     </script>
 </body>
 

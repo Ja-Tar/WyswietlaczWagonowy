@@ -116,6 +116,29 @@
             margin: 4vh 0;
         }
 
+        #next_station_delay {
+            display: inline-block;
+            font-size: 6vw;
+            text-align: center;
+            line-height: 1.1;
+            color: #fff;
+            margin: 4vh 0;
+        }
+
+        #old_time {
+            color: #ff4400;
+            font-size: 5vw;
+        }
+
+        #old_time::after {
+            content: ' ';
+            font-size: 0;
+        }
+
+        #new_time {
+            color: #02dd02;
+        }
+
         #rest_stations {
             font-size: 2.8vw;
             text-align: center;
@@ -220,13 +243,13 @@
         </div>
         <hr style="margin-bottom: 1vh;">
         <div id="stations_box">
-            <div id="next_station">
+            <div id="next_station" class="currently_displayed">
                 17:44 WARSZAWA CENTRALNA
             </div>
             <div style="display: none;" id="next_station_delay">
-                <span id="old-time">17:44 (+1440)</span>
-                <span id="new-time">17:44</span>
-                <span>WARSZAWA CENTRALNA</span>
+                <span id="old_time"><del>17:44</del> (+1440)</span>
+                <span id="new_time">17:44</span>
+                <span id="next_station_delay_name">WARSZAWA CENTRALNA</span>
             </div>
             <div id="rest_stations">
                 <span>17:50 Warszawa Wschodnia</span>
@@ -325,24 +348,18 @@
         function overflowRestStations() {
             const restStations = document.getElementById('rest_stations');
             const mainDisplay = document.getElementById('main_display');
-            const nextStation = document.getElementById('next_station');
+            const nextStation = document.getElementsByClassName('currently_displayed')[0];
             let fontSize = parseFloat(restStations.style.fontSize.replace('vw', '')) || 2.8; // Ensure fontSize is a number
             let marginSize = parseFloat(nextStation.style.margin.replace('vh 0', '')) || 4; // Ensure marginSize is a number
             
-
-            // Adjust font size as needed
-            while (mainDisplay.scrollHeight > mainDisplay.clientHeight && fontSize > 2) {
-                fontSize -= 0.1;
-                restStations.style.fontSize = `${fontSize}vw`;
-            }
-
+            // First, adjust font size
             while (mainDisplay.scrollHeight <= mainDisplay.clientHeight && fontSize < 2.8) {
                 fontSize += 0.1;
                 restStations.style.fontSize = `${fontSize}vw`;
             }
 
             // Add adjustment of margin if needed
-            while (mainDisplay.scrollHeight > mainDisplay.clientHeight && marginSize > 0 && fontSize <= 2) {
+            while (mainDisplay.scrollHeight > mainDisplay.clientHeight && marginSize > 0.5) {
                 marginSize -= 0.1;
                 nextStation.style.margin = `${marginSize}vh 0`;
             }
@@ -350,6 +367,12 @@
             while (mainDisplay.scrollHeight <= mainDisplay.clientHeight && marginSize < 4) { // Assuming a max margin size
                 marginSize += 0.1;
                 nextStation.style.margin = `${marginSize}vh 0`;
+            }
+
+            // Reduce font size as needed
+            while (mainDisplay.scrollHeight > mainDisplay.clientHeight && fontSize > 2 && marginSize <= 1) {
+                fontSize -= 0.1;
+                restStations.style.fontSize = `${fontSize}vw`;
             }
         }
     </script>

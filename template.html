@@ -218,7 +218,7 @@
         <div id="route_box">
             Warszawa Wschodnia - Wrocław Główny
         </div>
-        <hr>
+        <hr style="margin-bottom: 1vh;">
         <div id="stations_box">
             <div id="next_station">
                 17:44 WARSZAWA CENTRALNA
@@ -264,6 +264,11 @@
         function scrollText() {
             const elements = document.querySelectorAll('.scroll');
 
+            // Remove existing clones and kill GSAP animations
+            gsap.globalTimeline.clear();
+            const clones = document.querySelectorAll('.clone');
+            clones.forEach(clone => clone.remove());
+
             elements.forEach(element => {
                 const parentWidth = element.parentElement.offsetWidth;
                 const textWidth = element.offsetWidth;
@@ -274,6 +279,7 @@
 
                 maxTextLength = 21;
                 addText = '    ';
+                element.textContent = element.textContent.trim();
 
                 if (textLength > maxTextLength) {
                     element.textContent += addText;
@@ -281,11 +287,13 @@
                     // Marquee effect infinite loop
                     const textClone = element.cloneNode(true);
                     textClone.classList.add('clone');
+                    textClone.classList.remove('scroll');
                     element.parentElement.appendChild(textClone);
 
                     // Second clone for the seamless loop
                     const textClone2 = element.cloneNode(true);
                     textClone2.classList.add('clone');
+                    textClone2.classList.remove('scroll');
                     element.parentElement.appendChild(textClone2);
 
                     const texts = gsap.utils.toArray(`#${elementId}`),
@@ -317,16 +325,31 @@
         function overflowRestStations() {
             const restStations = document.getElementById('rest_stations');
             const mainDisplay = document.getElementById('main_display');
-            let fontSize = parseFloat(window.getComputedStyle(restStations).fontSize);
+            const nextStation = document.getElementById('next_station');
+            let fontSize = parseFloat(restStations.style.fontSize.replace('vw', '')) || 2.8; // Ensure fontSize is a number
+            let marginSize = parseFloat(nextStation.style.margin.replace('vh 0', '')) || 4; // Ensure marginSize is a number
+            
 
-            while (mainDisplay.scrollHeight > mainDisplay.clientHeight && fontSize > 1) {
+            // Adjust font size as needed
+            while (mainDisplay.scrollHeight > mainDisplay.clientHeight && fontSize > 2) {
                 fontSize -= 0.1;
                 restStations.style.fontSize = `${fontSize}vw`;
             }
 
-            while (mainDisplay.scrollHeight < mainDisplay.clientHeight && fontSize < 2.8) {
+            while (mainDisplay.scrollHeight <= mainDisplay.clientHeight && fontSize < 2.8) {
                 fontSize += 0.1;
                 restStations.style.fontSize = `${fontSize}vw`;
+            }
+
+            // Add adjustment of margin if needed
+            while (mainDisplay.scrollHeight > mainDisplay.clientHeight && marginSize > 0 && fontSize <= 2) {
+                marginSize -= 0.1;
+                nextStation.style.margin = `${marginSize}vh 0`;
+            }
+
+            while (mainDisplay.scrollHeight <= mainDisplay.clientHeight && marginSize < 4) { // Assuming a max margin size
+                marginSize += 0.1;
+                nextStation.style.margin = `${marginSize}vh 0`;
             }
         }
     </script>

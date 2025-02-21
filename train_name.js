@@ -47,7 +47,7 @@ async function getAPIsForTrainName(apiVersion) {
 }
 
 function getTrainName(trainNumber, stockString, trainCategory) {
-    console.log("Getting train name for:", trainNumber, stockString, trainCategory);
+    //console.log("Getting train name for:", trainNumber, stockString, trainCategory);
 
     let operator = '';
     let trainNumberPrefix = '';
@@ -84,7 +84,7 @@ function getTrainName(trainNumber, stockString, trainCategory) {
         });
 
         operator = mostCommonOperator;
-        console.debug("Most common operator: ", mostCommonOperator);
+        //console.debug("Most common operator: ", mostCommonOperator);
     }
 
     // Train prefix recognition

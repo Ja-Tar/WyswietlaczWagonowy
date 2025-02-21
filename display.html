@@ -238,13 +238,19 @@
 
         async function changeValues() {
             if (!trainNumber || !wagonNumber) {
-                console.error('Train or wagon number not provided - displaying template only');
                 iframe.contentDocument.getElementById('main_display').style.visibility = 'visible';
                 iframe.contentDocument.getElementById('loader_box').style.display = 'none';
-                iframe.contentDocument.getElementById('error_box').style.display = 'flex';
+                //iframe.contentDocument.getElementById('error_box').style.display = 'flex';
 
-                iframe.contentWindow.scrollText();
-                iframe.contentWindow.dynamicWrapText('route_box');
+                if (iframe.contentDocument.getElementById('route_box').childElementCount === 0) {
+                    console.error('Train or wagon number not provided - displaying template only');
+                    iframe.contentWindow.scrollText();
+                    iframe.contentWindow.dynamicWrapText('route_box');
+                    iframe.contentWindow.overflowRestStations();
+                    window.addEventListener('resize', iframe.contentWindow.overflowRestStations);
+                }
+
+                console.log('Update display with template only');
 
                 return;
             }
@@ -262,7 +268,6 @@
                 }
 
                 iframe.contentWindow.overflowRestStations();
-                window.addEventListener('resize', iframe.contentWindow.overflowRestStations);
 
                 if (!success) {
                     iframe.contentDocument.getElementById('main_display').style.visibility = 'hidden';
@@ -288,6 +293,8 @@
         setInterval(setDateAndTime, 1000); // 1 second
         setInterval(setTemperature, 600000); // 10 minutes
         setInterval(changeValues, 15000); // 15 seconds
+        window.addEventListener('resize', iframe.contentWindow.overflowRestStations);
+        window.addEventListener('resize', iframe.contentWindow.scrollText);
     </script>
 </body>
 

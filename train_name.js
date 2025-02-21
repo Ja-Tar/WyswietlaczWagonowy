@@ -23,7 +23,7 @@ window.operatorFullNames = {
 
 async function getAPIsForTrainName(apiVersion) {
     if (localStorage.getItem('apiVersion') === apiVersion && window.operatorConvertData && window.nameCorrectionsData) {
-        console.log("APIs already loaded.");
+        //console.log("APIs already loaded.");
         return;
     }
 
@@ -98,7 +98,7 @@ function getTrainName(trainNumber, stockString, trainCategory) {
             for (let key in prefixObject) {
                 if (trainCategory.startsWith(key)) {
                     trainNumberPrefix = prefixObject[key];
-                    console.debug(`Train with prefix: ${trainNumberPrefix} ${trainNo}`);
+                    //console.debug(`Train with prefix: ${trainNumberPrefix} ${trainNo}`);
                 }
             }
         }

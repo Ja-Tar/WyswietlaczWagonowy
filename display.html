@@ -121,6 +121,11 @@
                 if (data.length > 0) {
                     let train = data.find(train => train.trainNo === parseInt(trainNumber));
                     if (train) {
+                        if (train.stockString === '') {
+                            console.log()
+                        }
+                        console.log('Stock string:', train.stockString);
+
                         let speed = train.speed;
                         currentSpeedDiv.textContent = `${speed} km/h`;
 
@@ -227,12 +232,18 @@
                 newDelayTime.textContent = `${realDepartureTime}`;
                 nextStationDelayName.textContent = `${firstNextStop.stopNameRAW}`;
 
-                if (departureDelay > 3) {
-                    oldDelayTime.style.display = '';
+                if (departureDelay > 3 && displayType === 'delay') {
+                    nextStationDelay.style.display = '';
+                    nextStationDelay.classList.add('currently_displayed');
+                    nextStation.style.display = 'none';
+                    nextStation.classList.remove('currently_displayed');
                 } else {
-                    oldDelayTime.style.display = 'none';
+                    nextStationDelay.style.display = 'none';
+                    nextStationDelay.classList.remove('currently_displayed');
+                    nextStation.style.display = '';
+                    nextStation.classList.add('currently_displayed');
                 }
-
+                    
                 if (nextStopsList.length > 1) {
                     restStationsDiv.innerHTML = '';
                     
@@ -263,12 +274,12 @@
             nextStationDelay = iframe.contentDocument.getElementById('next_station_delay');
             nextStation = iframe.contentDocument.getElementById('next_station');
 
-            if (displayType === 'delay') {
-                nextStationDelay.style.display = '';
-                nextStationDelay.classList.add('currently_displayed');
-                nextStation.style.display = 'none';
-                nextStation.classList.remove('currently_displayed');
-            }
+            //if (displayType === 'delay') {
+            //    nextStationDelay.style.display = '';
+            //    nextStationDelay.classList.add('currently_displayed');
+            //    nextStation.style.display = 'none';
+            //    nextStation.classList.remove('currently_displayed');
+            //}
 
             if (!trainNumber || !wagonNumber) {
                 iframe.contentDocument.getElementById('main_display').style.visibility = 'visible';

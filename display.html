@@ -246,10 +246,10 @@
 
                 let stationOverflow = false;
 
-                if (nextStopsList.length > 10) {
-                    console.warn('Wykryto więcej niż 7 przystanków na trasie');
-                    // get 10 next stops
-                    nextStopsList = nextStopsList.slice(0, 10);
+                if (nextStopsList.length > 5) {
+                    console.warn('Wykryto więcej niż 5 przystanków na trasie');
+                    // TODO: Dodać możliwość zmiany maksymalnej ilości + czy wyświetlać tylko główne stacje
+                    nextStopsList = nextStopsList.slice(0, 5);
                     stationOverflow = true;
                 }
                     

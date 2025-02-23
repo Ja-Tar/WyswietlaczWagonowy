@@ -244,10 +244,13 @@
                     nextStation.classList.add('currently_displayed');
                 }
 
-                if (nextStopsList.length > 31) {
-                    console.warn('Wykryto więcej niż 30 przystanków na trasie');
-                    // get only mainStop = true stops
-                    nextStopsList = nextStopsList.filter(stopPoint => stopPoint.mainStop === true);
+                let stationOverflow = false;
+
+                if (nextStopsList.length > 30) {
+                    console.warn('Wykryto więcej niż 32 przystanków na trasie');
+                    // get 31 next stops
+                    nextStopsList = nextStopsList.slice(0, 30); // Limit to 31 next stops
+                    stationOverflow = true;
                 }
                     
                 if (nextStopsList.length > 1) {
@@ -265,9 +268,10 @@
                         let stopName = stopPoint.stopNameRAW;
                         //stopName = stopName.toLowerCase().split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
                         let stopElement = document.createElement('span');
-                        stopElement.textContent = `${stopTime} ${stopName}` + (index < restStations.length - 1 ? ', ' : '');
+                        stopElement.textContent = `${stopTime} ${stopName}` + (index < restStations.length - 1 ? ', ' : stationOverflow ? '...' : '');
                         restStationsDiv.appendChild(stopElement);
                     });
+
                 } else {
                     restStationsDiv.innerHTML = '';
                 }

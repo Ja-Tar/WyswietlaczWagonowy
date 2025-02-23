@@ -268,7 +268,7 @@
                         let stopName = stopPoint.stopNameRAW;
                         //stopName = stopName.toLowerCase().split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
                         let stopElement = document.createElement('span');
-                        stopElement.textContent = `${stopTime} ${stopName}` + (index < restStations.length - 1 ? ', ' : stationOverflow ? '...' : '');
+                        stopElement.textContent = `${stopTime} ${stopName}` + (index < restStations.length - 1 ? ', ' : ''); // : stationOverflow ? '...' : '');
                         restStationsDiv.appendChild(stopElement);
                     });
 

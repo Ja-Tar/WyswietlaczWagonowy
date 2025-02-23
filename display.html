@@ -243,6 +243,12 @@
                     nextStation.style.display = '';
                     nextStation.classList.add('currently_displayed');
                 }
+
+                if (nextStopsList.length > 31) {
+                    console.warn('Wykryto więcej niż 30 przystanków na trasie');
+                    // get only mainStop = true stops
+                    nextStopsList = nextStopsList.filter(stopPoint => stopPoint.mainStop === true);
+                }
                     
                 if (nextStopsList.length > 1) {
                     restStationsDiv.innerHTML = '';

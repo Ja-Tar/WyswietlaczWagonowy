@@ -1,5 +1,5 @@
-window.nameCorrectionsAPI_URL = "https://raw.githubusercontent.com/Thundo54/tablice-td2-api/master/namesCorrections.json";
-window.operatorConvertAPI_URL = 'https://raw.githubusercontent.com/Thundo54/tablice-td2-api/master/operatorConvert.json';
+window.nameCorrectionsAPI_URL = "https://raw.githubusercontent.com/Ja-Tar/tablice-td2-api/master/namesCorrections.json";
+window.operatorConvertAPI_URL = 'https://raw.githubusercontent.com/Ja-Tar/tablice-td2-api/master/operatorConvert.json';
 
 window.trainCategory = {
     "E": ['EI', 'EC', 'EN'],

@@ -1,5 +1,5 @@
-window.nameCorrectionsAPI_URL = "https://raw.githubusercontent.com/Thundo54/tablice-td2-api/master/namesCorrections.json";
-window.operatorConvertAPI_URL = 'https://raw.githubusercontent.com/Thundo54/tablice-td2-api/master/operatorConvert.json';
+window.nameCorrectionsAPI_URL = "https://raw.githubusercontent.com/Ja-Tar/tablice-td2-api/master/namesCorrections.json";
+window.operatorConvertAPI_URL = 'https://raw.githubusercontent.com/Ja-Tar/tablice-td2-api/master/operatorConvert.json';
 
 window.trainCategory = {
     "E": ['EI', 'EC', 'EN'],
@@ -116,7 +116,7 @@ function getTrainName(trainNumber, stockString, trainCategory) {
                 if (trainNoIs[k] === trainNo.toString()) {
                     operator = trainNameData.operator;
                     endTrainName = trainNameData.trainName;
-                    trainNumberPrefix = trainNameData.operator;
+                    trainNumberPrefix = trainNameData.categoryOverwrite;
 
                     console.debug(`Name: ${endTrainName}, Operator: ${operator}, Number: ${trainNumberPrefix} ${trainNo}`);
                     break;

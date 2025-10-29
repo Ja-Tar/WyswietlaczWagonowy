@@ -116,7 +116,7 @@ function getTrainName(trainNumber, stockString, trainCategory) {
                 if (trainNoIs[k] === trainNo.toString()) {
                     operator = trainNameData.operator;
                     endTrainName = trainNameData.trainName;
-                    trainNumberPrefix = trainNameData.categoryOverwrite;
+                    trainNumberPrefix = trainNameData.operator;
 
                     console.debug(`Name: ${endTrainName}, Operator: ${operator}, Number: ${trainNumberPrefix} ${trainNo}`);
                     break;

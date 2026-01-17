@@ -36,7 +36,7 @@
         const trainNumber = urlParams.get('train');
         const wagonNumber = urlParams.get('wagon');
         const displayType = urlParams.get('type');
-        const iframe = document.querySelector('#container'); 
+        const iframe = document.querySelector('#container');
 
         function resizeIframe() {
             const scale = Math.min(window.innerWidth / 1920, window.innerHeight / 1050);
@@ -136,7 +136,7 @@
                         let route = train.timetable.route.split('|'); // before split: DOBRZYNIEC|Wielichowo Główne
                         route = route.map(station => station.toLowerCase().split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' '));
                         iframe.contentDocument.getElementById('route_box').textContent = route.join(' - ');
-                        
+
                         setRouteStations(train.timetable.stopList); // Pass correct stopPoints to the setRouteStations function
                         return true;
                     } else {
@@ -173,7 +173,7 @@
         }
 
         function setRouteStations(stopPoints) {
-            let nextStopsList = []; 
+            let nextStopsList = [];
 
             stopPoints.forEach(stopPoint => {
                 if (stopPoint.confirmed === 0) {
@@ -209,7 +209,7 @@
                 const newDelayTime = iframe.contentDocument.getElementById('new_time');
                 const nextStationDelayName = iframe.contentDocument.getElementById('next_station_delay_name');
 
-                let firstNextStop = nextStopsList[0]; 
+                let firstNextStop = nextStopsList[0];
                 //console.log('First next stop:', firstNextStop); 
                 let departureTime = firstNextStop.arrivalTimestamp;
                 let departureDelay = firstNextStop.arrivalDelay;
@@ -226,7 +226,7 @@
 
                 realDepartureTime = new Date(realDepartureTime);
                 realDepartureTime = realDepartureTime.toLocaleTimeString('pl-PL', { hour: '2-digit', minute: '2-digit' });
-                
+
                 nextStation.textContent = `${departureTime} ${firstNextStop.stopNameRAW}`;
                 oldDelayTime.innerHTML = `<del>${departureTime}</del> (+${departureDelay})`;
                 newDelayTime.textContent = `${realDepartureTime}`;
@@ -252,10 +252,10 @@
                     nextStopsList = nextStopsList.slice(0, 5);
                     stationOverflow = true;
                 }
-                    
+
                 if (nextStopsList.length > 1) {
                     restStationsDiv.innerHTML = '';
-                    
+
                     let restStations = nextStopsList.slice(1);
 
                     restStations.forEach((stopPoint, index) => {
@@ -342,7 +342,7 @@
             iframe.contentWindow.overflowRestStations();
         }
 
-        iframe.onload = function() {
+        iframe.onload = function () {
             changeValues();
             setTemperature();
         }

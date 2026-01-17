@@ -5,6 +5,15 @@ document.getElementById('input_box').addEventListener('keydown', function (e) {
     }
 });
 
+function setInvalidStyle(element) {
+    element.style.borderColor = 'red';
+    element.style.backgroundColor = 'rgba(255, 0, 0, 0.3)';
+    setTimeout(() => {
+        element.style.backgroundColor = '';
+        element.style.borderColor = '';
+    }, 2000);
+}
+
 document.getElementById('submit').addEventListener('click', function () {
     const trainNumber = document.getElementById('train_number');
     const wagonNumber = document.getElementById('wagon_number');
@@ -16,15 +25,6 @@ document.getElementById('submit').addEventListener('click', function () {
     if (trainNumberValue && wagonNumberValue) {
         window.location.href = `display.html?train=${trainNumberValue}&wagon=${wagonNumberValue}&type=${displayTypeValue}`;
     } else {
-        function setInvalidStyle(element) {
-            element.style.borderColor = 'red';
-            element.style.backgroundColor = 'rgba(255, 0, 0, 0.3)';
-            setTimeout(() => {
-                element.style.backgroundColor = '';
-                element.style.borderColor = '';
-            }, 2000);
-        }
-
         if (!trainNumberValue) setInvalidStyle(trainNumber);
         if (!wagonNumberValue) setInvalidStyle(wagonNumber);
     }

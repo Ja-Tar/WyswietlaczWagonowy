@@ -1,3 +1,33 @@
+// API DEFINITIONS: 
+
+/** 
+ * @typedef {object} StopPoint
+ * @property {string} stopName
+ * @property {string} stopNameRAW
+ * @property {string} stopType
+ * @property {number} stopDistance
+ * @property {string} pointId
+ * @property {null} comments
+ * @property {boolean} mainStop
+ * @property {string} arrivalLine
+ * @property {number} arrivalTimestamp
+ * @property {number} arrivalRealTimestamp
+ * @property {number} arrivalDelay
+ * @property {string} departureLine
+ * @property {number} departureTimestamp
+ * @property {number} departureRealTimestamp
+ * @property {number} departureDelay
+ * @property {boolean} beginsHere
+ * @property {boolean} terminatesHere
+ * @property {number} confirmed
+ * @property {number} stopped
+ * @property {number} stopTime
+ * @property {string} stationName
+ * @property {string} stationHash
+ */
+
+// ===============================
+
 // Change version on API update
 const apiVersion = '1';
 
@@ -5,8 +35,8 @@ const urlParams = new URLSearchParams(window.location.search);
 const trainNumber = urlParams.get('train');
 const wagonNumber = urlParams.get('wagon');
 const displayType = urlParams.get('type');
+/** @type {HTMLIFrameElement} */
 const iframe = document.querySelector('#container');
-const iframeContent = iframe.contentDocument;
 
 function resizeIframe() {
     const scale = Math.min(window.innerWidth / 1920, window.innerHeight / 1050);
@@ -31,11 +61,11 @@ fetch(templateUrl, options)
     });
 
 function setDateAndTime() {
-    if (!iframeContent) throw new TypeError();
-    let dateDiv = iframeContent.getElementById('date');
-    let minDiv = iframeContent.getElementById('min');
-    let colonDiv = iframeContent.getElementById('colon');
-    let secDiv = iframeContent.getElementById('sec');
+    if (!iframe.contentDocument) throw new TypeError();
+    let dateDiv = iframe.contentDocument.getElementById('date');
+    let minDiv = iframe.contentDocument.getElementById('min');
+    let colonDiv = iframe.contentDocument.getElementById('colon');
+    let secDiv = iframe.contentDocument.getElementById('sec');
 
     let date = new Date();
     let hours = date.getHours();
@@ -55,7 +85,7 @@ function setDateAndTime() {
 }
 
 async function setTemperature() {
-    let temperatureDiv = iframeContent.getElementById('temperature');
+    let temperatureDiv = iframe.contentDocument.getElementById('temperature');
 
     let url = 'https://api.td2.info.pl/?method=getWeather';
 
@@ -77,7 +107,7 @@ async function setTemperature() {
 }
 
 async function setDataFromStacjownik() {
-    let currentSpeedDiv = iframeContent.getElementById('current_speed');
+    let currentSpeedDiv = iframe.contentDocument.getElementById('current_speed');
 
     let url = "https://stacjownik.spythere.eu/api/getActiveTrainList";
 
@@ -99,12 +129,12 @@ async function setDataFromStacjownik() {
                 currentSpeedDiv.textContent = `${speed} km/h`;
 
                 let trainNameString = getTrainName(trainNumber, train.stockString, train.timetable.category);
-                iframeContent.getElementById('train_name').textContent = trainNameString;
+                iframe.contentDocument.getElementById('train_name').textContent = trainNameString;
                 document.title = `Wagon ${wagonNumber} - ${trainNameString}`;
 
                 let route = train.timetable.route.split('|'); // before split: DOBRZYNIEC|Wielichowo Główne
                 route = route.map(station => station.toLowerCase().split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' '));
-                iframeContent.getElementById('route_box').textContent = route.join(' - ');
+                iframe.contentDocument.getElementById('route_box').textContent = route.join(' - ');
 
                 setRouteStations(train.timetable.stopList); // Pass correct stopPoints to the setRouteStations function
                 return true;
@@ -126,6 +156,10 @@ async function setDataFromStacjownik() {
     }
 }
 
+/**
+ * @param {StopPoint[]} stopPoints 
+ * @returns 
+ */
 function formatStopsName(stopPoints) {
     stopPoints.forEach(stopPoint => {
         let formattedStopName = stopPoint.stopNameRAW;
@@ -141,7 +175,11 @@ function formatStopsName(stopPoints) {
     return stopPoints;
 }
 
+/**
+ * @param {StopPoint[]} stopPoints 
+ */
 function setRouteStations(stopPoints) {
+    /** @type {StopPoint[]} */
     let nextStopsList = [];
 
     stopPoints.forEach(stopPoint => {
@@ -150,7 +188,7 @@ function setRouteStations(stopPoints) {
         }
     });
 
-    nextStopsList = nextStopsList.filter(stopPoint => stopPoint.stopType === 'ph' || stopPoint.beginsHere === true || stopPoint.terminatesHere === true);
+    nextStopsList = nextStopsList.filter(stopPoint => stopPoint.stopType.includes('ph') || stopPoint.beginsHere === true || stopPoint.terminatesHere === true);
 
     nextStopsList = formatStopsName(nextStopsList);
 
@@ -171,12 +209,12 @@ function setRouteStations(stopPoints) {
 
     // get first next stop
     if (nextStopsList.length > 0) {
-        let restStationsDiv = iframeContent.getElementById('rest_stations');
-        const nextStation = iframeContent.getElementById('next_station');
-        const nextStationDelay = iframeContent.getElementById('next_station_delay');
-        const oldDelayTime = iframeContent.getElementById('old_time');
-        const newDelayTime = iframeContent.getElementById('new_time');
-        const nextStationDelayName = iframeContent.getElementById('next_station_delay_name');
+        let restStationsDiv = iframe.contentDocument.getElementById('rest_stations');
+        const nextStation = iframe.contentDocument.getElementById('next_station');
+        const nextStationDelay = iframe.contentDocument.getElementById('next_station_delay');
+        const oldDelayTime = iframe.contentDocument.getElementById('old_time');
+        const newDelayTime = iframe.contentDocument.getElementById('new_time');
+        const nextStationDelayName = iframe.contentDocument.getElementById('next_station_delay_name');
 
         let firstNextStop = nextStopsList[0];
         //console.log('First next stop:', firstNextStop); 
@@ -250,8 +288,8 @@ function setRouteStations(stopPoints) {
 }
 
 async function changeValues() {
-    nextStationDelay = iframeContent.getElementById('next_station_delay');
-    nextStation = iframeContent.getElementById('next_station');
+    nextStationDelay = iframe.contentDocument.getElementById('next_station_delay');
+    nextStation = iframe.contentDocument.getElementById('next_station');
 
     //if (displayType === 'delay') {
     //    nextStationDelay.style.display = '';
@@ -261,11 +299,11 @@ async function changeValues() {
     //}
 
     if (!trainNumber || !wagonNumber) {
-        iframeContent.getElementById('main_display').style.visibility = 'visible';
-        iframeContent.getElementById('loader_box').style.display = 'none';
-        //iframeContent.getElementById('error_box').style.display = 'flex';
+        iframe.contentDocument.getElementById('main_display').style.visibility = 'visible';
+        iframe.contentDocument.getElementById('loader_box').style.display = 'none';
+        //iframe.contentDocument.getElementById('error_box').style.display = 'flex';
 
-        if (iframeContent.getElementById('route_box').childElementCount === 0) {
+        if (iframe.contentDocument.getElementById('route_box').childElementCount === 0) {
             console.error('Train or wagon number not provided - displaying template only');
             applyResponsiveStyles();
             window.addEventListener('resize', iframe.contentWindow.overflowRestStations);
@@ -276,9 +314,9 @@ async function changeValues() {
         return;
     }
 
-    if (iframeContent) {
+    if (iframe.contentDocument) {
         await getAPIsForTrainName(apiVersion);
-        iframeContent.getElementById('carriage_number').textContent = wagonNumber;
+        iframe.contentDocument.getElementById('carriage_number').textContent = wagonNumber;
 
         let success = false;
 
@@ -289,23 +327,23 @@ async function changeValues() {
         }
 
         if (!success) {
-            iframeContent.getElementById('main_display').style.visibility = 'hidden';
-            iframeContent.getElementById('loader_box').style.display = 'none';
-            iframeContent.getElementById('error_box').style.display = 'flex';
+            iframe.contentDocument.getElementById('main_display').style.visibility = 'hidden';
+            iframe.contentDocument.getElementById('loader_box').style.display = 'none';
+            iframe.contentDocument.getElementById('error_box').style.display = 'flex';
         } else {
-            iframeContent.getElementById('main_display').style.visibility = 'visible';
-            iframeContent.getElementById('loader_box').style.display = 'none';
+            iframe.contentDocument.getElementById('main_display').style.visibility = 'visible';
+            iframe.contentDocument.getElementById('loader_box').style.display = 'none';
 
             applyResponsiveStyles();
         }
     } else {
-        console.error('iframeContent is not available yet');
+        console.error('iframe.contentDocument is not available yet');
     }
 }
 
 function applyResponsiveStyles() {
     iframe.contentWindow.scrollText();
-    if (iframeContent.getElementById('route_box').childElementCount === 0) {
+    if (iframe.contentDocument.getElementById('route_box').childElementCount === 0) {
         iframe.contentWindow.dynamicWrapText('route_box');
     }
     iframe.contentWindow.overflowRestStations();

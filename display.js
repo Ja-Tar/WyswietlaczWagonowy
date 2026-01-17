@@ -6,6 +6,7 @@ const trainNumber = urlParams.get('train');
 const wagonNumber = urlParams.get('wagon');
 const displayType = urlParams.get('type');
 const iframe = document.querySelector('#container');
+const iframeContent = iframe.contentDocument;
 
 function resizeIframe() {
     const scale = Math.min(window.innerWidth / 1920, window.innerHeight / 1050);
@@ -23,19 +24,18 @@ const options = { method: 'GET', headers: { 'Cache-Control': 'public' } };
 fetch(templateUrl, options)
     .then(response => response.text())
     .then(data => {
-        iframe.contentDocument.open();
-        iframe.contentDocument.write(data);
-        iframe.contentDocument.close();
+        iframe.srcdoc = data;
     })
     .catch(error => {
         console.error('Error fetching template:', error);
     });
 
 function setDateAndTime() {
-    let dateDiv = iframe.contentDocument.getElementById('date');
-    let minDiv = iframe.contentDocument.getElementById('min');
-    let colonDiv = iframe.contentDocument.getElementById('colon');
-    let secDiv = iframe.contentDocument.getElementById('sec');
+    if (!iframeContent) throw new TypeError();
+    let dateDiv = iframeContent.getElementById('date');
+    let minDiv = iframeContent.getElementById('min');
+    let colonDiv = iframeContent.getElementById('colon');
+    let secDiv = iframeContent.getElementById('sec');
 
     let date = new Date();
     let hours = date.getHours();
@@ -55,7 +55,7 @@ function setDateAndTime() {
 }
 
 async function setTemperature() {
-    let temperatureDiv = iframe.contentDocument.getElementById('temperature');
+    let temperatureDiv = iframeContent.getElementById('temperature');
 
     let url = 'https://api.td2.info.pl/?method=getWeather';
 
@@ -77,7 +77,7 @@ async function setTemperature() {
 }
 
 async function setDataFromStacjownik() {
-    let currentSpeedDiv = iframe.contentDocument.getElementById('current_speed');
+    let currentSpeedDiv = iframeContent.getElementById('current_speed');
 
     let url = "https://stacjownik.spythere.eu/api/getActiveTrainList";
 
@@ -99,12 +99,12 @@ async function setDataFromStacjownik() {
                 currentSpeedDiv.textContent = `${speed} km/h`;
 
                 let trainNameString = getTrainName(trainNumber, train.stockString, train.timetable.category);
-                iframe.contentDocument.getElementById('train_name').textContent = trainNameString;
+                iframeContent.getElementById('train_name').textContent = trainNameString;
                 document.title = `Wagon ${wagonNumber} - ${trainNameString}`;
 
                 let route = train.timetable.route.split('|'); // before split: DOBRZYNIEC|Wielichowo Główne
                 route = route.map(station => station.toLowerCase().split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' '));
-                iframe.contentDocument.getElementById('route_box').textContent = route.join(' - ');
+                iframeContent.getElementById('route_box').textContent = route.join(' - ');
 
                 setRouteStations(train.timetable.stopList); // Pass correct stopPoints to the setRouteStations function
                 return true;
@@ -171,12 +171,12 @@ function setRouteStations(stopPoints) {
 
     // get first next stop
     if (nextStopsList.length > 0) {
-        let restStationsDiv = iframe.contentDocument.getElementById('rest_stations');
-        const nextStation = iframe.contentDocument.getElementById('next_station');
-        const nextStationDelay = iframe.contentDocument.getElementById('next_station_delay');
-        const oldDelayTime = iframe.contentDocument.getElementById('old_time');
-        const newDelayTime = iframe.contentDocument.getElementById('new_time');
-        const nextStationDelayName = iframe.contentDocument.getElementById('next_station_delay_name');
+        let restStationsDiv = iframeContent.getElementById('rest_stations');
+        const nextStation = iframeContent.getElementById('next_station');
+        const nextStationDelay = iframeContent.getElementById('next_station_delay');
+        const oldDelayTime = iframeContent.getElementById('old_time');
+        const newDelayTime = iframeContent.getElementById('new_time');
+        const nextStationDelayName = iframeContent.getElementById('next_station_delay_name');
 
         let firstNextStop = nextStopsList[0];
         //console.log('First next stop:', firstNextStop); 
@@ -250,8 +250,8 @@ function setRouteStations(stopPoints) {
 }
 
 async function changeValues() {
-    nextStationDelay = iframe.contentDocument.getElementById('next_station_delay');
-    nextStation = iframe.contentDocument.getElementById('next_station');
+    nextStationDelay = iframeContent.getElementById('next_station_delay');
+    nextStation = iframeContent.getElementById('next_station');
 
     //if (displayType === 'delay') {
     //    nextStationDelay.style.display = '';
@@ -261,11 +261,11 @@ async function changeValues() {
     //}
 
     if (!trainNumber || !wagonNumber) {
-        iframe.contentDocument.getElementById('main_display').style.visibility = 'visible';
-        iframe.contentDocument.getElementById('loader_box').style.display = 'none';
-        //iframe.contentDocument.getElementById('error_box').style.display = 'flex';
+        iframeContent.getElementById('main_display').style.visibility = 'visible';
+        iframeContent.getElementById('loader_box').style.display = 'none';
+        //iframeContent.getElementById('error_box').style.display = 'flex';
 
-        if (iframe.contentDocument.getElementById('route_box').childElementCount === 0) {
+        if (iframeContent.getElementById('route_box').childElementCount === 0) {
             console.error('Train or wagon number not provided - displaying template only');
             applyResponsiveStyles();
             window.addEventListener('resize', iframe.contentWindow.overflowRestStations);
@@ -276,9 +276,9 @@ async function changeValues() {
         return;
     }
 
-    if (iframe.contentDocument) {
+    if (iframeContent) {
         await getAPIsForTrainName(apiVersion);
-        iframe.contentDocument.getElementById('carriage_number').textContent = wagonNumber;
+        iframeContent.getElementById('carriage_number').textContent = wagonNumber;
 
         let success = false;
 
@@ -289,23 +289,23 @@ async function changeValues() {
         }
 
         if (!success) {
-            iframe.contentDocument.getElementById('main_display').style.visibility = 'hidden';
-            iframe.contentDocument.getElementById('loader_box').style.display = 'none';
-            iframe.contentDocument.getElementById('error_box').style.display = 'flex';
+            iframeContent.getElementById('main_display').style.visibility = 'hidden';
+            iframeContent.getElementById('loader_box').style.display = 'none';
+            iframeContent.getElementById('error_box').style.display = 'flex';
         } else {
-            iframe.contentDocument.getElementById('main_display').style.visibility = 'visible';
-            iframe.contentDocument.getElementById('loader_box').style.display = 'none';
+            iframeContent.getElementById('main_display').style.visibility = 'visible';
+            iframeContent.getElementById('loader_box').style.display = 'none';
 
             applyResponsiveStyles();
         }
     } else {
-        console.error('iframe.contentDocument is not available yet');
+        console.error('iframeContent is not available yet');
     }
 }
 
 function applyResponsiveStyles() {
     iframe.contentWindow.scrollText();
-    if (iframe.contentDocument.getElementById('route_box').childElementCount === 0) {
+    if (iframeContent.getElementById('route_box').childElementCount === 0) {
         iframe.contentWindow.dynamicWrapText('route_box');
     }
     iframe.contentWindow.overflowRestStations();

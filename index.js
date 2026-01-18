@@ -35,7 +35,7 @@ function validateRequiredFields(element) {
     return true;
 }
 
-document.getElementById('submit').addEventListener('click', function () {
+function navigateToDisplay() {
     const inputBox = document.getElementById("input_box");
     const trainNumber = document.getElementById('train_number');
     const wagonNumber = document.getElementById('wagon_number');
@@ -47,9 +47,9 @@ document.getElementById('submit').addEventListener('click', function () {
     if (validateRequiredFields(inputBox)) {
         window.location.href = `display.html?train=${trainNumberValue}&wagon=${wagonNumberValue}&type=${displayTypeValue}`;
     }
-});
+}
 
-document.getElementById('settings').addEventListener('click', function () {
+function toggleSettingsDiv() {
     const settingsDiv = document.getElementById('settings_div');
     if (settingsDiv.classList.contains('show')) {
         settingsDiv.style.maxHeight = '0';
@@ -61,4 +61,7 @@ document.getElementById('settings').addEventListener('click', function () {
         settingsDiv.style.padding = '2vh 2vw';
     }
     settingsDiv.classList.toggle('show');
-});
+}
+
+document.getElementById('submit').addEventListener('click', navigateToDisplay);
+document.getElementById('settings').addEventListener('click', toggleSettingsDiv);

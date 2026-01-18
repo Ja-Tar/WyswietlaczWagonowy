@@ -16,8 +16,34 @@ function validateField(parm_event, regex) {
     let text = "";
 
     if (isPasted) {
-        // TODO Finish function!!!
+        text = parm_event.clipboardData.getData('Text');
+        console.log(text);
     }
+}
+
+function setupValidation() {
+    const fields = document.querySelectorAll("input:not([type='checkbox'])");
+    fields.forEach(element => {
+        addCorrectValidation(element);
+    });
+}
+
+/**
+ * @param {HTMLInputElement} element 
+ */
+function addCorrectValidation(element) {
+    if (element.type === "number") {
+        element.addEventListener("paste", validateNumberField);
+        element.addEventListener("keyup", validateNumberField);
+    }
+}
+
+/**
+ * @param {Event} parm_event 
+ */
+function validateNumberField(parm_event) {
+    const numberOnlyRegex = /a/gm;
+    validateField(parm_event, numberOnlyRegex);
 }
 
 function setInvalidStyle(element) {
@@ -58,3 +84,5 @@ document.getElementById('settings').addEventListener('click', function () {
     }
     settingsDiv.classList.toggle('show');
 });
+
+setupValidation();

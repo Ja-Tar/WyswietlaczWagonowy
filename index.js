@@ -73,3 +73,19 @@ function submitOnEnter(e) {
 document.getElementById('input_box').addEventListener('keydown', submitOnEnter);
 document.getElementById('submit').addEventListener('click', navigateToDisplay);
 document.getElementById('settings').addEventListener('click', toggleSettingsDiv);
+
+// THEME CHANGES
+
+/**
+ * @param {string | null} themeName 
+ */
+function selectTheme(themeName) {
+    if (themeName) {
+        document.documentElement.dataset.companyTheme = themeName;
+    }
+}
+
+const companyThemeSelect = document.getElementById("company-theme");
+
+selectTheme(companyThemeSelect.value)
+companyThemeSelect.addEventListener("change", (ev) => selectTheme(ev.target.value))

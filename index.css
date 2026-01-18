@@ -1,13 +1,15 @@
-:root {
+:root[data-company-theme="ic"] {
     --company-color: #002366;
     --company-select-color: #0038a191;
     --invalid-background: #aa090980;
     --invalid-border: #dd0000;
 }
 
-:root[data-company-theme="regio"] {
+:root[data-company-theme="pr"] {
     --company-color: #8d1519;
     --company-select-color: #b31a1f91;
+    --invalid-background: #b2c50181;
+    --invalid-border: #FFD100;
 }
 
 body {
@@ -59,11 +61,14 @@ body {
     color: #fff;
     text-align: center;
     width: 100%;
+    margin: 3px;
 }
 
 .options_box > input:invalid, .options_box > select:invalid {
     background-color: var(--invalid-background);
     border-color: var(--invalid-border);
+    border-width: 4px;
+    margin: 0;
 }
 
 .options_box > input[type="checkbox"] {
@@ -137,15 +142,21 @@ body {
     font-size: 1.5em;
 }
 
+
+@media (max-width: 1000px) {
+    body {
+        font-size: 1.5vw;
+    }
+}
+
 @media (max-width: 700px) {
     body {
         font-size: 2.5vw;
     }
 }
 
-
-@media (max-width: 1000px) {
+@media (max-width: 400px) {
     body {
-        font-size: 1.5vw;
+        font-size: 3vw;
     }
 }

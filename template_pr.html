@@ -5,12 +5,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Wyświetlacz Wagonowy TD2</title>
-    <link rel="stylesheet" href="static/VeranaSans/stylesheet.css">
     <link rel="stylesheet" href="template_pr.css">
     <link rel="stylesheet" href="overlays.css">
 </head>
 
 <body>
+    <div id="top_bar"></div>
     <div id="main_display">
 
     </div>
@@ -20,6 +20,14 @@
     <div id="loader_box">
         <img src="static/loaders/oval_black.svg" alt="loader">
     </div>
+    <div id="bottom_bar">
+        <img id="logo" src="static/TD2R.svg" alt="logo">
+        <div id="current_speed_box">
+            <div id="current_speed_label">Prędkość:</div>
+            <div id="current_speed">0 km/h</div>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.1/dist/gsap.min.js"></script>
     <script src="api/gasp_simless_loop.js"></script>
     <script src="template_pr.js"></script>

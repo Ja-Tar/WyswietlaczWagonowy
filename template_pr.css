@@ -1,7 +1,16 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@100..900&display=swap');
+
 body {
     margin: 0;
     padding: 4vh 2vw;
-    font-family: 'Verana Sans', Arial, sans-serif;
+
+    font-family: 'Roboto', Arial, sans-serif;
+    font-optical-sizing: auto;
+    font-weight: bold;
+    font-style: normal;
+    font-variation-settings:
+    "wdth" 100;
+
     line-height: 1;
     background-color: #fff;
     color: #fff;
@@ -29,4 +38,41 @@ OR
     gap: 1vh;
     visibility: hidden;
     flex: 1;
+}
+
+#bottom_bar {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: space-between;
+    background-color: #cccccc;
+    color: #0a2d41;
+    padding-right: 0.3vw;
+    padding-left: 4vw;
+    font-weight: normal;
+}
+
+#current_speed_box {
+    display: flex;
+    flex-direction: column;
+    gap: 1vh;
+    align-items: flex-end;
+    justify-content: space-around;
+}
+
+#current_speed_label {
+    font-size: 1.9vw;
+}
+
+#current_speed {
+    font-size: 3.6vw;
+    line-height: 0.8;
+}
+
+#logo {
+    align-self: center;
+    width: 15vw;
+    padding: 1vh 0;
 }

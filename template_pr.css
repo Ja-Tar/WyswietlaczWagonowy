@@ -40,6 +40,10 @@ OR
     flex: 1;
 }
 
+#loader_box {
+    top: 57% !important;
+}
+
 #bottom_bar {
     position: absolute;
     bottom: 0;
@@ -80,9 +84,8 @@ OR
 #top_bar {
     width: 100%;
     height: 14vw;
-    padding: 0.1vh;
-    display: flex;
-    justify-content: space-between;
+    display: grid;
+    grid-template-columns: 25% auto 27%;
     background-color: #d41541;
 }
 
@@ -115,4 +118,52 @@ OR
     /* TODO: size should change when longer names */
     font-size: 4vw;
     font-weight: 300;
+}
+
+#station_box {
+    background-color: #696969;
+    display: grid;
+    grid-template-rows: 3vw auto;
+    padding: 1vh 0.2vw;
+}
+
+#station_label {
+    font-size: 2.5vw;
+    font-weight: 400;
+}
+
+#station {
+    font-size: 5.8vw;
+    font-weight: 600;
+    align-self: center;
+}
+
+#date_time_box {
+    display: grid;
+    justify-items: right;
+    grid-template:
+        "label" min-content
+        "weekday" min-content
+        "." auto
+        "time" min-content;
+    padding-right: 0.2vw;
+}
+
+#date {
+    grid-area: label;
+    font-size: 2.3vw;
+    font-weight: 400;
+    margin-bottom: 1vw;
+}
+
+#weekday_name {
+    grid-area: weekday;
+    font-size: 2.3vw;
+    font-weight: 400;
+}
+
+#time {
+    grid-area: time;
+    font-size: 5vw;
+    font-weight: 400;
 }

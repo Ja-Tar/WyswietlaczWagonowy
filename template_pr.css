@@ -1,0 +1,32 @@
+body {
+    margin: 0;
+    padding: 4vh 2vw;
+    font-family: 'Verana Sans', Arial, sans-serif;
+    line-height: 1;
+    background-color: #fff;
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    overflow: hidden;
+    height: 100vh;
+}
+
+/* main colors
+#d41541
+OR
+#8d1519
+*/
+
+#main_display {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1vh;
+    visibility: hidden;
+    flex: 1;
+}

@@ -5,6 +5,21 @@ document.getElementById('input_box').addEventListener('keydown', function (e) {
     }
 });
 
+/**
+ * 
+ * @param {Event} parm_event 
+ * @param {RegExp} regex 
+ */
+function validateField(parm_event, regex) {
+    const inputField = parm_event.target;
+    const isPasted = parm_event.type === "paste";
+    let text = "";
+
+    if (isPasted) {
+        // TODO Finish function!!!
+    }
+}
+
 function setInvalidStyle(element) {
     element.style.borderColor = 'red';
     element.style.backgroundColor = 'rgba(255, 0, 0, 0.3)';

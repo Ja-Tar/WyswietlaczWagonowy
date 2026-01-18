@@ -1,6 +1,7 @@
 body {
     margin: 0;
     font-family: 'Verana Sans', Arial, sans-serif;
+    font-size: 1vw;
     background-color: #002366;
     color: #fff;
     display: flex;
@@ -14,51 +15,54 @@ body {
     flex-direction: column;
     align-items: center;
     gap: 0.7em;
-    margin-top: 10vh;
-    padding: 2vw;
+    margin-top: 8vh;
+    padding: 1.5em;
     background-color: rgba(255, 255, 255, 0.1);
     border-radius: 10px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
     box-sizing: border-box;
 }
 
-#train_div,
-#wagon_div {
-    display: flex;
+.options_box {
+    display: grid;
     align-items: center;
-    width: 100%;
-    justify-content: space-between;
+    justify-items: center;
+    row-gap: 0.7em;
+    column-gap: 2em;
 }
 
-#train_div label,
-#wagon_div label {
-    font-size: 1.8vw;
-    margin-bottom: 0;
-    margin-right: 1em;
+.options_box > label {
+    grid-column: 1;
+    font-size: 1.8em;
     white-space: nowrap;
 }
 
-#train_number,
-#wagon_number {
-    font-size: 2vw;
-    padding: 0.5vh;
+.options_box > input, .options_box > select  {
+    grid-column: 2;
+    font-size: 2em;
+    padding: 0.15em;
     border-radius: 5px;
     border: 1px solid #fff;
     background-color: rgba(255, 255, 255, 0.3);
     color: #fff;
-    width: 40%;
     text-align: center;
+    width: 100%;
 }
 
-#buttons_div {
+.options_box > input[type="checkbox"] {
+    height: 1em;
+    width: 1em;
+}
+
+.button_box {
     display: flex;
-    gap: 1vw;
+    gap: 1em;
 }
 
 .button {
     display: flex;
-    font-size: 2vw;
-    padding: 0.5vw;
+    font-size: 2em;
+    padding: 0.25em;
     background-color: #fff;
     color: #002366;
     border: none;
@@ -73,21 +77,22 @@ body {
     color: #fff;
 }
 
-#settings_label {
-    font-size: 2vw;
+#settings_name {
+    font-size: 2.4em;
     font-weight: bold;
 }
 
-#settings img {
-    width: 2.5vw;
-    height: 2.5vw;
+.button img {
+    width: 1.25em;
+    height: 1.25em;
 }
 
 #settings_div {
     display: flex;
+    font-size: 0.85em;
     flex-direction: column;
     align-items: center;
-    gap: 1vh;
+    gap: 1em;
     background-color: rgba(255, 255, 255, 0.1);
     border-radius: 10px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
@@ -95,84 +100,28 @@ body {
     overflow: hidden;
     transition: max-height 0.5s ease-in-out, padding 0.5s ease-in-out, opacity 0.5s ease-in-out;
     opacity: 0;
-    padding: 0 2vw;
+    padding: 0 2em;
 }
 
 #settings_div.show {
     max-height: 100vh;
     opacity: 1;
-    padding: 2vh 2vw;
-}
-
-.checkbox_div {
-    display: flex;
-    align-items: center;
-    width: 100%;
-    justify-content: center;
-    padding: 1vh 0;
+    padding: 2em 2em;
 }
 
 .checkbox_div label {
-    font-size: 1.5vw;
-    margin-bottom: 0;
-    margin-right: 1vw;
+    font-size: 1.5em;
 }
 
-#delay {
-    margin-left: 1vw;
-    align-self: start;
-    height: 2vw;
-    width: 2vw;
-}
-
-@media (max-width: 600px) {
+@media (max-width: 700px) {
     body {
-        padding: 2vh 1vw;
+        font-size: 2.5vw;
     }
+}
 
-    #train_div label,
-    #wagon_div label {
-        font-size: 5vw;
-    }
 
-    #train_number,
-    #wagon_number {
-        font-size: 5vw;
-        width: 80%;
-    }
-
-    #submit {
-        font-size: 4vw;
-    }
-
-    #settings {
-        padding: 0 1vw;
-    }
-
-    #settings_label {
-        font-size: 6vw;
-    }
-
-    #delay_chekbox_div {
-        padding: 0 1vw;
-    }
-
-    #delay_chekbox_div label {
-        font-size: 4vw;
-        margin-right: 2vw;
-    }
-
-    #settings img {
-        width: 6vw;
-        height: 6vw;
-    }
-
-    .button {
-        font-size: 5vw;
-    }
-
-    #delay {
-        height: 4vw;
-        width: 4vw;
+@media (max-width: 1000px) {
+    body {
+        font-size: 1.5vw;
     }
 }

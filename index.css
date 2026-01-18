@@ -1,6 +1,8 @@
 :root {
     --company-color: #002366;
     --company-select-color: #0038a191;
+    --invalid-background: #aa090980;
+    --invalid-border: #dd0000;
 }
 
 :root[data-company-theme="regio"] {
@@ -57,6 +59,11 @@ body {
     color: #fff;
     text-align: center;
     width: 100%;
+}
+
+.options_box > input:invalid, .options_box > select:invalid {
+    background-color: var(--invalid-background);
+    border-color: var(--invalid-border);
 }
 
 .options_box > input[type="checkbox"] {

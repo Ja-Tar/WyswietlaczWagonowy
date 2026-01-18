@@ -21,41 +21,22 @@ function validateField(parm_event, regex) {
     }
 }
 
-function setupValidation() {
-    const fields = document.querySelectorAll("input:not([type='checkbox'])");
-    fields.forEach(element => {
-        addCorrectValidation(element);
-    });
-}
-
 /**
- * @param {HTMLInputElement} element 
+ * @param {Element} element 
+ * @returns {boolean}
  */
-function addCorrectValidation(element) {
-    if (element.type === "number") {
-        element.addEventListener("paste", validateNumberField);
-        element.addEventListener("keyup", validateNumberField);
+function validateRequiredFields(element) {
+    for (const el of element.querySelectorAll("[required]")) {
+        if (!el.checkValidity()) {
+            el.reportValidity();
+            return false;
+        }
     }
-}
-
-/**
- * @param {Event} parm_event 
- */
-function validateNumberField(parm_event) {
-    const numberOnlyRegex = /a/gm;
-    validateField(parm_event, numberOnlyRegex);
-}
-
-function setInvalidStyle(element) {
-    element.style.borderColor = 'red';
-    element.style.backgroundColor = 'rgba(255, 0, 0, 0.3)';
-    setTimeout(() => {
-        element.style.backgroundColor = '';
-        element.style.borderColor = '';
-    }, 2000);
+    return true;
 }
 
 document.getElementById('submit').addEventListener('click', function () {
+    const inputBox = document.getElementById("input_box");
     const trainNumber = document.getElementById('train_number');
     const wagonNumber = document.getElementById('wagon_number');
     const displayDelayCheckbox = document.getElementById('delay');
@@ -63,11 +44,8 @@ document.getElementById('submit').addEventListener('click', function () {
     const wagonNumberValue = wagonNumber.value;
     const displayTypeValue = displayDelayCheckbox.checked ? 'delay' : 'default'; // default
 
-    if (trainNumberValue && wagonNumberValue) {
+    if (validateRequiredFields(inputBox)) {
         window.location.href = `display.html?train=${trainNumberValue}&wagon=${wagonNumberValue}&type=${displayTypeValue}`;
-    } else {
-        if (!trainNumberValue) setInvalidStyle(trainNumber);
-        if (!wagonNumberValue) setInvalidStyle(wagonNumber);
     }
 });
 
@@ -84,5 +62,3 @@ document.getElementById('settings').addEventListener('click', function () {
     }
     settingsDiv.classList.toggle('show');
 });
-
-setupValidation();

@@ -49,6 +49,7 @@ resizeIframe();
 
 const templateUrl = 'template.html';
 const options = { method: 'GET', headers: { 'Cache-Control': 'public' } };
+// TODO: Major rework needed! (separate ic display function specific things to prepare for pr ones)
 
 /* fetch template.html */
 fetch(templateUrl, options)
@@ -62,17 +63,18 @@ fetch(templateUrl, options)
 
 function setDateAndTime() {
     if (!iframe.contentDocument) throw new TypeError();
-    let dateDiv = iframe.contentDocument.getElementById('date');
-    let minDiv = iframe.contentDocument.getElementById('min');
-    let colonDiv = iframe.contentDocument.getElementById('colon');
-    let secDiv = iframe.contentDocument.getElementById('sec');
+    const dateDiv = iframe.contentDocument.getElementById('date');
+    const minDiv = iframe.contentDocument.getElementById('min');
+    const colonDiv = iframe.contentDocument.getElementById('colon');
+    const secDiv = iframe.contentDocument.getElementById('sec');
+    const weekdayName = iframe.contentDocument.getElementById("weekday_name");
 
-    let date = new Date();
-    let hours = date.getHours();
-    let minutes = date.getMinutes();
-    let day = date.getDate();
-    let month = date.getMonth() + 1;
-    let year = date.getFullYear();
+    const date = new Date();
+    const hours = date.getHours();
+    const minutes = date.getMinutes();
+    const day = date.getDate();
+    const month = date.getMonth() + 1;
+    const year = date.getFullYear();
 
     dateDiv.textContent = `${day < 10 ? '0' + day : day}.${month < 10 ? '0' + month : month}.${year}`;
     minDiv.textContent = `${hours < 10 ? '0' + hours : hours}`;
@@ -82,10 +84,18 @@ function setDateAndTime() {
     } else {
         colonDiv.style.visibility = 'visible';
     }
+
+    if (weekdayName) {
+        const dayNamesPolish = ["Niedziela", "Poniedziałek", "Wtorek", "Środa", "Czwartek", "Piątek", "Sobota"];
+        const dayNamesEnglish = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+        const dayNumber = date.getDay();
+        weekdayName.textContent = `${dayNamesPolish[dayNumber]}/${dayNamesEnglish[dayNumber]}`;
+    }
 }
 
 async function setTemperature() {
-    let temperatureDiv = iframe.contentDocument.getElementById('temperature');
+    const temperatureDiv = iframe.contentDocument.getElementById('temperature');
+    if (!temperatureDiv) return;
 
     let url = 'https://api.td2.info.pl/?method=getWeather';
 

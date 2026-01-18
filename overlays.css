@@ -1,0 +1,36 @@
+#error_box {
+    position: absolute;
+    z-index: 1;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+
+}
+
+#error_message {
+    transition: opacity 0.3s ease;
+}
+
+#error_box img {
+    width: 20vw;
+}
+
+#loader_box {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#loader_box img {
+    width: 10vw;
+}

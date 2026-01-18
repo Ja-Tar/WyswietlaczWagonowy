@@ -1,9 +1,4 @@
-document.getElementById('input_box').addEventListener('keydown', function (e) {
-    if (e.key === 'Enter') {
-        e.preventDefault();
-        document.getElementById('submit').click();
-    }
-});
+// VALIDATION
 
 /**
  * 
@@ -35,6 +30,8 @@ function validateRequiredFields(element) {
     return true;
 }
 
+// NAVIGATION
+
 function navigateToDisplay() {
     const inputBox = document.getElementById("input_box");
     const trainNumber = document.getElementById('train_number');
@@ -63,5 +60,16 @@ function toggleSettingsDiv() {
     settingsDiv.classList.toggle('show');
 }
 
+/**
+ * @param {KeyboardEvent} e 
+ */
+function submitOnEnter(e) {
+    if (e.key === 'Enter') {
+        e.preventDefault();
+        document.getElementById('submit').click();
+    }
+}
+
+document.getElementById('input_box').addEventListener('keydown', submitOnEnter);
 document.getElementById('submit').addEventListener('click', navigateToDisplay);
 document.getElementById('settings').addEventListener('click', toggleSettingsDiv);

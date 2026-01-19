@@ -1,3 +1,35 @@
+/**
+ * @typedef {import('/display.js').TrainInfo} TrainInfo
+ */
+
+/**
+ * @typedef {Object.<string, Array.<string>>} OperatorsMap
+ */
+
+/**
+ * Like: {"R": "Os"}
+ * @typedef {Object.<string, Array.<string>>} CategoryMap
+ */
+
+/**
+ * @typedef {Object} operatorConvertAPI
+ * @property {OperatorsMap} operators - map: stock name -> operator name
+ * @property {object[]} categories
+ * @property {string} categories.operator
+ * @property {CategoryMap} categories.category - map: category (part or full name) -> operator specific naming
+ * @property {object[]} overwrite
+ * @property {string} overwrite.operator
+ * @property {string} overwrite.operatorOverwrite
+ * @property {string[]} overwrite.trainNoStartsWith
+ * @property {CategoryMap} overwrite.category
+ * @property {string} overwrite.remarks
+ * @property {object[]} trainNames
+ * @property {string} trainNames.operator
+ * @property {string[]} trainNames.trainNo
+ * @property {string} trainNames.categoryOverwrite
+ * @property {string} trainNames.trainName
+ */
+
 window.nameCorrectionsAPI_URL = "https://raw.githubusercontent.com/Ja-Tar/tablice-td2-api/master/namesCorrections.json";
 window.operatorConvertAPI_URL = 'https://raw.githubusercontent.com/Ja-Tar/tablice-td2-api/master/operatorConvert.json';
 
@@ -21,23 +53,38 @@ window.operatorFullNames = {
     "": " "
 };
 
+/**
+* @typedef {Window & {
+* operatorConvertData?: operatorConvertAPI,
+* nameCorrectionsData?: any,
+* operatorConvertAPI_URL?: string,
+* nameCorrectionsAPI_URL?: string,
+* trainCategory: Object.<string, Array.<string>>,
+* operatorFullNames: Object.<string, string>
+* }} WindowWithAPIs
+*/
+
+/** @type {WindowWithAPIs} */
+const win = window;
+
 async function getAPIsForTrainName(apiVersion) {
-    if (localStorage.getItem('apiVersion') === apiVersion && window.operatorConvertData && window.nameCorrectionsData) {
+    if (localStorage.getItem('apiVersion') === apiVersion && win.operatorConvertData && win.nameCorrectionsData) {
         //console.log("APIs already loaded.");
         return;
     }
 
     try {
-        const response = await fetch(window.nameCorrectionsAPI_URL);
-        window.nameCorrectionsData = await response.json();
+        const response = await fetch(win.nameCorrectionsAPI_URL);
+        win.nameCorrectionsData = await response.json();
         console.log("Name corrections data loaded successfully.");
     } catch (error) {
         console.error("Error loading name corrections data:", error);
     }
 
     try {
-        const responseOperator = await fetch(window.operatorConvertAPI_URL);
-        window.operatorConvertData = await responseOperator.json();
+        const responseOperator = await fetch(win.operatorConvertAPI_URL);
+        /** @type {operatorConvertAPI} */
+        win.operatorConvertData = await responseOperator.json();
         console.log("Operator convert data loaded successfully.");
     } catch (error) {
         console.error("Error loading operator convert data:", error);
@@ -46,26 +93,94 @@ async function getAPIsForTrainName(apiVersion) {
     localStorage.setItem('apiVersion', apiVersion);
 }
 
-function getTrainName(trainNumber, stockString, trainCategory) {
-    //console.log("Getting train name for:", trainNumber, stockString, trainCategory);
+/**
+ * 
+ * @param {string} trainNumber 
+ * @param {string} stockString 
+ * @param {string} trainCategory 
+ * @returns 
+ */
+function getTrainFullName(trainNumber, stockString, trainCategory) {
+    const trainNo = trainNumber;
 
-    let operator = '';
-    let trainNumberPrefix = '';
-    let trainNo = trainNumber;
+    const operator = determineOperator(stockString);
+    let trainNumberPrefix = getTrainPrefixByCategory(operator, trainCategory);
+
     let endTrainName = '';
+    ({_, trainNumberPrefix, endTrainName } = mapTrainName(operator, trainNo, endTrainName, trainNumberPrefix));
 
-    //return `IC ${trainNumber} JAKAŚ NAZWA`; // Placeholder implementation
+    // Further train name and prefix override
 
-    // Operator recognition
+    // TODO: Add train name and prefix override
 
+    return `${trainNumberPrefix} ${trainNo} ${endTrainName}`; // Placeholder implementation
+}
+
+/**
+ * @param {string} operator 
+ * @param {string} trainNo 
+ * @param {string} endTrainName 
+ * @param {string} trainNumberPrefix 
+ * @returns {{operator: string, trainNumberPrefix: string, endTrainName: string}}
+ */
+function mapTrainName(operator, trainNo, endTrainName, trainNumberPrefix) {
+
+    for (let j = 0; j < win.operatorConvertData.trainNames.length; j++) {
+        let trainNameData = win.operatorConvertData.trainNames[j];
+        let trainOperatorBefore = operator;
+        let trainNoIs = trainNameData.trainNo;
+
+        for (let k = 0; k < trainNoIs.length; k++) {
+            if (trainNameData.operator === trainOperatorBefore) {
+                if (trainNoIs[k] === trainNo) {  //BUG: ?? trainNo.toString()
+                    if (!isNaN(parseInt(trainNo))) console.error("WTF?!", trainNo, trainNoIs[k]);
+                    operator = trainNameData.operator;
+                    endTrainName = trainNameData.trainName;
+                    trainNumberPrefix = trainNameData.categoryOverwrite;
+                }
+            } else {
+                break;
+            }
+        }
+    }
+
+    return { operator, trainNumberPrefix, endTrainName };
+}
+
+/**
+ * @param {string} operator 
+ * @param {string} trainCategory 
+ * @returns {string}
+ */
+function getTrainPrefixByCategory(operator, trainCategory) {
+    for (let j = 0; j < win.operatorConvertData.categories.length; j++) {
+        let prefixData = win.operatorConvertData.categories[j];
+        let trainOperator = operator;
+        let prefixObject = prefixData.category;
+
+        if (prefixData.operator === trainOperator) {
+            for (let key in prefixObject) {
+                if (trainCategory.startsWith(key)) {
+                    return prefixObject[key];
+                }
+            }
+        }
+    }
+}
+
+/**
+ * @param {string} stockString 
+ * @returns {string}
+ */
+function determineOperator(stockString) {
     let operatorList = [];
 
-    for (const key in window.operatorConvertData.operators) {
+    for (const key in win.operatorConvertData.operators) {
         const splitStockString = stockString.split(";");
 
         for (let j = 0; j < splitStockString.length; j++) {
             if (key === splitStockString[j]) {
-                operatorList.push(window.operatorConvertData.operators[key]);
+                operatorList.push(win.operatorConvertData.operators[key]);
             }
         }
     }
@@ -83,54 +198,7 @@ function getTrainName(trainNumber, stockString, trainCategory) {
             return counts[a] > counts[b] ? a : b;
         });
 
-        operator = mostCommonOperator;
-        //console.debug("Most common operator: ", mostCommonOperator);
+        return mostCommonOperator;
     }
-
-    // Train prefix recognition
-
-    for (let j = 0; j < window.operatorConvertData.categories.length; j++) {
-        let prefixData = window.operatorConvertData.categories[j];
-        let trainOperator = operator;
-        let prefixObject = prefixData.category;
-
-        if (prefixData.operator === trainOperator) {
-            for (let key in prefixObject) {
-                if (trainCategory.startsWith(key)) {
-                    trainNumberPrefix = prefixObject[key];
-                    //console.debug(`Train with prefix: ${trainNumberPrefix} ${trainNo}`);
-                }
-            }
-        }
-    }
-
-    // Train name recognition
-
-    for (let j = 0; j < window.operatorConvertData.trainNames.length; j++) {
-        let trainNameData = window.operatorConvertData.trainNames[j];
-        let trainOperatorBefore = operator;
-        let trainNoIs = trainNameData.trainNo;
-
-        for (let k = 0; k < trainNoIs.length; k++) {
-            if (trainNameData.operator === trainOperatorBefore) {
-                if (trainNoIs[k] === trainNo.toString()) {
-                    operator = trainNameData.operator;
-                    endTrainName = trainNameData.trainName;
-                    trainNumberPrefix = trainNameData.categoryOverwrite;
-
-                    //console.debug(`Name: ${endTrainName}, Operator: ${operator}, Number: ${trainNumberPrefix} ${trainNo}`);
-                    break;
-                }
-            } else {
-                break;
-            }
-        }
-
-    }
-
-    // Train name and prefix override
-
-    // TODO: Add train name and prefix override
-
-    return `${trainNumberPrefix} ${trainNo} ${endTrainName}`; // Placeholder implementation
 }
+

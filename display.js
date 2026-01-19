@@ -26,6 +26,66 @@
  * @property {string} stationHash
  */
 
+/** 
+ * @typedef {object} TrainInfo
+ * @property {string} id
+ * @property {number} trainNo
+ * @property {number} mass
+ * @property {number} speed
+ * @property {number} length
+ * @property {number} distance
+ * @property {string} stockString
+ * @property {string} driverName
+ * @property {number} driverId
+ * @property {boolean} driverIsSupporter
+ * @property {number} driverLanguageId
+ * @property {number} driverLevel
+ * @property {string} currentStationHash
+ * @property {string} currentStationName
+ * @property {string} signal
+ * @property {string} connectedTrack
+ * @property {number} online
+ * @property {number} lastSeen
+ * @property {string} region
+ * @property {boolean} isTimeout
+ * @property {boolean} driverIsDonator
+ * @property {object} timetable
+ * @property {number} timetable.trainMaxSpeed
+ * @property {boolean} timetable.hasDangerousCargo
+ * @property {boolean} timetable.hasExtraDeliveries
+ * @property {string} timetable.warningNotes
+ * @property {boolean} timetable.twr
+ * @property {string} timetable.category
+ * @property {object[]} timetable.stopList
+ * @property {string} timetable.stopList.stopName
+ * @property {string} timetable.stopList.stopNameRAW
+ * @property {string} timetable.stopList.stopType
+ * @property {number} timetable.stopList.stopDistance
+ * @property {string} timetable.stopList.pointId
+ * @property {null} timetable.stopList.comments
+ * @property {boolean} timetable.stopList.mainStop
+ * @property {null|string} timetable.stopList.arrivalLine
+ * @property {number} timetable.stopList.arrivalTimestamp
+ * @property {number} timetable.stopList.arrivalRealTimestamp
+ * @property {number} timetable.stopList.arrivalDelay
+ * @property {string|null} timetable.stopList.departureLine
+ * @property {number} timetable.stopList.departureTimestamp
+ * @property {number} timetable.stopList.departureRealTimestamp
+ * @property {number} timetable.stopList.departureDelay
+ * @property {boolean} timetable.stopList.beginsHere
+ * @property {boolean} timetable.stopList.terminatesHere
+ * @property {number} timetable.stopList.confirmed
+ * @property {number} timetable.stopList.stopped
+ * @property {null|number} timetable.stopList.stopTime
+ * @property {string} timetable.stopList.stationName
+ * @property {string} timetable.stopList.stationHash
+ * @property {string} timetable.stopList.stopNameType
+ * @property {string} timetable.route
+ * @property {number} timetable.timetableId
+ * @property {string[]} timetable.sceneries
+ * @property {string} timetable.path
+ */
+
 // ===============================
 
 // Change version on API update
@@ -34,9 +94,11 @@ const apiVersion = '1';
 const urlParams = new URLSearchParams(window.location.search);
 const trainNumber = urlParams.get('train');
 const wagonNumber = urlParams.get('wagon');
-const displayType = urlParams.get('type');
+const showDelay = parseInt(urlParams.get("delay")) || 0;
+const displayTheme = urlParams.get('theme') || "auto";
 /** @type {HTMLIFrameElement} */
 const iframe = document.querySelector('#container');
+let iframeLoaded = false;
 
 function resizeIframe() {
     const scale = Math.min(window.innerWidth / 1920, window.innerHeight / 1050);
@@ -47,13 +109,19 @@ function resizeIframe() {
 window.addEventListener('resize', resizeIframe);
 resizeIframe();
 
-const templateUrl = 'template.html';
+//const templateUrls = {ic: "template.html", pr: "template_pr.html"};
+const templateUrl = "templdate.html";
 const options = { method: 'GET', headers: { 'Cache-Control': 'public' } };
 // TODO: Major rework needed! (separate ic display function specific things to prepare for pr ones)
 
 /* fetch template.html */
 fetch(templateUrl, options)
-    .then(response => response.text())
+    .then(response => {
+        if (response.status === 200) {
+            iframeLoaded = true;
+        }
+        return response.text();
+    })
     .then(data => {
         iframe.srcdoc = data;
     })
@@ -62,7 +130,10 @@ fetch(templateUrl, options)
     });
 
 function setDateAndTime() {
-    if (!iframe.contentDocument) throw new TypeError();
+    if (!iframeLoaded) {
+        console.warn("Iframe not LOADED!");
+        return;
+    };
     const dateDiv = iframe.contentDocument.getElementById('date');
     const minDiv = iframe.contentDocument.getElementById('min');
     const colonDiv = iframe.contentDocument.getElementById('colon');
@@ -94,6 +165,10 @@ function setDateAndTime() {
 }
 
 async function setTemperature() {
+    if (!iframeLoaded) {
+        console.warn("Iframe not LOADED!");
+        return;
+    };
     const temperatureDiv = iframe.contentDocument.getElementById('temperature');
     if (!temperatureDiv) return;
 
@@ -117,8 +192,6 @@ async function setTemperature() {
 }
 
 async function setDataFromStacjownik() {
-    let currentSpeedDiv = iframe.contentDocument.getElementById('current_speed');
-
     let url = "https://stacjownik.spythere.eu/api/getActiveTrainList";
 
     const options = { method: 'GET' };
@@ -130,23 +203,7 @@ async function setDataFromStacjownik() {
         if (data.length > 0) {
             let train = data.find(train => train.trainNo === parseInt(trainNumber));
             if (train) {
-                if (train.stockString === '') {
-                    console.log()
-                }
-                console.log('Stock string:', train.stockString);
-
-                let speed = train.speed;
-                currentSpeedDiv.textContent = `${speed} km/h`;
-
-                let trainNameString = getTrainName(trainNumber, train.stockString, train.timetable.category);
-                iframe.contentDocument.getElementById('train_name').textContent = trainNameString;
-                document.title = `Wagon ${wagonNumber} - ${trainNameString}`;
-
-                let route = train.timetable.route.split('|'); // before split: DOBRZYNIEC|Wielichowo Główne
-                route = route.map(station => station.toLowerCase().split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' '));
-                iframe.contentDocument.getElementById('route_box').textContent = route.join(' - ');
-
-                setRouteStations(train.timetable.stopList); // Pass correct stopPoints to the setRouteStations function
+                updateTrainDisplay(train);
                 return true;
             } else {
                 console.error('Train not found');
@@ -164,6 +221,29 @@ async function setDataFromStacjownik() {
         }
         return false;
     }
+}
+
+/**
+ * 
+ * @param {TrainInfo} train 
+ */
+function updateTrainDisplay(train) {
+    console.log(train);
+    let currentSpeedDiv = iframe.contentDocument.getElementById('current_speed');
+    console.log('Stock string:', train.stockString);
+
+    let speed = train.speed;
+    currentSpeedDiv.textContent = `${speed} km/h`;
+
+    let trainNameString = getTrainName(trainNumber, train.stockString, train.timetable.category);
+    iframe.contentDocument.getElementById('train_name').textContent = trainNameString;
+    document.title = `Wagon ${wagonNumber} - ${trainNameString}`;
+
+    let route = train.timetable.route.split('|'); // before split: DOBRZYNIEC|Wielichowo Główne
+    route = route.map(station => station.toLowerCase().split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' '));
+    iframe.contentDocument.getElementById('route_box').textContent = route.join(' - ');
+
+    setRouteStations(train.timetable.stopList); // Pass correct stopPoints to the setRouteStations function
 }
 
 /**
@@ -249,7 +329,7 @@ function setRouteStations(stopPoints) {
         newDelayTime.textContent = `${realDepartureTime}`;
         nextStationDelayName.textContent = `${firstNextStop.stopNameRAW}`;
 
-        if (departureDelay > 3 && displayType === 'delay') {
+        if (departureDelay > 3 && showDelay) {
             nextStationDelay.style.display = '';
             nextStationDelay.classList.add('currently_displayed');
             nextStation.style.display = 'none';
@@ -298,6 +378,10 @@ function setRouteStations(stopPoints) {
 }
 
 async function changeValues() {
+    if (!iframeLoaded) {
+        console.warn("Iframe not LOADED!");
+        return;
+    };
     nextStationDelay = iframe.contentDocument.getElementById('next_station_delay');
     nextStation = iframe.contentDocument.getElementById('next_station');
 
@@ -352,6 +436,10 @@ async function changeValues() {
 }
 
 function applyResponsiveStyles() {
+    if (!iframeLoaded) {
+        console.warn("Iframe not LOADED!");
+        return;
+    };
     iframe.contentWindow.scrollText();
     if (iframe.contentDocument.getElementById('route_box').childElementCount === 0) {
         iframe.contentWindow.dynamicWrapText('route_box');

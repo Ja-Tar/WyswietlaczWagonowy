@@ -37,12 +37,14 @@ function navigateToDisplay() {
     const trainNumber = document.getElementById('train_number');
     const wagonNumber = document.getElementById('wagon_number');
     const displayDelayCheckbox = document.getElementById('delay');
+    const displayThemeSelect = document.getElementById("company_theme");
     const trainNumberValue = trainNumber.value;
     const wagonNumberValue = wagonNumber.value;
-    const displayTypeValue = displayDelayCheckbox.checked ? 'delay' : 'default'; // default
+    const showDelay = displayDelayCheckbox.checked;
+    const displayTheme = displayThemeSelect.value;
 
     if (validateRequiredFields(inputBox)) {
-        window.location.href = `display.html?train=${trainNumberValue}&wagon=${wagonNumberValue}&type=${displayTypeValue}`;
+        window.location.href = `display.html?train=${trainNumberValue}&wagon=${wagonNumberValue}&delay=${showDelay}&theme=${displayTheme}`;
     }
 }
 
@@ -85,7 +87,7 @@ function selectTheme(themeName) {
     }
 }
 
-const companyThemeSelect = document.getElementById("company-theme");
+const companyThemeSelect = document.getElementById("company_theme");
 
 selectTheme(companyThemeSelect.value)
 companyThemeSelect.addEventListener("change", (ev) => selectTheme(ev.target.value))

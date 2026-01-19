@@ -295,7 +295,7 @@ function setRouteStations(stopPoints) {
     nextStopsList = formatStopsName(nextStopsList);
 
     nextStopsList.forEach(stopPoint => {
-        if (stopPoint.stopNameType === 'po') {
+        if (stopPoint.stopNameType === 'po') { // BUG
             /* check if stop has been passed (stop without confirmed arrival) */
             let departureTime = stopPoint.departureRealTimestamp;
             let currentTime = new Date().getTime();

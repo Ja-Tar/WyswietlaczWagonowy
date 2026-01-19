@@ -109,25 +109,37 @@ function resizeIframe() {
 window.addEventListener('resize', resizeIframe);
 resizeIframe();
 
-//const templateUrls = {ic: "template.html", pr: "template_pr.html"};
-const templateUrl = "templdate.html";
-const options = { method: 'GET', headers: { 'Cache-Control': 'public' } };
 // TODO: Major rework needed! (separate ic display function specific things to prepare for pr ones)
+const templatesUrl = { ic: "template.html", pr: "template_pr.html" };
 
-/* fetch template.html */
-fetch(templateUrl, options)
-    .then(response => {
-        if (response.status === 200) {
-            iframeLoaded = true;
-        }
-        return response.text();
-    })
-    .then(data => {
-        iframe.srcdoc = data;
-    })
-    .catch(error => {
-        console.error('Error fetching template:', error);
-    });
+if (displayTheme === "auto") {
+    /* fetch main template.html (for now) */
+    fetchTemplate("template.html");
+    /* AUTO needs to change it later after loading train stock data */
+    console.error("AUTO NOT IMPLEMENTED!!!"); // TODO: Add AUTO theme changes.
+} else {
+    fetchTemplate(templatesUrl[displayTheme]);
+}
+
+/**
+ * @param {string} templateUrl 
+ */
+function fetchTemplate(templateUrl) {
+    const options = { method: 'GET', headers: { 'Cache-Control': 'public' } };
+    fetch(templateUrl, options)
+        .then(response => {
+            if (response.status === 200) {
+                iframeLoaded = true;
+            }
+            return response.text();
+        })
+        .then(data => {
+            iframe.srcdoc = data;
+        })
+        .catch(error => {
+            console.error('Error fetching template:', error);
+        });
+}
 
 function setDateAndTime() {
     if (!iframeLoaded) {
@@ -393,46 +405,40 @@ async function changeValues() {
     //}
 
     if (!trainNumber || !wagonNumber) {
-        iframe.contentDocument.getElementById('main_display').style.visibility = 'visible';
-        iframe.contentDocument.getElementById('loader_box').style.display = 'none';
-        //iframe.contentDocument.getElementById('error_box').style.display = 'flex';
-
-        if (iframe.contentDocument.getElementById('route_box').childElementCount === 0) {
-            console.error('Train or wagon number not provided - displaying template only');
-            applyResponsiveStyles();
-            window.addEventListener('resize', iframe.contentWindow.overflowRestStations);
-        }
-
-        console.log('Update display with template only');
-
         return;
     }
 
-    if (iframe.contentDocument) {
-        await getAPIsForTrainName(apiVersion);
-        iframe.contentDocument.getElementById('carriage_number').textContent = wagonNumber;
+    await getAPIsForTrainName(apiVersion);
+    iframe.contentDocument.getElementById('carriage_number').textContent = wagonNumber;
 
-        let success = false;
+    let success = false;
 
-        try {
-            success = await setDataFromStacjownik();
-        } catch (error) {
-            console.error('Error fetching train data:', error);
-        }
-
-        if (!success) {
-            iframe.contentDocument.getElementById('main_display').style.visibility = 'hidden';
-            iframe.contentDocument.getElementById('loader_box').style.display = 'none';
-            iframe.contentDocument.getElementById('error_box').style.display = 'flex';
-        } else {
-            iframe.contentDocument.getElementById('main_display').style.visibility = 'visible';
-            iframe.contentDocument.getElementById('loader_box').style.display = 'none';
-
-            applyResponsiveStyles();
-        }
-    } else {
-        console.error('iframe.contentDocument is not available yet');
+    try {
+        success = await setDataFromStacjownik();
+    } catch (error) {
+        console.error('Error fetching train data:', error);
     }
+
+    if (!success) {
+        iframe.contentDocument.getElementById('main_display').style.visibility = 'hidden';
+        iframe.contentDocument.getElementById('loader_box').style.display = 'none';
+        iframe.contentDocument.getElementById('error_box').style.display = 'flex';
+    } else {
+        iframe.contentDocument.getElementById('main_display').style.visibility = 'visible';
+        iframe.contentDocument.getElementById('loader_box').style.display = 'none';
+
+        applyResponsiveStyles();
+    }
+}
+
+function showDebugScreen() {
+    iframe.contentDocument.getElementById('main_display').style.visibility = 'visible';
+    iframe.contentDocument.getElementById('loader_box').style.display = 'none';
+    //iframe.contentDocument.getElementById('error_box').style.display = 'flex';
+
+    applyResponsiveStyles();
+
+    console.error('Train or wagon number not provided - displaying template only');
 }
 
 function applyResponsiveStyles() {
@@ -440,14 +446,20 @@ function applyResponsiveStyles() {
         console.warn("Iframe not LOADED!");
         return;
     };
-    iframe.contentWindow.scrollText();
-    if (iframe.contentDocument.getElementById('route_box').childElementCount === 0) {
-        iframe.contentWindow.dynamicWrapText('route_box');
+
+    if (displayTheme === "ic") {
+        iframe.contentWindow.scrollText();
+        if (iframe.contentDocument.getElementById('route_box').childElementCount === 0) {
+            iframe.contentWindow.dynamicWrapText('route_box');
+        }
+        iframe.contentWindow.overflowRestStations();
     }
-    iframe.contentWindow.overflowRestStations();
 }
 
 iframe.onload = function () {
+    if (!trainNumber || !wagonNumber) {
+        showDebugScreen();
+    }
     changeValues();
     setTemperature();
 }

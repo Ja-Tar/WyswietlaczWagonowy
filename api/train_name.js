@@ -153,12 +153,12 @@ function mapTrainName(operator, trainNo, trainNumberPrefix) {
  */
 function getTrainPrefixByCategory(operator, trainCategory) {
     for (let j = 0; j < win.operatorConvertData.categories.length; j++) {
-        let prefixData = win.operatorConvertData.categories[j];
+        const prefixData = win.operatorConvertData.categories[j];
         let trainOperator = operator;
         let prefixObject = prefixData.category;
 
         if (prefixData.operator === trainOperator) {
-            for (let key in prefixObject) {
+            for (const key in prefixObject) {
                 if (trainCategory.startsWith(key)) {
                     return prefixObject[key];
                 }

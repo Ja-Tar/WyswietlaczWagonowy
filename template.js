@@ -10,15 +10,11 @@ function scrollText() {
     clones.forEach(clone => clone.remove());
 
     elements.forEach(element => {
-        const parentWidth = element.parentElement.offsetWidth;
-        const textWidth = element.offsetWidth;
         const textLength = element.textContent.length;
         const elementId = element.id;
-        let maxTextLength;
-        let addText = '';
 
-        maxTextLength = 21;
-        addText = '    ';
+        const maxTextLength = 21;
+        const addText = '    ';
         element.textContent = element.textContent.trim();
 
         if (textLength > maxTextLength) {

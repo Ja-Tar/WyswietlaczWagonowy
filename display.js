@@ -170,7 +170,7 @@ async function setTemperature() {
     const temperatureDiv = iframe.contentDocument.getElementById('temperature');
     if (!temperatureDiv) return;
 
-    let url = 'https://api.td2.info.pl/?method=getWeather';
+    const url = 'https://api.td2.info.pl/?method=getWeather';
 
     const options = { method: 'GET' };
     try {
@@ -193,7 +193,7 @@ async function setTemperature() {
  * @returns {boolean} True -> OK
  */
 async function setDataFromStacjownik() {
-    let url = "https://stacjownik.spythere.eu/api/getActiveTrainList";
+    const url = "https://stacjownik.spythere.eu/api/getActiveTrainList";
 
     const options = { method: 'GET' };
     try {
@@ -203,7 +203,7 @@ async function setDataFromStacjownik() {
         const data = await response.json();
 
         if (data.length > 0) {
-            let train = data.find(_train => _train.trainNo === parseInt(trainNumber));
+            const train = data.find(_train => _train.trainNo === parseInt(trainNumber));
             if (train) {
                 if (train.timetable) {
                     updateTrainDisplay(train);

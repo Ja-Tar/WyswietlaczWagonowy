@@ -108,7 +108,7 @@ export function getTrainFullName(number, stockString, trainCategory) {
 
     let trainName = '';
     ({ trainNumberPrefix: prefix, endTrainName: trainName } = mapTrainName(operator, number, prefix));
-    
+
     // Further train name and prefix override
     // TODO: Add train name and prefix override
 
@@ -173,9 +173,9 @@ function getTrainPrefixByCategory(operator, trainCategory) {
  * @returns {string | null}
  */
 function determineOperator(stockString) {
-    let operatorList = [];
+    const operatorList = [];
 
-    for (const key in win.operatorConvertData.operators) {
+    for (const key of Object.keys(win.operatorConvertData.operators)) {
         const splitStockString = stockString.split(";");
 
         for (let j = 0; j < splitStockString.length; j++) {
@@ -187,14 +187,14 @@ function determineOperator(stockString) {
 
     // Get most common operator 
     if (operatorList.length > 0) {
-        let counts = {};
-        operatorList.forEach(function (operators) {
-            operators.forEach(function (operator) {
+        const counts = {};
+        operatorList.forEach(operators => {
+            operators.forEach(operator => {
                 counts[operator] = (counts[operator] || 0) + 1;
             });
         });
 
-        const mostCommonOperator = Object.keys(counts).reduce(function (a, b) {
+        const mostCommonOperator = Object.keys(counts).reduce((a, b) => {
             return counts[a] > counts[b] ? a : b;
         });
 

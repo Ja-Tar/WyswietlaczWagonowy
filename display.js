@@ -66,6 +66,8 @@
 
 // ===============================
 
+import {getAPIsForTrainName, getTrainFullName} from "./api/train_name.js";
+
 const Theme = {
     AUTO: "auto",
     IC: "ic",
@@ -455,10 +457,10 @@ async function changeValues() {
         console.warn("Iframe not LOADED!");
         return;
     };
-    nextStationDelay = iframe.contentDocument.getElementById('next_station_delay');
-    nextStation = iframe.contentDocument.getElementById('next_station');
-
+    
     //if (displayType === 'delay') {
+    //    nextStationDelay = iframe.contentDocument.getElementById('next_station_delay');
+    //    nextStation = iframe.contentDocument.getElementById('next_station');
     //    nextStationDelay.style.display = '';
     //    nextStationDelay.classList.add('currently_displayed');
     //    nextStation.style.display = 'none';

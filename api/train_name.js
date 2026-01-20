@@ -67,7 +67,7 @@ window.operatorFullNames = {
 /** @type {WindowWithAPIs} */
 const win = window;
 
-async function getAPIsForTrainName(apiVersion) {
+export async function getAPIsForTrainName(apiVersion) {
     if (localStorage.getItem('apiVersion') === apiVersion && win.operatorConvertData && win.nameCorrectionsData) {
         //console.log("APIs already loaded.");
         return;
@@ -100,13 +100,13 @@ async function getAPIsForTrainName(apiVersion) {
  * @param {string} trainCategory 
  * @returns {{prefix: string, number: string, name: string}}
  */
-function getTrainFullName(number, stockString, trainCategory) {
+export function getTrainFullName(number, stockString, trainCategory) {
     console.debug('Stock string:', stockString);
     const operator = determineOperator(stockString);
     let prefix = getTrainPrefixByCategory(operator, trainCategory);
 
     let name = '';
-    ({_, trainNumberPrefix: prefix, endTrainName: name } = mapTrainName(operator, number, name, prefix));
+    ({ trainNumberPrefix: prefix, endTrainName: name } = mapTrainName(operator, number, name, prefix));
 
     // Further train name and prefix override
 

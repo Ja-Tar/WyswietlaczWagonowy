@@ -76,7 +76,7 @@ export async function getAPIsForTrainName(apiVersion) {
     try {
         const response = await fetch(win.nameCorrectionsAPI_URL);
         win.nameCorrectionsData = await response.json();
-        console.log("Name corrections data loaded successfully.");
+        console.debug("Name corrections data loaded successfully.");
     } catch (error) {
         console.error("Error loading name corrections data:", error);
     }
@@ -85,7 +85,7 @@ export async function getAPIsForTrainName(apiVersion) {
         const responseOperator = await fetch(win.operatorConvertAPI_URL);
         /** @type {operatorConvertAPI} */
         win.operatorConvertData = await responseOperator.json();
-        console.log("Operator convert data loaded successfully.");
+        console.debug("Operator convert data loaded successfully.");
     } catch (error) {
         console.error("Error loading operator convert data:", error);
     }
@@ -153,12 +153,12 @@ function mapTrainName(operator, trainNo, trainNumberPrefix) {
  */
 function getTrainPrefixByCategory(operator, trainCategory) {
     for (let j = 0; j < win.operatorConvertData.categories.length; j++) {
-        let prefixData = win.operatorConvertData.categories[j];
+        const prefixData = win.operatorConvertData.categories[j];
         let trainOperator = operator;
         let prefixObject = prefixData.category;
 
         if (prefixData.operator === trainOperator) {
-            for (let key in prefixObject) {
+            for (const key in prefixObject) {
                 if (trainCategory.startsWith(key)) {
                     return prefixObject[key];
                 }

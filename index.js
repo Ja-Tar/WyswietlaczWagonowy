@@ -39,7 +39,7 @@ function toggleSettingsDiv() {
         settingsDiv.style.opacity = '0';
         settingsDiv.style.padding = '0 2vw';
     } else {
-        settingsDiv.style.maxHeight = settingsDiv.scrollHeight + 'px';
+        settingsDiv.style.maxHeight = `${settingsDiv.scrollHeight}px`;
         settingsDiv.style.opacity = '1';
         settingsDiv.style.padding = '2vh 2vw';
     }

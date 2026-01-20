@@ -1,23 +1,20 @@
-import { horizontalLoop } from "./api/gasp_simless_loop.js";
+import { horizontalLoop } from "./api/gsap_simless_loop.js";
 
 function scrollText() {
     const elements = document.querySelectorAll('.scroll');
 
     // Remove existing clones and kill GSAP animations
+    /** @global */
     gsap.globalTimeline.clear();
     const clones = document.querySelectorAll('.clone');
     clones.forEach(clone => clone.remove());
 
     elements.forEach(element => {
-        const parentWidth = element.parentElement.offsetWidth;
-        const textWidth = element.offsetWidth;
         const textLength = element.textContent.length;
         const elementId = element.id;
-        let maxTextLength;
-        let addText = '';
 
-        maxTextLength = 21;
-        addText = '    ';
+        const maxTextLength = 21;
+        const addText = '    ';
         element.textContent = element.textContent.trim();
 
         if (textLength > maxTextLength) {
@@ -54,7 +51,7 @@ function dynamicWrapText(elementId) {
     if (left.scrollWidth > left.clientWidth) {
         const route = originalText.split(' - ');
         right.textContent = route.pop();
-        left.textContent = route.pop() + ' -';
+        left.textContent = `${route.pop()} -`;
     } else {
         right.remove();
         left.classList.add('line_one');
@@ -86,7 +83,7 @@ function overflowRestStations() {
     }
 
     // Reduce font size as needed
-    while (mainDisplay.scrollHeight > mainDisplay.clientHeight && fontSize > 2 && marginSize <= 1) {
+    while (mainDisplay.scrollHeight > mainDisplay.clientHeight && fontSize > 2) { // Removed: && marginSize <= 1) {
         fontSize -= 0.1;
         restStations.style.fontSize = `${fontSize}vw`;
     }

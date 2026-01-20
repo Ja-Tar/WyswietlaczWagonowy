@@ -145,9 +145,9 @@ function setDateAndTime() {
     const month = date.getMonth() + 1;
     const year = date.getFullYear();
 
-    dateDiv.textContent = `${day < 10 ? '0' + day : day}.${month < 10 ? '0' + month : month}.${year}`;
-    minDiv.textContent = `${hours < 10 ? '0' + hours : hours}`;
-    secDiv.textContent = `${minutes < 10 ? '0' + minutes : minutes}`;
+    dateDiv.textContent = `${twoDigits(day)}.${twoDigits(month)}.${year}`;
+    minDiv.textContent = `${twoDigits(hours)}`;
+    secDiv.textContent = `${twoDigits(minutes)}`;
     if (colonDiv.style.visibility === 'visible') {
         colonDiv.style.visibility = 'hidden';
     } else {
@@ -162,6 +162,14 @@ function setDateAndTime() {
     }
 }
 
+/**
+ * @param {number} n 
+ * @returns {string}
+ */
+function twoDigits(n) {
+    return String(n).padStart(2, '0');
+}
+
 async function setTemperature() {
     if (!iframeLoaded) {
         console.warn("Iframe not LOADED!");
@@ -170,7 +178,7 @@ async function setTemperature() {
     const temperatureDiv = iframe.contentDocument.getElementById('temperature');
     if (!temperatureDiv) return;
 
-    let url = 'https://api.td2.info.pl/?method=getWeather';
+    const url = 'https://api.td2.info.pl/?method=getWeather';
 
     const options = { method: 'GET' };
     try {
@@ -193,7 +201,7 @@ async function setTemperature() {
  * @returns {boolean} True -> OK
  */
 async function setDataFromStacjownik() {
-    let url = "https://stacjownik.spythere.eu/api/getActiveTrainList";
+    const url = "https://stacjownik.spythere.eu/api/getActiveTrainList";
 
     const options = { method: 'GET' };
     try {
@@ -203,7 +211,7 @@ async function setDataFromStacjownik() {
         const data = await response.json();
 
         if (data.length > 0) {
-            let train = data.find(_train => _train.trainNo === parseInt(trainNumber));
+            const train = data.find(_train => _train.trainNo === parseInt(trainNumber));
             if (train) {
                 if (train.timetable) {
                     updateTrainDisplay(train);

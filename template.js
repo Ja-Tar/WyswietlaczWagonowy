@@ -1,10 +1,12 @@
 import { horizontalLoop } from "./api/gsap_simless_loop.js";
 
+/** @type {*} */ 
+const gsap = (window.gsap);
+
 function scrollText() {
     const elements = document.querySelectorAll('.scroll');
 
     // Remove existing clones and kill GSAP animations
-    /** @global */
     gsap.globalTimeline.clear();
     const clones = document.querySelectorAll('.clone');
     clones.forEach(clone => clone.remove());

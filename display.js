@@ -413,7 +413,7 @@ function renderNextStops(nextStopsList) {
         const restStations = nextStopsList.slice(1);
 
         restStations.forEach((stopPoint, index) => {
-            const stopTime = stopPoint.arrivalTimestamp;
+            let stopTime = stopPoint.arrivalTimestamp;
             if (stopPoint.beginsHere === true) {
                 stopTime = stopPoint.departureTimestamp;
             }

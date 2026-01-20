@@ -7,13 +7,13 @@
  * @property {string} stopType
  * @property {number} stopDistance
  * @property {string} pointId
- * @property {null} comments
+ * @property {null | string} comments
  * @property {boolean} mainStop
- * @property {string} arrivalLine
+ * @property {null | string} arrivalLine
  * @property {number} arrivalTimestamp
  * @property {number} arrivalRealTimestamp
  * @property {number} arrivalDelay
- * @property {string} departureLine
+ * @property {null | string} departureLine
  * @property {number} departureTimestamp
  * @property {number} departureRealTimestamp
  * @property {number} departureDelay
@@ -21,9 +21,10 @@
  * @property {boolean} terminatesHere
  * @property {number} confirmed
  * @property {number} stopped
- * @property {number} stopTime
+ * @property {null | number} stopTime
  * @property {string} stationName
  * @property {string} stationHash
+ * @property {string} stopNameType
  */
 
 /** 
@@ -49,37 +50,14 @@
  * @property {string} region
  * @property {boolean} isTimeout
  * @property {boolean} driverIsDonator
- * @property {object} timetable
+ * @property {object | null} timetable
  * @property {number} timetable.trainMaxSpeed
  * @property {boolean} timetable.hasDangerousCargo
  * @property {boolean} timetable.hasExtraDeliveries
  * @property {string} timetable.warningNotes
  * @property {boolean} timetable.twr
  * @property {string} timetable.category
- * @property {object[]} timetable.stopList
- * @property {string} timetable.stopList.stopName
- * @property {string} timetable.stopList.stopNameRAW
- * @property {string} timetable.stopList.stopType
- * @property {number} timetable.stopList.stopDistance
- * @property {string} timetable.stopList.pointId
- * @property {null} timetable.stopList.comments
- * @property {boolean} timetable.stopList.mainStop
- * @property {null|string} timetable.stopList.arrivalLine
- * @property {number} timetable.stopList.arrivalTimestamp
- * @property {number} timetable.stopList.arrivalRealTimestamp
- * @property {number} timetable.stopList.arrivalDelay
- * @property {string|null} timetable.stopList.departureLine
- * @property {number} timetable.stopList.departureTimestamp
- * @property {number} timetable.stopList.departureRealTimestamp
- * @property {number} timetable.stopList.departureDelay
- * @property {boolean} timetable.stopList.beginsHere
- * @property {boolean} timetable.stopList.terminatesHere
- * @property {number} timetable.stopList.confirmed
- * @property {number} timetable.stopList.stopped
- * @property {null|number} timetable.stopList.stopTime
- * @property {string} timetable.stopList.stationName
- * @property {string} timetable.stopList.stationHash
- * @property {string} timetable.stopList.stopNameType
+ * @property {StopPoint[]} timetable.stopList
  * @property {string} timetable.route
  * @property {number} timetable.timetableId
  * @property {string[]} timetable.sceneries
@@ -209,6 +187,9 @@ async function setTemperature() {
     }
 }
 
+/**
+ * @returns {boolean} True -> OK
+ */
 async function setDataFromStacjownik() {
     let url = "https://stacjownik.spythere.eu/api/getActiveTrainList";
 
@@ -216,21 +197,24 @@ async function setDataFromStacjownik() {
     try {
         //throw new Error('An error has occurred'); 
         const response = await fetch(url, options);
+        /** @type {TrainInfo[]} */
         const data = await response.json();
 
         if (data.length > 0) {
             let train = data.find(train => train.trainNo === parseInt(trainNumber));
             if (train) {
-                updateTrainDisplay(train);
-                return true;
-            } else {
-                console.error('Train not found');
+                if (train.timetable) {
+                    updateTrainDisplay(train);
+                    return true;
+                }
+                console.error("No timetable set for the train");
                 return false;
             }
-        } else {
-            console.error('No active trains found');
+            console.error('Train not found');
             return false;
         }
+        console.error('No active trains found');
+        return false;
     } catch (fetchError) {
         if (fetchError instanceof TypeError) {
             console.error('[Train timetable not found]:', fetchError);
@@ -246,7 +230,6 @@ async function setDataFromStacjownik() {
  * @param {TrainInfo} train 
  */
 function updateTrainDisplay(train) {
-    console.log(train);
     displayCurrentSpeed(train);
     if (displayTheme === Theme.IC) {
         setTrainName(train);
@@ -255,7 +238,7 @@ function updateTrainDisplay(train) {
         setTrainNumber(train);
         updateDestination(train);
     }
-    //setRouteStations(train.timetable.stopList);
+    setRouteStations(train);
 }
 
 /**
@@ -328,13 +311,13 @@ function formatStopsName(stopPoints) {
 }
 
 /**
- * @param {StopPoint[]} stopPoints 
+ * @param {TrainInfo} train 
  */
-function setRouteStations(stopPoints) {
+function setRouteStations(train) {
     /** @type {StopPoint[]} */
     let nextStopsList = [];
 
-    stopPoints.forEach(stopPoint => {
+    train.timetable.stopList.forEach(stopPoint => {
         if (stopPoint.confirmed === 0) {
             nextStopsList.push(stopPoint);
         }
@@ -345,13 +328,13 @@ function setRouteStations(stopPoints) {
     nextStopsList = formatStopsName(nextStopsList);
 
     nextStopsList.forEach(stopPoint => {
-        if (stopPoint.stopNameType === 'po') { // BUG
+        if (stopPoint.stopNameType === 'po') {
             /* check if stop has been passed (stop without confirmed arrival) */
-            let departureTime = stopPoint.departureRealTimestamp;
-            let currentTime = new Date().getTime();
+            const departureTime = stopPoint.departureRealTimestamp;
+            const currentTime = new Date().getTime();
             if (currentTime > departureTime) {
                 /* remove stop from the list */
-                let index = nextStopsList.indexOf(stopPoint);
+                const index = nextStopsList.indexOf(stopPoint);
                 if (index > -1) {
                     nextStopsList.splice(index, 1);
                 }
@@ -359,21 +342,29 @@ function setRouteStations(stopPoints) {
         }
     });
 
-    // get first next stop
-    if (nextStopsList.length > 0) {
-        renderNextStops(nextStopsList);
+    if (displayTheme === Theme.IC) {
+        // get first next stop
+        if (nextStopsList.length > 0) {
+            renderNextStops(nextStopsList);
+        }
+    } else if (displayTheme === Theme.PR) {
+        renderStopHeader(nextStopsList[0], train.speed);
+        // TODO: renderStopMap(nextStopsList);
     }
 }
 
+/**
+ * @param {StopPoint[]} nextStopsList
+ */
 function renderNextStops(nextStopsList) {
-    let restStationsDiv = iframe.contentDocument.getElementById('rest_stations');
+    const restStationsDiv = iframe.contentDocument.getElementById('rest_stations');
     const nextStation = iframe.contentDocument.getElementById('next_station');
     const nextStationDelay = iframe.contentDocument.getElementById('next_station_delay');
     const oldDelayTime = iframe.contentDocument.getElementById('old_time');
     const newDelayTime = iframe.contentDocument.getElementById('new_time');
     const nextStationDelayName = iframe.contentDocument.getElementById('next_station_delay_name');
 
-    let firstNextStop = nextStopsList[0];
+    const firstNextStop = nextStopsList[0];
     //console.log('First next stop:', firstNextStop); 
     let departureTime = firstNextStop.arrivalTimestamp;
     let departureDelay = firstNextStop.arrivalDelay;
@@ -439,7 +430,24 @@ function renderNextStops(nextStopsList) {
     } else {
         restStationsDiv.innerHTML = '';
     }
-    return nextStopsList;
+}
+
+/**
+ * @param {StopPoint} nextStop
+ * @param {number} trainSpeed
+ */
+function renderStopHeader(nextStop, trainSpeed) {
+    const stationLabelElement = iframe.contentDocument.getElementById("station_label");
+    const stationNameElement = iframe.contentDocument.getElementById("station");
+
+    const currentTime = new Date().getTime();
+    if (nextStop.arrivalRealTimestamp > currentTime && trainSpeed < 5) {
+        // TRAIN ARRIVED AT STATION
+        stationLabelElement.textContent = "Stacja/Station:";
+    } else {
+        stationLabelElement.textContent = "Następna stacja/Next station:";
+    }
+    stationNameElement.textContent = nextStop.stopNameRAW;
 }
 
 async function changeValues() {
@@ -464,21 +472,31 @@ async function changeValues() {
     await getAPIsForTrainName(apiVersion);
     setCarriageNumber();
 
-    let success = false;
-
-    try {
-        success = await setDataFromStacjownik();
-    } catch (error) {
-        console.error('Error fetching train data:', error);
-    }
+    const success = await setDataFromStacjownik();
 
     if (!success) {
+        displayErrorBox();
+    } else {
+        showMainDisplay();
+    }
+
+    function displayErrorBox() {
         iframe.contentDocument.getElementById('main_display').style.visibility = 'hidden';
         iframe.contentDocument.getElementById('loader_box').style.display = 'none';
         iframe.contentDocument.getElementById('error_box').style.display = 'flex';
-    } else {
+
+        if (displayTheme === Theme.PR) {
+            iframe.contentDocument.getElementById('top_bar').style.color = "transparent";
+        }
+    }
+
+    function showMainDisplay() {
         iframe.contentDocument.getElementById('main_display').style.visibility = 'visible';
         iframe.contentDocument.getElementById('loader_box').style.display = 'none';
+
+        if (displayTheme === Theme.PR) {
+            iframe.contentDocument.getElementById('top_bar').style.removeProperty("color");
+        }
 
         applyResponsiveStyles();
     }

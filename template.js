@@ -1,3 +1,5 @@
+import { horizontalLoop } from "./api/gasp_simless_loop.js";
+
 function scrollText() {
     const elements = document.querySelectorAll('.scroll');
 
@@ -33,8 +35,8 @@ function scrollText() {
             textClone2.classList.remove('scroll');
             element.parentElement.appendChild(textClone2);
 
-            const texts = gsap.utils.toArray(`#${elementId}`),
-                loop = horizontalLoop(texts, { paused: false, repeat: -1, speed: 1 });
+            const texts = gsap.utils.toArray(`#${elementId}`);
+            horizontalLoop(texts, { paused: false, repeat: -1, speed: 1 });
         }
     });
 }
@@ -89,3 +91,7 @@ function overflowRestStations() {
         restStations.style.fontSize = `${fontSize}vw`;
     }
 }
+
+window.scrollText = scrollText;
+window.dynamicWrapText = dynamicWrapText;
+window.overflowRestStations = overflowRestStations;

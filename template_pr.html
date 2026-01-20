@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="pl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wyświetlacz Wagonowy TD2</title>
+    <link rel="stylesheet" href="template_pr.css">
+    <link rel="stylesheet" href="overlays.css">
+</head>
+
+<body>
+    <div id="top_bar">
+        <div id="number_destination_box">
+            <div id="train_number">PR 98103</div>
+            <div id="destination_box">
+                <div id="destination_label">Kierunek/Direction</div>
+                <div id="destination">Piwnica</div>
+            </div>
+        </div>
+        <div id="station_box">
+            <div id="station_label">Następna stacja/Next station:</div>
+            <div id="station">Nowy Sącz</div>
+        </div>
+        <div id="date_time_box">
+            <div id="date">13.01.2026</div>
+            <div id="weekday_name">Wtorek/Thursday</div>
+            <div id="time"><span id="min">00</span><span id="colon">꞉</span><span id="sec">00</span></div>
+        </div>
+    </div>
+    <div id="main_display">
+        <!-- ADD: main display map -->
+    </div>
+    <div id="error_box" style="display: none;">
+        <img src="static/warningSmall.svg" alt="error">
+    </div>
+    <div id="loader_box">
+        <img src="static/loaders/oval_black.svg" alt="loader">
+    </div>
+    <div id="bottom_bar">
+        <img id="logo" src="static/TD2R.svg" alt="logo">
+        <div id="current_speed_box">
+            <div id="current_speed_label">Prędkość:</div>
+            <div id="current_speed">-- km/h</div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.1/dist/gsap.min.js"></script>
+    <script src="api/gasp_simless_loop.js" type="module"></script>
+    <script src="template_pr.js" type="module"></script>
+</body>
+
+</html>

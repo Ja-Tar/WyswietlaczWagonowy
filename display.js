@@ -7,13 +7,13 @@
  * @property {string} stopType
  * @property {number} stopDistance
  * @property {string} pointId
- * @property {null} comments
+ * @property {null | string} comments
  * @property {boolean} mainStop
- * @property {string} arrivalLine
+ * @property {null | string} arrivalLine
  * @property {number} arrivalTimestamp
  * @property {number} arrivalRealTimestamp
  * @property {number} arrivalDelay
- * @property {string} departureLine
+ * @property {null | string} departureLine
  * @property {number} departureTimestamp
  * @property {number} departureRealTimestamp
  * @property {number} departureDelay
@@ -21,12 +21,58 @@
  * @property {boolean} terminatesHere
  * @property {number} confirmed
  * @property {number} stopped
- * @property {number} stopTime
+ * @property {null | number} stopTime
  * @property {string} stationName
  * @property {string} stationHash
+ * @property {string} stopNameType
+ */
+
+/** 
+ * @typedef {object} TrainInfo
+ * @property {string} id
+ * @property {number} trainNo
+ * @property {number} mass
+ * @property {number} speed
+ * @property {number} length
+ * @property {number} distance
+ * @property {string} stockString
+ * @property {string} driverName
+ * @property {number} driverId
+ * @property {boolean} driverIsSupporter
+ * @property {number} driverLanguageId
+ * @property {number} driverLevel
+ * @property {string} currentStationHash
+ * @property {string} currentStationName
+ * @property {string} signal
+ * @property {string} connectedTrack
+ * @property {number} online
+ * @property {number} lastSeen
+ * @property {string} region
+ * @property {boolean} isTimeout
+ * @property {boolean} driverIsDonator
+ * @property {object | null} timetable
+ * @property {number} timetable.trainMaxSpeed
+ * @property {boolean} timetable.hasDangerousCargo
+ * @property {boolean} timetable.hasExtraDeliveries
+ * @property {string} timetable.warningNotes
+ * @property {boolean} timetable.twr
+ * @property {string} timetable.category
+ * @property {StopPoint[]} timetable.stopList
+ * @property {string} timetable.route
+ * @property {number} timetable.timetableId
+ * @property {string[]} timetable.sceneries
+ * @property {string} timetable.path
  */
 
 // ===============================
+
+import {getAPIsForTrainName, getTrainFullName} from "./api/train_name.js";
+
+const Theme = {
+    AUTO: "auto",
+    IC: "ic",
+    PR: "pr"
+}
 
 // Change version on API update
 const apiVersion = '1';
@@ -34,9 +80,11 @@ const apiVersion = '1';
 const urlParams = new URLSearchParams(window.location.search);
 const trainNumber = urlParams.get('train');
 const wagonNumber = urlParams.get('wagon');
-const displayType = urlParams.get('type');
+const showDelay = parseInt(urlParams.get("delay")) || 0;
+const displayTheme = urlParams.get('theme') || Theme.AUTO;
 /** @type {HTMLIFrameElement} */
 const iframe = document.querySelector('#container');
+let iframeLoaded = false;
 
 function resizeIframe() {
     const scale = Math.min(window.innerWidth / 1920, window.innerHeight / 1050);
@@ -47,32 +95,55 @@ function resizeIframe() {
 window.addEventListener('resize', resizeIframe);
 resizeIframe();
 
-const templateUrl = 'template.html';
-const options = { method: 'GET', headers: { 'Cache-Control': 'public' } };
+// TODO: Major rework needed! (separate ic display function specific things to prepare for pr ones)
+const templatesUrl = { ic: "template.html", pr: "template_pr.html" };
 
-/* fetch template.html */
-fetch(templateUrl, options)
-    .then(response => response.text())
-    .then(data => {
-        iframe.srcdoc = data;
-    })
-    .catch(error => {
-        console.error('Error fetching template:', error);
-    });
+if (displayTheme === Theme.AUTO) {
+    /* fetch main template.html (for now) */
+    fetchTemplate("template.html");
+    /* AUTO needs to change it later after loading train stock data */
+    console.error("AUTO NOT IMPLEMENTED!!!"); // TODO: Add AUTO theme changes.
+} else {
+    fetchTemplate(templatesUrl[displayTheme]);
+}
+
+/**
+ * @param {string} templateUrl 
+ */
+function fetchTemplate(templateUrl) {
+    const options = { method: 'GET', headers: { 'Cache-Control': 'public' } };
+    fetch(templateUrl, options)
+        .then(response => {
+            if (response.status === 200) {
+                iframeLoaded = true;
+            }
+            return response.text();
+        })
+        .then(data => {
+            iframe.srcdoc = data;
+        })
+        .catch(error => {
+            console.error('Error fetching template:', error);
+        });
+}
 
 function setDateAndTime() {
-    if (!iframe.contentDocument) throw new TypeError();
-    let dateDiv = iframe.contentDocument.getElementById('date');
-    let minDiv = iframe.contentDocument.getElementById('min');
-    let colonDiv = iframe.contentDocument.getElementById('colon');
-    let secDiv = iframe.contentDocument.getElementById('sec');
+    if (!iframeLoaded) {
+        console.warn("Iframe not LOADED!");
+        return;
+    };
+    const dateDiv = iframe.contentDocument.getElementById('date');
+    const minDiv = iframe.contentDocument.getElementById('min');
+    const colonDiv = iframe.contentDocument.getElementById('colon');
+    const secDiv = iframe.contentDocument.getElementById('sec');
+    const weekdayName = iframe.contentDocument.getElementById("weekday_name");
 
-    let date = new Date();
-    let hours = date.getHours();
-    let minutes = date.getMinutes();
-    let day = date.getDate();
-    let month = date.getMonth() + 1;
-    let year = date.getFullYear();
+    const date = new Date();
+    const hours = date.getHours();
+    const minutes = date.getMinutes();
+    const day = date.getDate();
+    const month = date.getMonth() + 1;
+    const year = date.getFullYear();
 
     dateDiv.textContent = `${day < 10 ? '0' + day : day}.${month < 10 ? '0' + month : month}.${year}`;
     minDiv.textContent = `${hours < 10 ? '0' + hours : hours}`;
@@ -82,10 +153,22 @@ function setDateAndTime() {
     } else {
         colonDiv.style.visibility = 'visible';
     }
+
+    if (weekdayName) {
+        const dayNamesPolish = ["Niedziela", "Poniedziałek", "Wtorek", "Środa", "Czwartek", "Piątek", "Sobota"];
+        const dayNamesEnglish = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+        const dayNumber = date.getDay();
+        weekdayName.textContent = `${dayNamesPolish[dayNumber]}/${dayNamesEnglish[dayNumber]}`;
+    }
 }
 
 async function setTemperature() {
-    let temperatureDiv = iframe.contentDocument.getElementById('temperature');
+    if (!iframeLoaded) {
+        console.warn("Iframe not LOADED!");
+        return;
+    };
+    const temperatureDiv = iframe.contentDocument.getElementById('temperature');
+    if (!temperatureDiv) return;
 
     let url = 'https://api.td2.info.pl/?method=getWeather';
 
@@ -106,46 +189,34 @@ async function setTemperature() {
     }
 }
 
+/**
+ * @returns {boolean} True -> OK
+ */
 async function setDataFromStacjownik() {
-    let currentSpeedDiv = iframe.contentDocument.getElementById('current_speed');
-
     let url = "https://stacjownik.spythere.eu/api/getActiveTrainList";
 
     const options = { method: 'GET' };
     try {
         //throw new Error('An error has occurred'); 
         const response = await fetch(url, options);
+        /** @type {TrainInfo[]} */
         const data = await response.json();
 
         if (data.length > 0) {
-            let train = data.find(train => train.trainNo === parseInt(trainNumber));
+            let train = data.find(_train => _train.trainNo === parseInt(trainNumber));
             if (train) {
-                if (train.stockString === '') {
-                    console.log()
+                if (train.timetable) {
+                    updateTrainDisplay(train);
+                    return true;
                 }
-                console.log('Stock string:', train.stockString);
-
-                let speed = train.speed;
-                currentSpeedDiv.textContent = `${speed} km/h`;
-
-                let trainNameString = getTrainName(trainNumber, train.stockString, train.timetable.category);
-                iframe.contentDocument.getElementById('train_name').textContent = trainNameString;
-                document.title = `Wagon ${wagonNumber} - ${trainNameString}`;
-
-                let route = train.timetable.route.split('|'); // before split: DOBRZYNIEC|Wielichowo Główne
-                route = route.map(station => station.toLowerCase().split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' '));
-                iframe.contentDocument.getElementById('route_box').textContent = route.join(' - ');
-
-                setRouteStations(train.timetable.stopList); // Pass correct stopPoints to the setRouteStations function
-                return true;
-            } else {
-                console.error('Train not found');
+                console.error("No timetable set for the train");
                 return false;
             }
-        } else {
-            console.error('No active trains found');
+            console.error('Train not found');
             return false;
         }
+        console.error('No active trains found');
+        return false;
     } catch (fetchError) {
         if (fetchError instanceof TypeError) {
             console.error('[Train timetable not found]:', fetchError);
@@ -154,6 +225,72 @@ async function setDataFromStacjownik() {
         }
         return false;
     }
+}
+
+/**
+ * 
+ * @param {TrainInfo} train 
+ */
+function updateTrainDisplay(train) {
+    displayCurrentSpeed(train);
+    if (displayTheme === Theme.IC) {
+        setTrainName(train);
+        updateRoute(train);
+    } else {
+        setTrainNumber(train);
+        updateDestination(train);
+    }
+    setRouteStations(train);
+}
+
+/**
+ * @param {TrainInfo} train 
+ */
+function displayCurrentSpeed(train) {
+    const currentSpeedDiv = iframe.contentDocument.getElementById('current_speed');
+    const speed = train.speed;
+    currentSpeedDiv.textContent = `${speed} km/h`;
+}
+
+/**
+ * @param {TrainInfo} train 
+ */
+function setTrainName(train) {
+    const trainName = getTrainFullName(trainNumber, train.stockString, train.timetable.category);
+    const trainNameString = `${trainName.prefix} ${trainName.number} ${trainName.trainName}`
+    iframe.contentDocument.getElementById('train_name').textContent = trainNameString;
+    document.title = `Wagon ${wagonNumber} - ${trainNameString}`;
+}
+
+/**
+ * @param {TrainInfo} train 
+ */
+function updateRoute(train) {
+    const route = train.timetable.route.split('|'); // before split: DOBRZYNIEC|Wielichowo Główne
+    iframe.contentDocument.getElementById('route_box').textContent = capitalizeStationNames(route).join(' - ');
+}
+
+/**
+ * @param {TrainInfo} train 
+ */
+function setTrainNumber(train) {
+    const trainName = getTrainFullName(trainNumber, train.stockString, train.timetable.category);
+    const trainNameString = `${trainName.prefix} ${trainName.number}`
+    iframe.contentDocument.getElementById('train_number').textContent = trainNameString;
+    document.title = `Wagon ${wagonNumber} - ${trainNameString}`;
+}
+
+/**
+ * @param {TrainInfo} train 
+ */
+function updateDestination(train) {
+    const route = train.timetable.route.split('|');
+    iframe.contentDocument.getElementById('destination').textContent = capitalizeStationNames(route)[1];
+}
+
+function capitalizeStationNames(route) {
+    route = route.map(station => station.toLowerCase().split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' '));
+    return route;
 }
 
 /**
@@ -176,13 +313,13 @@ function formatStopsName(stopPoints) {
 }
 
 /**
- * @param {StopPoint[]} stopPoints 
+ * @param {TrainInfo} train 
  */
-function setRouteStations(stopPoints) {
+function setRouteStations(train) {
     /** @type {StopPoint[]} */
     let nextStopsList = [];
 
-    stopPoints.forEach(stopPoint => {
+    train.timetable.stopList.forEach(stopPoint => {
         if (stopPoint.confirmed === 0) {
             nextStopsList.push(stopPoint);
         }
@@ -195,11 +332,11 @@ function setRouteStations(stopPoints) {
     nextStopsList.forEach(stopPoint => {
         if (stopPoint.stopNameType === 'po') {
             /* check if stop has been passed (stop without confirmed arrival) */
-            let departureTime = stopPoint.departureRealTimestamp;
-            let currentTime = new Date().getTime();
+            const departureTime = stopPoint.departureRealTimestamp;
+            const currentTime = new Date().getTime();
             if (currentTime > departureTime) {
                 /* remove stop from the list */
-                let index = nextStopsList.indexOf(stopPoint);
+                const index = nextStopsList.indexOf(stopPoint);
                 if (index > -1) {
                     nextStopsList.splice(index, 1);
                 }
@@ -207,91 +344,120 @@ function setRouteStations(stopPoints) {
         }
     });
 
-    // get first next stop
-    if (nextStopsList.length > 0) {
-        let restStationsDiv = iframe.contentDocument.getElementById('rest_stations');
-        const nextStation = iframe.contentDocument.getElementById('next_station');
-        const nextStationDelay = iframe.contentDocument.getElementById('next_station_delay');
-        const oldDelayTime = iframe.contentDocument.getElementById('old_time');
-        const newDelayTime = iframe.contentDocument.getElementById('new_time');
-        const nextStationDelayName = iframe.contentDocument.getElementById('next_station_delay_name');
-
-        let firstNextStop = nextStopsList[0];
-        //console.log('First next stop:', firstNextStop); 
-        let departureTime = firstNextStop.arrivalTimestamp;
-        let departureDelay = firstNextStop.arrivalDelay;
-        let realDepartureTime = firstNextStop.arrivalRealTimestamp;
-        if (firstNextStop.beginsHere === true) {
-            departureTime = firstNextStop.departureTimestamp;
-            departureDelay = firstNextStop.departureDelay;
-            realDepartureTime = firstNextStop.departureRealTimestamp;
-            restStationsDiv.innerHTML = '';
+    if (displayTheme === Theme.IC) {
+        // get first next stop
+        if (nextStopsList.length > 0) {
+            renderNextStops(nextStopsList);
         }
+    } else if (displayTheme === Theme.PR) {
+        renderStopHeader(nextStopsList[0], train.speed);
+        // TODO: renderStopMap(nextStopsList);
+    }
+}
 
-        departureTime = new Date(departureTime);
-        departureTime = departureTime.toLocaleTimeString('pl-PL', { hour: '2-digit', minute: '2-digit' });
+/**
+ * @param {StopPoint[]} nextStopsList
+ */
+function renderNextStops(nextStopsList) {
+    const restStationsDiv = iframe.contentDocument.getElementById('rest_stations');
+    const nextStation = iframe.contentDocument.getElementById('next_station');
+    const nextStationDelay = iframe.contentDocument.getElementById('next_station_delay');
+    const oldDelayTime = iframe.contentDocument.getElementById('old_time');
+    const newDelayTime = iframe.contentDocument.getElementById('new_time');
+    const nextStationDelayName = iframe.contentDocument.getElementById('next_station_delay_name');
 
-        realDepartureTime = new Date(realDepartureTime);
-        realDepartureTime = realDepartureTime.toLocaleTimeString('pl-PL', { hour: '2-digit', minute: '2-digit' });
-
-        nextStation.textContent = `${departureTime} ${firstNextStop.stopNameRAW}`;
-        oldDelayTime.innerHTML = `<del>${departureTime}</del> (+${departureDelay})`;
-        newDelayTime.textContent = `${realDepartureTime}`;
-        nextStationDelayName.textContent = `${firstNextStop.stopNameRAW}`;
-
-        if (departureDelay > 3 && displayType === 'delay') {
-            nextStationDelay.style.display = '';
-            nextStationDelay.classList.add('currently_displayed');
-            nextStation.style.display = 'none';
-            nextStation.classList.remove('currently_displayed');
-        } else {
-            nextStationDelay.style.display = 'none';
-            nextStationDelay.classList.remove('currently_displayed');
-            nextStation.style.display = '';
-            nextStation.classList.add('currently_displayed');
-        }
-
-        let stationOverflow = false;
-
-        if (nextStopsList.length > 5) {
-            console.warn('Wykryto więcej niż 5 przystanków na trasie');
-            // TODO: Dodać możliwość zmiany maksymalnej ilości + czy wyświetlać tylko główne stacje
-            nextStopsList = nextStopsList.slice(0, 5);
-            stationOverflow = true;
-        }
-
-        if (nextStopsList.length > 1) {
-            restStationsDiv.innerHTML = '';
-
-            let restStations = nextStopsList.slice(1);
-
-            restStations.forEach((stopPoint, index) => {
-                let stopTime = stopPoint.arrivalTimestamp;
-                if (stopPoint.beginsHere === true) {
-                    stopTime = stopPoint.departureTimestamp;
-                }
-                stopTime = new Date(stopTime);
-                stopTime = stopTime.toLocaleTimeString('pl-PL', { hour: '2-digit', minute: '2-digit' });
-                let stopName = stopPoint.stopNameRAW;
-                //stopName = stopName.toLowerCase().split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
-                let stopElement = document.createElement('span');
-                stopElement.textContent = `${stopTime} ${stopName}` + (index < restStations.length - 1 ? ', ' : ''); // : stationOverflow ? '...' : '');
-                restStationsDiv.appendChild(stopElement);
-            });
-
-        } else {
-            restStationsDiv.innerHTML = '';
-        }
+    const firstNextStop = nextStopsList[0];
+    //console.log('First next stop:', firstNextStop); 
+    let departureTime = firstNextStop.arrivalTimestamp;
+    let departureDelay = firstNextStop.arrivalDelay;
+    let realDepartureTime = firstNextStop.arrivalRealTimestamp;
+    if (firstNextStop.beginsHere === true) {
+        departureTime = firstNextStop.departureTimestamp;
+        departureDelay = firstNextStop.departureDelay;
+        realDepartureTime = firstNextStop.departureRealTimestamp;
+        restStationsDiv.innerHTML = '';
     }
 
-    //console.log(nextStopsList);
+    departureTime = new Date(departureTime);
+    departureTime = departureTime.toLocaleTimeString('pl-PL', { hour: '2-digit', minute: '2-digit' });
+
+    realDepartureTime = new Date(realDepartureTime);
+    realDepartureTime = realDepartureTime.toLocaleTimeString('pl-PL', { hour: '2-digit', minute: '2-digit' });
+
+    nextStation.textContent = `${departureTime} ${firstNextStop.stopNameRAW}`;
+    oldDelayTime.innerHTML = `<del>${departureTime}</del> (+${departureDelay})`;
+    newDelayTime.textContent = `${realDepartureTime}`;
+    nextStationDelayName.textContent = `${firstNextStop.stopNameRAW}`;
+
+    if (departureDelay > 3 && showDelay) {
+        nextStationDelay.style.display = '';
+        nextStationDelay.classList.add('currently_displayed');
+        nextStation.style.display = 'none';
+        nextStation.classList.remove('currently_displayed');
+    } else {
+        nextStationDelay.style.display = 'none';
+        nextStationDelay.classList.remove('currently_displayed');
+        nextStation.style.display = '';
+        nextStation.classList.add('currently_displayed');
+    }
+
+    if (nextStopsList.length > 5) {
+        console.warn('Wykryto więcej niż 5 przystanków na trasie');
+        // TODO: Dodać możliwość zmiany maksymalnej ilości + czy wyświetlać tylko główne stacje
+        nextStopsList = nextStopsList.slice(0, 5);
+    }
+
+    if (nextStopsList.length > 1) {
+        restStationsDiv.innerHTML = '';
+
+        const restStations = nextStopsList.slice(1);
+
+        restStations.forEach((stopPoint, index) => {
+            let stopTime = stopPoint.arrivalTimestamp;
+            if (stopPoint.beginsHere === true) {
+                stopTime = stopPoint.departureTimestamp;
+            }
+            const stopTimeDate = new Date(stopTime);
+            const stopTimeString = stopTimeDate.toLocaleTimeString('pl-PL', { hour: '2-digit', minute: '2-digit' });
+            const stopName = stopPoint.stopNameRAW;
+            const stopElement = document.createElement('span');
+
+            stopElement.textContent = `${stopTimeString} ${stopName}${index < restStations.length - 1 ? ', ' : ''}`;
+            restStationsDiv.appendChild(stopElement);
+        });
+
+    } else {
+        restStationsDiv.innerHTML = '';
+    }
+}
+
+/**
+ * @param {StopPoint} nextStop
+ * @param {number} trainSpeed
+ */
+function renderStopHeader(nextStop, trainSpeed) {
+    const stationLabelElement = iframe.contentDocument.getElementById("station_label");
+    const stationNameElement = iframe.contentDocument.getElementById("station");
+
+    const currentTime = new Date().getTime();
+    if (nextStop.arrivalRealTimestamp > currentTime && trainSpeed < 5) {
+        // TRAIN ARRIVED AT STATION
+        stationLabelElement.textContent = "Stacja/Station:";
+    } else {
+        stationLabelElement.textContent = "Następna stacja/Next station:";
+    }
+    stationNameElement.textContent = nextStop.stopNameRAW;
 }
 
 async function changeValues() {
-    nextStationDelay = iframe.contentDocument.getElementById('next_station_delay');
-    nextStation = iframe.contentDocument.getElementById('next_station');
-
+    if (!iframeLoaded) {
+        console.warn("Iframe not LOADED!");
+        return;
+    };
+    
     //if (displayType === 'delay') {
+    //    nextStationDelay = iframe.contentDocument.getElementById('next_station_delay');
+    //    nextStation = iframe.contentDocument.getElementById('next_station');
     //    nextStationDelay.style.display = '';
     //    nextStationDelay.classList.add('currently_displayed');
     //    nextStation.style.display = 'none';
@@ -299,57 +465,80 @@ async function changeValues() {
     //}
 
     if (!trainNumber || !wagonNumber) {
-        iframe.contentDocument.getElementById('main_display').style.visibility = 'visible';
-        iframe.contentDocument.getElementById('loader_box').style.display = 'none';
-        //iframe.contentDocument.getElementById('error_box').style.display = 'flex';
-
-        if (iframe.contentDocument.getElementById('route_box').childElementCount === 0) {
-            console.error('Train or wagon number not provided - displaying template only');
-            applyResponsiveStyles();
-            window.addEventListener('resize', iframe.contentWindow.overflowRestStations);
-        }
-
-        console.log('Update display with template only');
-
         return;
     }
 
-    if (iframe.contentDocument) {
-        await getAPIsForTrainName(apiVersion);
-        iframe.contentDocument.getElementById('carriage_number').textContent = wagonNumber;
+    await getAPIsForTrainName(apiVersion);
+    setCarriageNumber();
 
-        let success = false;
+    const success = await setDataFromStacjownik();
 
-        try {
-            success = await setDataFromStacjownik();
-        } catch (error) {
-            console.error('Error fetching train data:', error);
-        }
-
-        if (!success) {
-            iframe.contentDocument.getElementById('main_display').style.visibility = 'hidden';
-            iframe.contentDocument.getElementById('loader_box').style.display = 'none';
-            iframe.contentDocument.getElementById('error_box').style.display = 'flex';
-        } else {
-            iframe.contentDocument.getElementById('main_display').style.visibility = 'visible';
-            iframe.contentDocument.getElementById('loader_box').style.display = 'none';
-
-            applyResponsiveStyles();
-        }
+    if (!success) {
+        displayErrorBox();
     } else {
-        console.error('iframe.contentDocument is not available yet');
+        showMainDisplay();
     }
+
+    function displayErrorBox() {
+        iframe.contentDocument.getElementById('main_display').style.visibility = 'hidden';
+        iframe.contentDocument.getElementById('loader_box').style.display = 'none';
+        iframe.contentDocument.getElementById('error_box').style.display = 'flex';
+
+        if (displayTheme === Theme.PR) {
+            iframe.contentDocument.getElementById('top_bar').style.color = "transparent";
+        }
+    }
+
+    function showMainDisplay() {
+        iframe.contentDocument.getElementById('main_display').style.visibility = 'visible';
+        iframe.contentDocument.getElementById('loader_box').style.display = 'none';
+
+        if (displayTheme === Theme.PR) {
+            iframe.contentDocument.getElementById('top_bar').style.removeProperty("color");
+        }
+
+        applyResponsiveStyles();
+    }
+}
+
+function setCarriageNumber() {
+    const carriageNumberElement = iframe.contentDocument.getElementById('carriage_number')
+    if (!carriageNumberElement) return;
+    carriageNumberElement.textContent = wagonNumber;
+}
+
+function showDebugScreen() {
+    iframe.contentDocument.getElementById('main_display').style.visibility = 'visible';
+    iframe.contentDocument.getElementById('loader_box').style.display = 'none';
+    //iframe.contentDocument.getElementById('error_box').style.display = 'flex';
+
+    applyResponsiveStyles();
+
+    console.error('Train or wagon number not provided - displaying template only');
 }
 
 function applyResponsiveStyles() {
-    iframe.contentWindow.scrollText();
-    if (iframe.contentDocument.getElementById('route_box').childElementCount === 0) {
-        iframe.contentWindow.dynamicWrapText('route_box');
+    if (!iframeLoaded) {
+        console.warn("Iframe not LOADED!");
+        return;
+    };
+
+    if (displayTheme === Theme.IC) {
+        iframe.contentWindow.scrollText();
+        if (iframe.contentDocument.getElementById('route_box').childElementCount === 0) {
+            iframe.contentWindow.dynamicWrapText('route_box');
+        }
+        iframe.contentWindow.overflowRestStations();
+    } else if (displayTheme === Theme.PR) {
+        // TODO: Add functions below!
+        //iframe.contentWindow.wrapDirectionText();
     }
-    iframe.contentWindow.overflowRestStations();
 }
 
 iframe.onload = function () {
+    if (!trainNumber || !wagonNumber) {
+        showDebugScreen();
+    }
     changeValues();
     setTemperature();
 }

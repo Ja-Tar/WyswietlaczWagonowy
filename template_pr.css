@@ -1,0 +1,169 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
+
+body {
+    margin: 0;
+
+    font-family: 'Roboto', Arial, sans-serif;
+    font-optical-sizing: auto;
+    font-weight: bold;
+    font-style: normal;
+    font-variation-settings:
+    "wdth" 100;
+
+    line-height: 1;
+    background-color: #fff;
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    overflow: hidden;
+    height: 100vh;
+}
+
+/* main colors
+#d41541
+OR
+#8d1519
+*/
+
+#main_display {
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box;
+    padding: 0 2vw;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1vh;
+    visibility: hidden;
+    flex: 1;
+}
+
+#loader_box {
+    top: 57% !important;
+}
+
+#bottom_bar {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: space-between;
+    background-color: #cccccc;
+    color: #0a2d41;
+    padding-right: 0.3vw;
+    padding-left: 4vw;
+    font-weight: normal;
+}
+
+#current_speed_box {
+    display: flex;
+    flex-direction: column;
+    gap: 1vh;
+    align-items: flex-end;
+    justify-content: space-around;
+}
+
+#current_speed_label {
+    font-size: 1.9vw;
+}
+
+#current_speed {
+    font-size: 3.6vw;
+    line-height: 0.8;
+}
+
+#logo {
+    align-self: center;
+    width: 15vw;
+    padding: 1vh 0;
+}
+
+#top_bar {
+    width: 100%;
+    height: 14vw;
+    display: grid;
+    grid-template-columns: 25% auto 27%;
+    background-color: #d41541;
+}
+
+#number_destination_box {
+    display: grid;
+    grid-template-rows: 55% auto;
+    justify-items: left;
+    padding-bottom: 0.5vw;
+}
+
+#train_number {
+    font-size: 5vw;
+    font-weight: 500;
+    align-self: center;
+}
+
+#destination_box {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+#destination_label {
+    font-size: 1.5vw;
+    font-weight: 400;
+    padding-left: 0.15em;
+}
+
+#destination {
+    /* TODO: size should change when longer names */
+    font-size: 4vw;
+    font-weight: 300;
+}
+
+#station_box {
+    background-color: #696969;
+    display: grid;
+    grid-template-rows: 3vw auto;
+    padding: 1vh 0.2vw;
+}
+
+#station_label {
+    font-size: 2.5vw;
+    font-weight: 400;
+}
+
+#station {
+    font-size: 5.8vw;
+    font-weight: 600;
+    align-self: center;
+}
+
+#date_time_box {
+    display: grid;
+    justify-items: right;
+    grid-template:
+        "label" min-content
+        "weekday" min-content
+        "." auto
+        "time" min-content;
+    padding-right: 0.2vw;
+}
+
+#date {
+    grid-area: label;
+    font-size: 2.3vw;
+    font-weight: 400;
+    margin-bottom: 1vw;
+}
+
+#weekday_name {
+    grid-area: weekday;
+    font-size: 2.3vw;
+    font-weight: 400;
+}
+
+#time {
+    grid-area: time;
+    font-size: 5vw;
+    font-weight: 400;
+}

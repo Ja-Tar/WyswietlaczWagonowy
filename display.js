@@ -145,9 +145,9 @@ function setDateAndTime() {
     const month = date.getMonth() + 1;
     const year = date.getFullYear();
 
-    dateDiv.textContent = `${day < 10 ? '0' + day : day}.${month < 10 ? '0' + month : month}.${year}`;
-    minDiv.textContent = `${hours < 10 ? '0' + hours : hours}`;
-    secDiv.textContent = `${minutes < 10 ? '0' + minutes : minutes}`;
+    dateDiv.textContent = `${twoDigits(day)}.${twoDigits(month)}.${year}`;
+    minDiv.textContent = `${twoDigits(hours)}`;
+    secDiv.textContent = `${twoDigits(minutes)}`;
     if (colonDiv.style.visibility === 'visible') {
         colonDiv.style.visibility = 'hidden';
     } else {
@@ -160,6 +160,14 @@ function setDateAndTime() {
         const dayNumber = date.getDay();
         weekdayName.textContent = `${dayNamesPolish[dayNumber]}/${dayNamesEnglish[dayNumber]}`;
     }
+}
+
+/**
+ * @param {number} n 
+ * @returns {string}
+ */
+function twoDigits(n) {
+    return String(n).padStart(2, '0');
 }
 
 async function setTemperature() {

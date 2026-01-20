@@ -51,7 +51,7 @@ function dynamicWrapText(elementId) {
     if (left.scrollWidth > left.clientWidth) {
         const route = originalText.split(' - ');
         right.textContent = route.pop();
-        left.textContent = route.pop() + ' -';
+        left.textContent = `${route.pop()} -`;
     } else {
         right.remove();
         left.classList.add('line_one');
@@ -83,7 +83,7 @@ function overflowRestStations() {
     }
 
     // Reduce font size as needed
-    while (mainDisplay.scrollHeight > mainDisplay.clientHeight && fontSize > 2 && marginSize <= 1) {
+    while (mainDisplay.scrollHeight > mainDisplay.clientHeight && fontSize > 2) { // Removed: && marginSize <= 1) {
         fontSize -= 0.1;
         restStations.style.fontSize = `${fontSize}vw`;
     }

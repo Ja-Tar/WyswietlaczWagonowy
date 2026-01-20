@@ -257,7 +257,7 @@ function displayCurrentSpeed(train) {
  */
 function setTrainName(train) {
     const trainName = getTrainFullName(trainNumber, train.stockString, train.timetable.category);
-    const trainNameString = `${trainName.prefix} ${trainName.number} ${trainName.name}`
+    const trainNameString = `${trainName.prefix} ${trainName.number} ${trainName.trainName}`
     iframe.contentDocument.getElementById('train_name').textContent = trainNameString;
     document.title = `Wagon ${wagonNumber} - ${trainNameString}`;
 }

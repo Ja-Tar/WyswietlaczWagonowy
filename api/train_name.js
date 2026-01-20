@@ -98,40 +98,40 @@ export async function getAPIsForTrainName(apiVersion) {
  * @param {string} number 
  * @param {string} stockString 
  * @param {string} trainCategory 
- * @returns {{prefix: string, number: string, name: string}}
+ * @returns {{prefix: string, trainName: string, name: string}}
  */
 export function getTrainFullName(number, stockString, trainCategory) {
     console.debug('Stock string:', stockString);
+
     const operator = determineOperator(stockString);
     let prefix = getTrainPrefixByCategory(operator, trainCategory);
 
-    let name = '';
-    ({ trainNumberPrefix: prefix, endTrainName: name } = mapTrainName(operator, number, name, prefix));
-
+    let trainName = '';
+    ({ trainNumberPrefix: prefix, endTrainName: trainName } = mapTrainName(operator, number, prefix));
+    
     // Further train name and prefix override
-
     // TODO: Add train name and prefix override
 
-    return {prefix, number, name}; // Placeholder implementation
+    return { prefix, number, trainName }; // Placeholder implementation
 }
 
 /**
  * @param {string} operator 
- * @param {string} trainNo 
- * @param {string} endTrainName 
+ * @param {number} trainNo 
  * @param {string} trainNumberPrefix 
  * @returns {{operator: string, trainNumberPrefix: string, endTrainName: string}}
  */
-function mapTrainName(operator, trainNo, endTrainName, trainNumberPrefix) {
+function mapTrainName(operator, trainNo, trainNumberPrefix) {
+    let endTrainName = "";
 
     for (let j = 0; j < win.operatorConvertData.trainNames.length; j++) {
-        let trainNameData = win.operatorConvertData.trainNames[j];
-        let trainOperatorBefore = operator;
-        let trainNoIs = trainNameData.trainNo;
+        const trainNameData = win.operatorConvertData.trainNames[j];
+        const trainOperatorBefore = operator;
+        const trainNoIs = trainNameData.trainNo;
 
         for (let k = 0; k < trainNoIs.length; k++) {
             if (trainNameData.operator === trainOperatorBefore) {
-                if (trainNoIs[k] === trainNo) {  //BUG: ?? trainNo.toString()
+                if (trainNoIs[k] === trainNo.toString()) {
                     if (!isNaN(parseInt(trainNo))) console.error("WTF?!", trainNo, trainNoIs[k]);
                     operator = trainNameData.operator;
                     endTrainName = trainNameData.trainName;
@@ -165,11 +165,12 @@ function getTrainPrefixByCategory(operator, trainCategory) {
             }
         }
     }
+    return "ERR";
 }
 
 /**
  * @param {string} stockString 
- * @returns {string}
+ * @returns {string | null}
  */
 function determineOperator(stockString) {
     let operatorList = [];
@@ -198,6 +199,8 @@ function determineOperator(stockString) {
         });
 
         return mostCommonOperator;
+    } else {
+        return null;
     }
 }
 

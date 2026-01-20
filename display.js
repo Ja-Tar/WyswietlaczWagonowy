@@ -203,7 +203,7 @@ async function setDataFromStacjownik() {
         const data = await response.json();
 
         if (data.length > 0) {
-            let train = data.find(train => train.trainNo === parseInt(trainNumber));
+            let train = data.find(_train => _train.trainNo === parseInt(trainNumber));
             if (train) {
                 if (train.timetable) {
                     updateTrainDisplay(train);
@@ -247,8 +247,8 @@ function updateTrainDisplay(train) {
  * @param {TrainInfo} train 
  */
 function displayCurrentSpeed(train) {
-    let currentSpeedDiv = iframe.contentDocument.getElementById('current_speed');
-    let speed = train.speed;
+    const currentSpeedDiv = iframe.contentDocument.getElementById('current_speed');
+    const speed = train.speed;
     currentSpeedDiv.textContent = `${speed} km/h`;
 }
 
@@ -401,31 +401,28 @@ function renderNextStops(nextStopsList) {
         nextStation.classList.add('currently_displayed');
     }
 
-    let stationOverflow = false;
-
     if (nextStopsList.length > 5) {
         console.warn('Wykryto więcej niż 5 przystanków na trasie');
         // TODO: Dodać możliwość zmiany maksymalnej ilości + czy wyświetlać tylko główne stacje
         nextStopsList = nextStopsList.slice(0, 5);
-        stationOverflow = true;
     }
 
     if (nextStopsList.length > 1) {
         restStationsDiv.innerHTML = '';
 
-        let restStations = nextStopsList.slice(1);
+        const restStations = nextStopsList.slice(1);
 
         restStations.forEach((stopPoint, index) => {
-            let stopTime = stopPoint.arrivalTimestamp;
+            const stopTime = stopPoint.arrivalTimestamp;
             if (stopPoint.beginsHere === true) {
                 stopTime = stopPoint.departureTimestamp;
             }
-            stopTime = new Date(stopTime);
-            stopTime = stopTime.toLocaleTimeString('pl-PL', { hour: '2-digit', minute: '2-digit' });
-            let stopName = stopPoint.stopNameRAW;
-            //stopName = stopName.toLowerCase().split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
-            let stopElement = document.createElement('span');
-            stopElement.textContent = `${stopTime} ${stopName}` + (index < restStations.length - 1 ? ', ' : ''); // : stationOverflow ? '...' : '');
+            const stopTimeDate = new Date(stopTime);
+            const stopTimeString = stopTimeDate.toLocaleTimeString('pl-PL', { hour: '2-digit', minute: '2-digit' });
+            const stopName = stopPoint.stopNameRAW;
+            const stopElement = document.createElement('span');
+
+            stopElement.textContent = `${stopTimeString} ${stopName}${index < restStations.length - 1 ? ', ' : ''}`;
             restStationsDiv.appendChild(stopElement);
         });
 

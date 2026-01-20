@@ -1,22 +1,6 @@
 // VALIDATION
 
 /**
- * 
- * @param {Event} parm_event 
- * @param {RegExp} regex 
- */
-function validateField(parm_event, regex) {
-    const inputField = parm_event.target;
-    const isPasted = parm_event.type === "paste";
-    let text = "";
-
-    if (isPasted) {
-        text = parm_event.clipboardData.getData('Text');
-        console.log(text);
-    }
-}
-
-/**
  * @param {Element} element 
  * @returns {boolean}
  */

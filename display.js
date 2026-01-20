@@ -88,6 +88,12 @@
 
 // ===============================
 
+const Theme = {
+    AUTO: "auto",
+    IC: "ic",
+    PR: "pr"
+}
+
 // Change version on API update
 const apiVersion = '1';
 
@@ -95,7 +101,7 @@ const urlParams = new URLSearchParams(window.location.search);
 const trainNumber = urlParams.get('train');
 const wagonNumber = urlParams.get('wagon');
 const showDelay = parseInt(urlParams.get("delay")) || 0;
-const displayTheme = urlParams.get('theme') || "auto";
+const displayTheme = urlParams.get('theme') || Theme.AUTO;
 /** @type {HTMLIFrameElement} */
 const iframe = document.querySelector('#container');
 let iframeLoaded = false;
@@ -112,7 +118,7 @@ resizeIframe();
 // TODO: Major rework needed! (separate ic display function specific things to prepare for pr ones)
 const templatesUrl = { ic: "template.html", pr: "template_pr.html" };
 
-if (displayTheme === "auto") {
+if (displayTheme === Theme.AUTO) {
     /* fetch main template.html (for now) */
     fetchTemplate("template.html");
     /* AUTO needs to change it later after loading train stock data */
@@ -241,21 +247,65 @@ async function setDataFromStacjownik() {
  */
 function updateTrainDisplay(train) {
     console.log(train);
-    let currentSpeedDiv = iframe.contentDocument.getElementById('current_speed');
-    console.log('Stock string:', train.stockString);
+    displayCurrentSpeed(train);
+    if (displayTheme === Theme.IC) {
+        setTrainName(train);
+        updateRoute(train);
+    } else {
+        setTrainNumber(train);
+        updateDestination(train);
+    }
+    //setRouteStations(train.timetable.stopList);
+}
 
+/**
+ * @param {TrainInfo} train 
+ */
+function displayCurrentSpeed(train) {
+    let currentSpeedDiv = iframe.contentDocument.getElementById('current_speed');
     let speed = train.speed;
     currentSpeedDiv.textContent = `${speed} km/h`;
+}
 
-    let trainNameString = getTrainFullName(trainNumber, train.stockString, train.timetable.category);
+/**
+ * @param {TrainInfo} train 
+ */
+function setTrainName(train) {
+    const trainName = getTrainFullName(trainNumber, train.stockString, train.timetable.category);
+    const trainNameString = `${trainName.prefix} ${trainName.number} ${trainName.name}`
     iframe.contentDocument.getElementById('train_name').textContent = trainNameString;
     document.title = `Wagon ${wagonNumber} - ${trainNameString}`;
+}
 
-    let route = train.timetable.route.split('|'); // before split: DOBRZYNIEC|Wielichowo Główne
+/**
+ * @param {TrainInfo} train 
+ */
+function updateRoute(train) {
+    const route = train.timetable.route.split('|'); // before split: DOBRZYNIEC|Wielichowo Główne
+    iframe.contentDocument.getElementById('route_box').textContent = capitalizeStationNames(route).join(' - ');
+}
+
+/**
+ * @param {TrainInfo} train 
+ */
+function setTrainNumber(train) {
+    const trainName = getTrainFullName(trainNumber, train.stockString, train.timetable.category);
+    const trainNameString = `${trainName.prefix} ${trainName.number}`
+    iframe.contentDocument.getElementById('train_number').textContent = trainNameString;
+    document.title = `Wagon ${wagonNumber} - ${trainNameString}`;
+}
+
+/**
+ * @param {TrainInfo} train 
+ */
+function updateDestination(train) {
+    const route = train.timetable.route.split('|');
+    iframe.contentDocument.getElementById('destination').textContent = capitalizeStationNames(route)[1];
+}
+
+function capitalizeStationNames(route) {
     route = route.map(station => station.toLowerCase().split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' '));
-    iframe.contentDocument.getElementById('route_box').textContent = route.join(' - ');
-
-    setRouteStations(train.timetable.stopList); // Pass correct stopPoints to the setRouteStations function
+    return route;
 }
 
 /**
@@ -456,13 +506,13 @@ function applyResponsiveStyles() {
         return;
     };
 
-    if (displayTheme === "ic") {
+    if (displayTheme === Theme.IC) {
         iframe.contentWindow.scrollText();
         if (iframe.contentDocument.getElementById('route_box').childElementCount === 0) {
             iframe.contentWindow.dynamicWrapText('route_box');
         }
         iframe.contentWindow.overflowRestStations();
-    } else if (displayTheme === "pr") {
+    } else if (displayTheme === Theme.PR) {
         // TODO: Add functions below!
         //iframe.contentWindow.wrapDirectionText();
     }

@@ -95,25 +95,24 @@ async function getAPIsForTrainName(apiVersion) {
 
 /**
  * 
- * @param {string} trainNumber 
+ * @param {string} number 
  * @param {string} stockString 
  * @param {string} trainCategory 
- * @returns 
+ * @returns {{prefix: string, number: string, name: string}}
  */
-function getTrainFullName(trainNumber, stockString, trainCategory) {
-    const trainNo = trainNumber;
-
+function getTrainFullName(number, stockString, trainCategory) {
+    console.debug('Stock string:', stockString);
     const operator = determineOperator(stockString);
-    let trainNumberPrefix = getTrainPrefixByCategory(operator, trainCategory);
+    let prefix = getTrainPrefixByCategory(operator, trainCategory);
 
-    let endTrainName = '';
-    ({_, trainNumberPrefix, endTrainName } = mapTrainName(operator, trainNo, endTrainName, trainNumberPrefix));
+    let name = '';
+    ({_, trainNumberPrefix: prefix, endTrainName: name } = mapTrainName(operator, number, name, prefix));
 
     // Further train name and prefix override
 
     // TODO: Add train name and prefix override
 
-    return `${trainNumberPrefix} ${trainNo} ${endTrainName}`; // Placeholder implementation
+    return {prefix, number, name}; // Placeholder implementation
 }
 
 /**

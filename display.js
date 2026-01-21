@@ -50,7 +50,7 @@
  * @property {string} region
  * @property {boolean} isTimeout
  * @property {boolean} driverIsDonator
- * @property {object | null} timetable
+ * @property {object} [timetable]
  * @property {number} timetable.trainMaxSpeed
  * @property {boolean} timetable.hasDangerousCargo
  * @property {boolean} timetable.hasExtraDeliveries
@@ -85,6 +85,15 @@ const displayTheme = urlParams.get('theme') || Theme.AUTO;
 /** @type {HTMLIFrameElement} */
 const iframe = document.querySelector('#container');
 let iframeLoaded = false;
+
+// TODO: add more old data to check for
+let oldTrainData = {
+    trainNumber: null,
+    stockString: null,
+    category: null,
+    route: null,
+    recentStation: null
+};
 
 function resizeIframe() {
     const scale = Math.min(window.innerWidth / 1920, window.innerHeight / 1050);
@@ -205,7 +214,6 @@ async function setDataFromStacjownik() {
 
     const options = { method: 'GET' };
     try {
-        //throw new Error('An error has occurred'); 
         const response = await fetch(url, options);
         /** @type {TrainInfo[]} */
         const data = await response.json();
@@ -249,6 +257,13 @@ function updateTrainDisplay(train) {
         setTrainNumber(train);
         updateDestination(train);
     }
+    
+    // Save data for checking later
+    oldTrainData.trainNumber = trainNumber;
+    oldTrainData.stockString = train.stockString;
+    oldTrainData.category = train.timetable?.category;
+    oldTrainData.route = train.timetable?.route;
+
     setRouteStations(train);
 }
 
@@ -353,11 +368,15 @@ function setRouteStations(train) {
         }
     });
 
+    if (nextStopsList.length > 0) {
+        console.error("No stations left!!!");
+    }
+
+    oldTrainData.recentStation = nextStopsList[0];
+
     if (displayTheme === Theme.IC) {
         // get first next stop
-        if (nextStopsList.length > 0) {
-            renderNextStops(nextStopsList);
-        }
+        renderNextStops(nextStopsList);
     } else if (displayTheme === Theme.PR) {
         renderStopHeader(nextStopsList[0], train.speed);
         // TODO: renderStopMap(nextStopsList);

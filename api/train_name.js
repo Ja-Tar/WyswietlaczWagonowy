@@ -132,7 +132,7 @@ function mapTrainName(operator, trainNo, trainNumberPrefix) {
         for (let k = 0; k < trainNoIs.length; k++) {
             if (trainNameData.operator === trainOperatorBefore) {
                 if (trainNoIs[k] === trainNo.toString()) {
-                    if (!isNaN(parseInt(trainNo))) console.error("WTF?!", trainNo, trainNoIs[k]);
+                    if (isNaN(parseInt(trainNo))) console.error("WTF?!", trainNo, trainNoIs[k]);
                     operator = trainNameData.operator;
                     endTrainName = trainNameData.trainName;
                     trainNumberPrefix = trainNameData.categoryOverwrite;
@@ -165,7 +165,8 @@ function getTrainPrefixByCategory(operator, trainCategory) {
             }
         }
     }
-    return "ERR";
+    console.warn("No prefix found!")
+    return "";
 }
 
 /**

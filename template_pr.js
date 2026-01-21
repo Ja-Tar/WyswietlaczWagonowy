@@ -39,4 +39,14 @@ function scrollText() {
     });
 }
 
+function checkForWrap() {
+    const destinationBox = document.getElementById("number_destination_box");
+    const destinationElement = document.getElementById("destination");
+
+    if (destinationBox.scrollWidth > destinationBox.clientWidth) {
+        destinationElement.classList.add("smaller")
+    }
+}
+
 window.scrollText = scrollText;
+window.checkForWrap = checkForWrap;

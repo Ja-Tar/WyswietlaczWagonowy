@@ -540,7 +540,7 @@ function applyResponsiveStyles() {
         iframe.contentWindow.overflowRestStations();
     } else if (displayTheme === Theme.PR) {
         // TODO: Add functions below!
-        //iframe.contentWindow.wrapDirectionText();
+        iframe.contentWindow.checkForWrap();
     }
 }
 

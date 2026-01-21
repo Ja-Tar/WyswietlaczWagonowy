@@ -98,8 +98,16 @@ export async function getAPIsForTrainName(apiVersion) {
  * @returns {string}
  */
 export function correctStationName(stopName) {
-    console.log(stopName);
-    return stopName;
+    const regex = new RegExp("("
+        + Object.keys(win.nameCorrectionsData)
+            .sort((a, b) => b.length - a.length)
+            .join("|")
+        + ")", "g");
+    console.log(regex);
+    const replaceFromObj = str => str.replace(regex, (_, match) => win.nameCorrectionsData[match]);
+    const output = replaceFromObj(stopName);
+    console.log(stopName, output);
+    return output;
 }
 
 /**

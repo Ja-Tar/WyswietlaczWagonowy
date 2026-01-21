@@ -240,6 +240,7 @@ async function setDataFromStacjownik() {
  * @param {TrainInfo} train 
  */
 function updateTrainDisplay(train) {
+    // TODO: Check for changes and refresh only on them!
     displayCurrentSpeed(train);
     if (displayTheme === Theme.IC) {
         setTrainName(train);
@@ -539,7 +540,6 @@ function applyResponsiveStyles() {
         }
         iframe.contentWindow.overflowRestStations();
     } else if (displayTheme === Theme.PR) {
-        // TODO: Add functions below!
         iframe.contentWindow.checkForWrap();
     }
 }

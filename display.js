@@ -66,7 +66,7 @@
 
 // ===============================
 
-import {getAPIsForTrainName, getTrainFullName} from "./api/train_name.js";
+import { getAPIsForTrainName, getTrainFullName, correctStationName } from "./api/train_name.js";
 
 const Theme = {
     AUTO: "auto",
@@ -314,7 +314,7 @@ function formatStopsName(stopPoints) {
             stopNameType = '';
         }
         formattedStopName = formattedStopName[0].toLowerCase().split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
-        stopPoint.stopNameRAW = formattedStopName;
+        stopPoint.stopNameRAW = correctStationName(formattedStopName);
         stopPoint.stopNameType = stopNameType.trim();
     });
     return stopPoints;
@@ -448,7 +448,7 @@ function renderStopHeader(nextStop, trainSpeed) {
     const stationNameElement = iframe.contentDocument.getElementById("station");
 
     const currentTime = new Date().getTime();
-    if (nextStop.arrivalRealTimestamp > currentTime && trainSpeed < 5) {
+    if ((nextStop.arrivalRealTimestamp > currentTime && trainSpeed < 20) || (nextStop.departureRealTimestamp > currentTime && nextStop.beginsHere === true)) {
         // TRAIN ARRIVED AT STATION
         stationLabelElement.textContent = "Stacja/Station:";
     } else {
@@ -462,7 +462,7 @@ async function changeValues() {
         console.warn("Iframe not LOADED!");
         return;
     };
-    
+
     //if (displayType === 'delay') {
     //    nextStationDelay = iframe.contentDocument.getElementById('next_station_delay');
     //    nextStation = iframe.contentDocument.getElementById('next_station');
@@ -531,8 +531,9 @@ function applyResponsiveStyles() {
         return;
     };
 
+    iframe.contentWindow.scrollText();
+
     if (displayTheme === Theme.IC) {
-        iframe.contentWindow.scrollText();
         if (iframe.contentDocument.getElementById('route_box').childElementCount === 0) {
             iframe.contentWindow.dynamicWrapText('route_box');
         }

@@ -94,6 +94,15 @@ export async function getAPIsForTrainName(apiVersion) {
 }
 
 /**
+ * @param {string} stopName
+ * @returns {string}
+ */
+export function correctStationName(stopName) {
+    console.log(stopName);
+    return stopName;
+}
+
+/**
  * 
  * @param {string} number 
  * @param {string} stockString 

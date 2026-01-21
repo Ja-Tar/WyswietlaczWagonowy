@@ -91,7 +91,7 @@ OR
 
 #number_destination_box {
     display: grid;
-    grid-template-rows: 55% auto;
+    grid-template-rows: minmax(2em, 55%) auto;
     justify-items: left;
     padding-bottom: 0.5vw;
 }
@@ -132,10 +132,13 @@ OR
     font-weight: 400;
 }
 
+#station_scroll {
+    align-self: center;
+}
+
 #station {
     font-size: 5.8vw;
     font-weight: 600;
-    align-self: center;
 }
 
 #date_time_box {
@@ -166,4 +169,19 @@ OR
     grid-area: time;
     font-size: 5vw;
     font-weight: 400;
+}
+
+.box_scroll {
+    display: flex;
+    align-content: center;
+    overflow: hidden;
+    white-space: nowrap;
+    text-align: center;
+    box-sizing: border-box;
+    width: 100%;
+    column-gap: 5em;
+}
+
+.box_scroll:has(.clone) {
+    justify-content: center;
 }

@@ -1,10 +1,14 @@
 import { horizontalLoop } from "./api/gsap_simless_loop.js";
+import { getTrainFullName } from "./api/train_name.js";
 
 /** @type {*} */ 
 const gsap = (window.gsap);
 
+const lastTexts = {};
+
 function scrollText() {
     const elements = document.querySelectorAll('.scroll');
+    if (!checkIfRefreshNeeded(elements)) return;
 
     // Remove existing clones and kill GSAP animations
     gsap.globalTimeline.clear();
@@ -37,6 +41,22 @@ function scrollText() {
             element.removeAttribute("style");
         }
     });
+}
+
+/**
+ * 
+ * @param {NodeListOf<Element>} elements 
+ * @returns {boolean}
+ */
+function checkIfRefreshNeeded(elements) {
+    let needed = false;
+    elements.forEach(element => {
+        if (element.textContent !== lastTexts[element.id]) {
+            lastTexts[element.id] = element.textContent;
+            needed = true;
+        }
+    });
+    return needed;
 }
 
 function checkForWrap() {

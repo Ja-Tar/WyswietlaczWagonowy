@@ -20,6 +20,7 @@
  * @property {boolean} beginsHere
  * @property {boolean} terminatesHere
  * @property {number} confirmed
+ * @property {boolean} [arrived]
  * @property {number} stopped
  * @property {null | number} stopTime
  * @property {string} stationName
@@ -88,7 +89,7 @@ let iframeLoaded = false;
 
 // TODO: add more old data to check for
 let oldTrainData = {
-    trainNumber: null,
+    trainNo: null,
     stockString: null,
     category: null,
     route: null,
@@ -249,22 +250,48 @@ async function setDataFromStacjownik() {
  */
 function updateTrainDisplay(train) {
     // TODO: Check for changes and refresh only on them!
+    const changedData = getDataChanged(train);
+
     displayCurrentSpeed(train);
     if (displayTheme === Theme.IC) {
-        setTrainName(train);
-        updateRoute(train);
+        setTrainName(train, changedData);
+        updateRoute(train, changedData);
     } else {
-        setTrainNumber(train);
-        updateDestination(train);
+        setTrainNumber(train, changedData);
+        updateDestination(train, changedData);
     }
-    
+
     // Save data for checking later
-    oldTrainData.trainNumber = trainNumber;
+    oldTrainData.trainNo = train.trainNo;
     oldTrainData.stockString = train.stockString;
     oldTrainData.category = train.timetable?.category;
     oldTrainData.route = train.timetable?.route;
 
     setRouteStations(train);
+}
+
+/**
+ * @typedef DataChanged
+ * @property {boolean} trainNo
+ * @property {boolean} stockString
+ * @property {boolean} category
+ * @property {boolean} route
+ */
+
+/**
+ * @param {TrainInfo} train 
+ * @returns {DataChanged}
+ */
+function getDataChanged(train) {
+    const changesList = {};
+    changesList.trainNo = oldTrainData.trainNo === train.trainNo ? false : true;
+    changesList.stockString = oldTrainData.stockString === train.stockString ? false : true;
+    changesList.category = oldTrainData.category === train.timetable?.category ? false : true;
+    changesList.route = oldTrainData.route === train.timetable?.route ? false : true;
+    // changesList.recentStation = null; // Check needed later after filtering!!!
+
+    console.debug(changesList);
+    return changesList;
 }
 
 /**
@@ -278,8 +305,10 @@ function displayCurrentSpeed(train) {
 
 /**
  * @param {TrainInfo} train 
+ * @param {DataChanged} changedData
  */
-function setTrainName(train) {
+function setTrainName(train, changedData) {
+    if (!changedData.number && !changedData.stockString && !changedData.category) return;
     const trainName = getTrainFullName(trainNumber, train.stockString, train.timetable.category);
     const trainNameString = `${trainName.prefix} ${trainName.number} ${trainName.trainName}`
     iframe.contentDocument.getElementById('train_name').textContent = trainNameString;
@@ -288,16 +317,20 @@ function setTrainName(train) {
 
 /**
  * @param {TrainInfo} train 
+ * @param {DataChanged} changedData
  */
-function updateRoute(train) {
+function updateRoute(train, changedData) {
+    if (!changedData.route) return;
     const route = train.timetable.route.split('|'); // before split: DOBRZYNIEC|Wielichowo Główne
     iframe.contentDocument.getElementById('route_box').textContent = capitalizeStationNames(route).join(' - ');
 }
 
 /**
  * @param {TrainInfo} train 
+ * @param {DataChanged} changedData
  */
-function setTrainNumber(train) {
+function setTrainNumber(train, changedData) {
+    if (!changedData.number && !changedData.stockString && !changedData.category) return;
     const trainName = getTrainFullName(trainNumber, train.stockString, train.timetable.category);
     const trainNameString = `${trainName.prefix} ${trainName.number}`
     iframe.contentDocument.getElementById('train_number').textContent = trainNameString;
@@ -306,8 +339,10 @@ function setTrainNumber(train) {
 
 /**
  * @param {TrainInfo} train 
+ * @param {DataChanged} changedData
  */
-function updateDestination(train) {
+function updateDestination(train, changedData) {
+    if (!changedData.route) return;
     const route = train.timetable.route.split('|');
     iframe.contentDocument.getElementById('destination').textContent = capitalizeStationNames(route)[1];
 }
@@ -368,10 +403,15 @@ function setRouteStations(train) {
         }
     });
 
-    if (nextStopsList.length > 0) {
+    if (nextStopsList.length < 1) {
         console.error("No stations left!!!");
+        return;
     }
 
+    if (isTheSame(oldTrainData.recentStation, nextStopsList[0])) {
+        console.warn("No next station change! Skipping")
+        return;
+    }
     oldTrainData.recentStation = nextStopsList[0];
 
     if (displayTheme === Theme.IC) {
@@ -381,6 +421,33 @@ function setRouteStations(train) {
         renderStopHeader(nextStopsList[0], train.speed);
         // TODO: renderStopMap(nextStopsList);
     }
+}
+/**
+ * 
+ * @param {number} currentTime 
+ * @param {StopPoint} nextStop 
+ * @param {number} trainSpeed 
+ * @returns {boolean}
+ */
+function hasArrived(currentTime, nextStop, trainSpeed) {
+    return (nextStop.arrivalRealTimestamp > currentTime && trainSpeed < 20) || 
+        (nextStop.departureRealTimestamp > currentTime && nextStop.beginsHere === true);
+}
+
+/**
+ * @param {Object} obj1 
+ * @param {Object} obj2 
+ * @returns {boolean}
+ */
+function isTheSame(obj1, obj2) {
+    if (obj1 === null || obj2 === null) return false;
+    let same = true;
+    for (const key of Object.keys(obj1)) {
+        if (!(obj1[key] === obj2[key])) {
+            same = false;
+        }
+    }
+    return same;
 }
 
 /**
@@ -468,7 +535,7 @@ function renderStopHeader(nextStop, trainSpeed) {
     const stationNameElement = iframe.contentDocument.getElementById("station");
 
     const currentTime = new Date().getTime();
-    if ((nextStop.arrivalRealTimestamp > currentTime && trainSpeed < 20) || (nextStop.departureRealTimestamp > currentTime && nextStop.beginsHere === true)) {
+    if (nextStop?.arrived) {
         // TRAIN ARRIVED AT STATION
         stationLabelElement.textContent = "Stacja/Station:";
     } else {

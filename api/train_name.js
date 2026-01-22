@@ -103,7 +103,6 @@ export function correctStationName(stopName) {
             .sort((a, b) => b.length - a.length)
             .join("|")
         + ")", "g");
-    console.log(regex);
     const replaceFromObj = str => str.replace(regex, (_, match) => win.nameCorrectionsData[match]);
     const output = replaceFromObj(stopName);
     console.log(stopName, output);

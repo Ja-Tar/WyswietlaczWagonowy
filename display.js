@@ -358,10 +358,6 @@ function setRouteStations(train) {
         return;
     }
 
-    const currentTime = new Date().getTime();
-    console.log(nextStopsList[0].arrivalRealTimestamp < currentTime && train.speed < 20,
-        nextStopsList[0].departureRealTimestamp > currentTime && nextStopsList[0].beginsHere === true)
-
     if (displayTheme === Theme.IC) {
         // get first next stop
         renderNextStops(nextStopsList);

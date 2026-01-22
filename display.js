@@ -86,15 +86,6 @@ const displayTheme = urlParams.get('theme') || Theme.AUTO;
 const iframe = document.querySelector('#container');
 let iframeLoaded = false;
 
-// TODO: add more old data to check for
-let oldTrainData = {
-    trainNo: null,
-    stockString: null,
-    category: null,
-    route: null,
-    recentStation: null
-};
-
 function resizeIframe() {
     const scale = Math.min(window.innerWidth / 1920, window.innerHeight / 1050);
     iframe.style.width = `${1920 * scale}px`;
@@ -248,49 +239,16 @@ async function setDataFromStacjownik() {
  * @param {TrainInfo} train 
  */
 function updateTrainDisplay(train) {
-    // TODO: Check for changes and refresh only on them!
-    const changedData = getDataChanged(train);
-
     displayCurrentSpeed(train);
     if (displayTheme === Theme.IC) {
-        setTrainName(train, changedData);
-        updateRoute(train, changedData);
+        setTrainName(train);
+        updateRoute(train);
     } else {
-        setTrainNumber(train, changedData);
-        updateDestination(train, changedData);
+        setTrainNumber(train);
+        updateDestination(train);
     }
 
-    // Save data for checking later
-    oldTrainData.trainNo = train.trainNo;
-    oldTrainData.stockString = train.stockString;
-    oldTrainData.category = train.timetable?.category;
-    oldTrainData.route = train.timetable?.route;
-
     setRouteStations(train);
-}
-
-/**
- * @typedef DataChanged
- * @property {boolean} trainNo
- * @property {boolean} stockString
- * @property {boolean} category
- * @property {boolean} route
- */
-
-/**
- * @param {TrainInfo} train 
- * @returns {DataChanged}
- */
-function getDataChanged(train) {
-    const changesList = {};
-    changesList.trainNo = oldTrainData.trainNo === train.trainNo ? false : true;
-    changesList.stockString = oldTrainData.stockString === train.stockString ? false : true;
-    changesList.category = oldTrainData.category === train.timetable?.category ? false : true;
-    changesList.route = oldTrainData.route === train.timetable?.route ? false : true;
-    // changesList.recentStation = null; // Check needed later after filtering!!!
-
-    console.debug(changesList);
-    return changesList;
 }
 
 /**
@@ -304,10 +262,8 @@ function displayCurrentSpeed(train) {
 
 /**
  * @param {TrainInfo} train 
- * @param {DataChanged} changedData
  */
-function setTrainName(train, changedData) {
-    if (!changedData.number && !changedData.stockString && !changedData.category) return;
+function setTrainName(train) {
     const trainName = getTrainFullName(trainNumber, train.stockString, train.timetable.category);
     const trainNameString = `${trainName.prefix} ${trainName.number} ${trainName.trainName}`
     iframe.contentDocument.getElementById('train_name').textContent = trainNameString;
@@ -315,21 +271,17 @@ function setTrainName(train, changedData) {
 }
 
 /**
- * @param {TrainInfo} train 
- * @param {DataChanged} changedData
+ * @param {TrainInfo} train
  */
-function updateRoute(train, changedData) {
-    if (!changedData.route) return;
+function updateRoute(train) {
     const route = train.timetable.route.split('|'); // before split: DOBRZYNIEC|Wielichowo Główne
     iframe.contentDocument.getElementById('route_box').textContent = capitalizeStationNames(route).join(' - ');
 }
 
 /**
- * @param {TrainInfo} train 
- * @param {DataChanged} changedData
+ * @param {TrainInfo} train
  */
-function setTrainNumber(train, changedData) {
-    if (!changedData.number && !changedData.stockString && !changedData.category) return;
+function setTrainNumber(train) {
     const trainName = getTrainFullName(trainNumber, train.stockString, train.timetable.category);
     const trainNameString = `${trainName.prefix} ${trainName.number}`
     iframe.contentDocument.getElementById('train_number').textContent = trainNameString;
@@ -338,10 +290,8 @@ function setTrainNumber(train, changedData) {
 
 /**
  * @param {TrainInfo} train 
- * @param {DataChanged} changedData
  */
-function updateDestination(train, changedData) {
-    if (!changedData.route) return;
+function updateDestination(train) {
     const route = train.timetable.route.split('|');
     iframe.contentDocument.getElementById('destination').textContent = capitalizeStationNames(route)[1];
 }
@@ -391,7 +341,8 @@ function setRouteStations(train) {
         const currentTime = new Date().getTime();
         if (stopPoint.stopNameType === 'po') {
             /* check if stop has been passed (stop without confirmed arrival) */
-            const departureTime = stopPoint.departureRealTimestamp;
+            // 30s additional buffer
+            const departureTime = stopPoint.departureRealTimestamp + 30000;
             if (currentTime > departureTime) {
                 /* remove stop from the list */
                 const index = nextStopsList.indexOf(stopPoint);
@@ -407,11 +358,9 @@ function setRouteStations(train) {
         return;
     }
 
-    if (isTheSame(oldTrainData.recentStation, nextStopsList[0])) {
-        console.warn("No next station change! Skipping")
-        return;
-    }
-    oldTrainData.recentStation = nextStopsList[0];
+    const currentTime = new Date().getTime();
+    console.log(nextStopsList[0].arrivalRealTimestamp < currentTime && train.speed < 20,
+        nextStopsList[0].departureRealTimestamp > currentTime && nextStopsList[0].beginsHere === true)
 
     if (displayTheme === Theme.IC) {
         // get first next stop
@@ -523,13 +472,14 @@ function renderStopHeader(nextStop, trainSpeed) {
     const stationNameElement = iframe.contentDocument.getElementById("station");
 
     const currentTime = new Date().getTime();
-    if ((nextStop.arrivalRealTimestamp > currentTime && trainSpeed < 20) || 
+    if ((nextStop.arrivalRealTimestamp < currentTime && trainSpeed < 20) ||
         (nextStop.departureRealTimestamp > currentTime && nextStop.beginsHere === true)) {
         // TRAIN ARRIVED AT STATION
         stationLabelElement.textContent = "Stacja/Station:";
     } else {
         stationLabelElement.textContent = "Następna stacja/Next station:";
     }
+
     stationNameElement.textContent = nextStop.stopNameRAW;
 }
 

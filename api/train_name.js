@@ -105,7 +105,7 @@ export function correctStationName(stopName) {
         + ")", "g");
     const replaceFromObj = str => str.replace(regex, (_, match) => win.nameCorrectionsData[match]);
     const output = replaceFromObj(stopName);
-    console.log(stopName, output);
+    //console.log(stopName, output);
     return output;
 }
 

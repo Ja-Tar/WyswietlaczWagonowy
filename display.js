@@ -20,7 +20,6 @@
  * @property {boolean} beginsHere
  * @property {boolean} terminatesHere
  * @property {number} confirmed
- * @property {boolean} [arrived]
  * @property {number} stopped
  * @property {null | number} stopTime
  * @property {string} stationName
@@ -389,10 +388,10 @@ function setRouteStations(train) {
     nextStopsList = formatStopsName(nextStopsList);
 
     nextStopsList.forEach(stopPoint => {
+        const currentTime = new Date().getTime();
         if (stopPoint.stopNameType === 'po') {
             /* check if stop has been passed (stop without confirmed arrival) */
             const departureTime = stopPoint.departureRealTimestamp;
-            const currentTime = new Date().getTime();
             if (currentTime > departureTime) {
                 /* remove stop from the list */
                 const index = nextStopsList.indexOf(stopPoint);
@@ -421,17 +420,6 @@ function setRouteStations(train) {
         renderStopHeader(nextStopsList[0], train.speed);
         // TODO: renderStopMap(nextStopsList);
     }
-}
-/**
- * 
- * @param {number} currentTime 
- * @param {StopPoint} nextStop 
- * @param {number} trainSpeed 
- * @returns {boolean}
- */
-function hasArrived(currentTime, nextStop, trainSpeed) {
-    return (nextStop.arrivalRealTimestamp > currentTime && trainSpeed < 20) || 
-        (nextStop.departureRealTimestamp > currentTime && nextStop.beginsHere === true);
 }
 
 /**
@@ -535,7 +523,8 @@ function renderStopHeader(nextStop, trainSpeed) {
     const stationNameElement = iframe.contentDocument.getElementById("station");
 
     const currentTime = new Date().getTime();
-    if (nextStop?.arrived) {
+    if ((nextStop.arrivalRealTimestamp > currentTime && trainSpeed < 20) || 
+        (nextStop.departureRealTimestamp > currentTime && nextStop.beginsHere === true)) {
         // TRAIN ARRIVED AT STATION
         stationLabelElement.textContent = "Stacja/Station:";
     } else {

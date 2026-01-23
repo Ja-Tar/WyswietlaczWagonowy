@@ -21,7 +21,7 @@ function scrollText() {
 
         const maxTextLength = 15;
         const addText = '    ';
-        element.textContent = element.textContent.trim();
+        //element.textContent = element.textContent.trim();
 
         if (textLength > maxTextLength) {
             element.textContent += addText;

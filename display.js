@@ -457,7 +457,11 @@ function renderNextStops(nextStopsList) {
     } else {
         restStationsDiv.innerHTML = '';
     }
+
+    iframe.contentWindow.scrollText();
 }
+
+let lastStationText = "";
 
 /**
  * @param {StopPoint} nextStop
@@ -466,6 +470,8 @@ function renderNextStops(nextStopsList) {
 function renderStopHeader(nextStop, trainSpeed) {
     const stationLabelElement = iframe.contentDocument.getElementById("station_label");
     const stationNameElement = iframe.contentDocument.getElementById("station");
+
+    if (lastStationText === nextStop.stopNameRAW) return;
 
     const currentTime = new Date().getTime();
     if ((nextStop.arrivalRealTimestamp < currentTime && trainSpeed < 20) ||
@@ -477,6 +483,8 @@ function renderStopHeader(nextStop, trainSpeed) {
     }
 
     stationNameElement.textContent = nextStop.stopNameRAW;
+    lastStationText = nextStop.stopNameRAW;
+    iframe.contentWindow.scrollText();
 }
 
 async function changeValues() {
@@ -552,8 +560,6 @@ function applyResponsiveStyles() {
         console.warn("Iframe not LOADED!");
         return;
     };
-
-    iframe.contentWindow.scrollText();
 
     if (displayTheme === Theme.IC) {
         if (iframe.contentDocument.getElementById('route_box').childElementCount === 0) {

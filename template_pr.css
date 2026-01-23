@@ -32,13 +32,13 @@ OR
     box-sizing: border-box;
     padding: 0 2vw;
     display: grid;
-    grid: 1fr / auto-flow;
+    grid: 1fr / 7.269vw repeat(7, 10.5vw) 7.269vw;
     visibility: hidden;
     place-items: center;
 }
 
 img {
-    height: 4.4vw;
+    width: 100%;
 }
 
 #loader_box {

@@ -101,7 +101,7 @@ export function correctStationName(stopName) {
     // BUG: NO REGEX PLS
     let output = stopName;
     for (const element of Object.keys(win.nameCorrectionsData)) {
-        output.replaceAll(element, win.nameCorrectionsData[element]);
+        output = output.replaceAll(element, win.nameCorrectionsData[element]);
     }
     //console.log(stopName, output);
     return output;

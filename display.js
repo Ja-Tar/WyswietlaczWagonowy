@@ -363,7 +363,7 @@ function setRouteStations(train) {
         renderNextStops(nextStopsList);
     } else if (displayTheme === Theme.PR) {
         renderStopHeader(nextStopsList[0], train.speed);
-        // TODO: renderStopMap(nextStopsList);
+        renderStopMap(nextStopsList, train.timetable.route);
     }
 }
 
@@ -471,8 +471,6 @@ function renderStopHeader(nextStop, trainSpeed) {
     const stationLabelElement = iframe.contentDocument.getElementById("station_label");
     const stationNameElement = iframe.contentDocument.getElementById("station");
 
-    if (lastStationText === nextStop.stopNameRAW) return;
-
     const currentTime = new Date().getTime();
     if ((nextStop.arrivalRealTimestamp < currentTime && trainSpeed < 20) ||
         (nextStop.departureRealTimestamp > currentTime && nextStop.beginsHere === true)) {
@@ -482,9 +480,21 @@ function renderStopHeader(nextStop, trainSpeed) {
         stationLabelElement.textContent = "Następna stacja/Next station:";
     }
 
+    if (lastStationText === nextStop.stopNameRAW) return;
+
     stationNameElement.textContent = nextStop.stopNameRAW;
     lastStationText = nextStop.stopNameRAW;
     iframe.contentWindow.scrollText();
+}
+/**
+ * @param {StopPoint[]} nextStopsList 
+ * @param {string} routeString
+ */
+function renderStopMap(nextStopsList, routeString) {
+    const route = routeString.split("|");
+
+    // TODO: Splittowanie dla ostatniej stacji kiedy jest za długa!! np. Warszawa Zachodnia
+
 }
 
 async function changeValues() {

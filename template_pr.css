@@ -32,13 +32,40 @@ OR
     box-sizing: border-box;
     padding: 0 2vw;
     display: grid;
-    grid: 1fr / 7.269vw repeat(7, 10.5vw) 7.269vw;
+    grid: auto min-content 20% / 7.269vw repeat(7, 10.5vw) 7.269vw;
     visibility: hidden;
     place-items: center;
+    margin-bottom: 7vw;
 }
 
 img {
     width: 100%;
+    grid-row: 2;
+}
+
+.stop_name {
+    color: #0a2d41;
+    writing-mode: sideways-lr;
+    align-self: end;
+    justify-self: center;
+    margin-bottom: 0.5em;
+    transform-origin: bottom center;
+    transform: rotate(40deg);
+    font-weight: 400;
+    font-size: 2vw;
+}
+
+.side {
+    font-weight: 800;
+}
+
+#start_name {
+    margin-right: 1vw;
+}
+
+#end_name {
+    margin-left: 2vw;
+    margin-bottom: 0.6em;
 }
 
 #loader_box {

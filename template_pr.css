@@ -31,13 +31,14 @@ OR
     height: 100%;
     box-sizing: border-box;
     padding: 0 2vw;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 1vh;
+    display: grid;
+    grid: 1fr / auto-flow;
     visibility: hidden;
-    flex: 1;
+    place-items: center;
+}
+
+img {
+    height: 4.4vw;
 }
 
 #loader_box {

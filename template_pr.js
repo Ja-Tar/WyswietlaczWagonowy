@@ -20,9 +20,12 @@ function scrollText() {
         const elementId = element.id;
 
         const maxTextLength = 15;
+        const addText = '    ';
         element.textContent = element.textContent.trim();
 
         if (textLength > maxTextLength) {
+            element.textContent += addText;
+
             // Marquee effect infinite loop
             const textClone = element.cloneNode(true);
             textClone.classList.add('clone');

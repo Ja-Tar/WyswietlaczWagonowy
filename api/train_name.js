@@ -98,13 +98,11 @@ export async function getAPIsForTrainName(apiVersion) {
  * @returns {string}
  */
 export function correctStationName(stopName) {
-    const regex = new RegExp("("
-        + Object.keys(win.nameCorrectionsData)
-            .sort((a, b) => b.length - a.length)
-            .join("|")
-        + ")", "g");
-    const replaceFromObj = str => str.replace(regex, (_, match) => win.nameCorrectionsData[match]);
-    const output = replaceFromObj(stopName);
+    // BUG: NO REGEX PLS
+    let output = stopName;
+    for (const element of Object.keys(win.nameCorrectionsData)) {
+        output.replaceAll(element, win.nameCorrectionsData[element]);
+    }
     //console.log(stopName, output);
     return output;
 }

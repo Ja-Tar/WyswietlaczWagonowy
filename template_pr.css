@@ -189,7 +189,6 @@ img {
     text-align: center;
     box-sizing: border-box;
     width: 100%;
-    column-gap: 5em;
 }
 
 .box_scroll:has(.clone) {

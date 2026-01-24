@@ -344,12 +344,10 @@ function setRouteStations(train) {
         }
     });
 
-    const lastConfirmedStop = formattedTimetableStops.findLast((stopPoint) => { return stopPoint.confirmed === 1 });
-
     const doneStopList = monitorArrivalCondition(nextStopsList, train);
 
-    console.log(atStation);
-    console.log(removedStopsName);
+    console.debug("Is at station:", atStation);
+    console.debug("Removed stops:", removedStopsName);
     checking = true;
 
     if (doneStopList.length < 1) {
@@ -377,8 +375,8 @@ function monitorArrivalCondition(nextStopsList, train) {
     nextStopsList = nextStopsList.filter(stopPoint => !removedStopsName.includes(stopPoint.stopNameRAW));
 
     if (checking === true) {
+        // Normal flow
         if (nextStopsList[0].stopNameType === "po") {
-            // TODO: Make it so while webpage is open, 'po' stops are deleted after speed drops below 20km/h and then over 20km/h again.
             if (nextStopsList[0].arrivalRealTimestamp < currentTime && train.speed < 20 && atStation === false) {
                 atStation = true;
             }
@@ -386,7 +384,6 @@ function monitorArrivalCondition(nextStopsList, train) {
             if (atStation === true && train.speed > 20) {
                 atStation = false;
                 removedStopsName.push(nextStopsList.splice(0, 1)[0].stopNameRAW);
-                console.log(removedStopsName);
             }
         } else {
             if ((nextStopsList[0].arrivalRealTimestamp < currentTime && train.speed < 20) ||
@@ -397,12 +394,12 @@ function monitorArrivalCondition(nextStopsList, train) {
             }
         }
     } else {
+        // Fallback for starting website
         nextStopsList = nextStopsList.filter(stopPoint => {
             if (stopPoint.stopNameType === 'po') {
                 /* check if stop has been passed (stop without confirmed arrival) */
                 const departureTime = stopPoint.departureRealTimestamp;
                 if (currentTime > departureTime) {
-                    /* remove stop from the list */
                     removedStopsName.push(stopPoint.stopNameRAW);
                     return false;
                 }

@@ -76,16 +76,13 @@ export async function getAPIsForTrainName(apiVersion) {
     try {
         const response = await fetch(win.nameCorrectionsAPI_URL);
         win.nameCorrectionsData = await response.json();
-        console.debug("Name corrections data loaded successfully.");
     } catch (error) {
         console.error("Error loading name corrections data:", error);
     }
 
     try {
         const responseOperator = await fetch(win.operatorConvertAPI_URL);
-        /** @type {operatorConvertAPI} */
         win.operatorConvertData = await responseOperator.json();
-        console.debug("Operator convert data loaded successfully.");
     } catch (error) {
         console.error("Error loading operator convert data:", error);
     }
@@ -98,12 +95,10 @@ export async function getAPIsForTrainName(apiVersion) {
  * @returns {string}
  */
 export function correctStationName(stopName) {
-    // BUG: NO REGEX PLS
     let output = stopName;
     for (const element of Object.keys(win.nameCorrectionsData)) {
         output = output.replaceAll(element, win.nameCorrectionsData[element]);
     }
-    //console.log(stopName, output);
     return output;
 }
 

@@ -377,6 +377,7 @@ function monitorArrivalCondition(nextStopsList, train) {
     if (checking === true) {
         // Normal flow
         if (nextStopsList[0].stopNameType === "po") {
+            // TODO: Add option to change minimal speed!
             if (nextStopsList[0].arrivalRealTimestamp < currentTime && train.speed < 20 && atStation === false) {
                 atStation = true;
             }

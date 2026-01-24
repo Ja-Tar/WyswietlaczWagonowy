@@ -320,6 +320,11 @@ function formatStopsName(stopPoints) {
     return stopPoints;
 }
 
+let lastStopName = "";
+let lastStopType = "";
+let checking = false;
+let atStation = false;
+
 /**
  * @param {TrainInfo} train 
  */
@@ -337,6 +342,9 @@ function setRouteStations(train) {
 
     nextStopsList = formatStopsName(nextStopsList);
 
+    /** @type {StopPoint[]} */
+    let removedStops = [];
+
     nextStopsList.forEach(stopPoint => {
         const currentTime = new Date().getTime();
         if (stopPoint.stopNameType === 'po') {
@@ -347,11 +355,20 @@ function setRouteStations(train) {
                 /* remove stop from the list */
                 const index = nextStopsList.indexOf(stopPoint);
                 if (index > -1) {
-                    nextStopsList.splice(index, 1);
+                    removedStops.push = nextStopsList.splice(index, 1);
+                    console.log(removedStops);
                 }
             }
         }
     });
+
+    if (checking === true) {
+        // TODO: Make it so while webpage is open, 'po' stops are deleted after speed drops below 20km/h and then over 20km/h again.
+    }
+
+    lastStopName = nextStopsList[0].stopNameRAW;
+    lastStopType = nextStopsList[0].stopNameType;
+    checking = true;
 
     if (nextStopsList.length < 1) {
         console.error("No stations left!!!");

@@ -1,6 +1,6 @@
-// API DEFINITIONS: 
+// API DEFINITIONS:
 
-/** 
+/**
  * @typedef {object} StopPoint
  * @property {string} stopName
  * @property {string} stopNameRAW
@@ -27,7 +27,7 @@
  * @property {string} stopNameType
  */
 
-/** 
+/**
  * @typedef {object} TrainInfo
  * @property {string} id
  * @property {number} trainNo
@@ -108,7 +108,7 @@ if (displayTheme === Theme.AUTO) {
 }
 
 /**
- * @param {string} templateUrl 
+ * @param {string} templateUrl
  */
 function fetchTemplate(templateUrl) {
     const options = { method: 'GET', headers: { 'Cache-Control': 'public' } };
@@ -163,7 +163,7 @@ function setDateAndTime() {
 }
 
 /**
- * @param {number} n 
+ * @param {number} n
  * @returns {string}
  */
 function twoDigits(n) {
@@ -235,8 +235,8 @@ async function setDataFromStacjownik() {
 }
 
 /**
- * 
- * @param {TrainInfo} train 
+ *
+ * @param {TrainInfo} train
  */
 function updateTrainDisplay(train) {
     displayCurrentSpeed(train);
@@ -252,7 +252,7 @@ function updateTrainDisplay(train) {
 }
 
 /**
- * @param {TrainInfo} train 
+ * @param {TrainInfo} train
  */
 function displayCurrentSpeed(train) {
     const currentSpeedDiv = iframe.contentDocument.getElementById('current_speed');
@@ -261,7 +261,7 @@ function displayCurrentSpeed(train) {
 }
 
 /**
- * @param {TrainInfo} train 
+ * @param {TrainInfo} train
  */
 function setTrainName(train) {
     const trainName = getTrainFullName(trainNumber, train.stockString, train.timetable.category);
@@ -289,7 +289,7 @@ function setTrainNumber(train) {
 }
 
 /**
- * @param {TrainInfo} train 
+ * @param {TrainInfo} train
  */
 function updateDestination(train) {
     const route = train.timetable.route.split('|');
@@ -302,8 +302,8 @@ function capitalizeStationNames(route) {
 }
 
 /**
- * @param {StopPoint[]} stopPoints 
- * @returns 
+ * @param {StopPoint[]} stopPoints
+ * @returns
  */
 function formatStopsName(stopPoints) {
     stopPoints.forEach(stopPoint => {
@@ -320,73 +320,102 @@ function formatStopsName(stopPoints) {
     return stopPoints;
 }
 
-let lastStopName = "";
-let lastStopType = "";
+/** @type {StopPoint[]} */
+let removedStopsName = [];
 let checking = false;
 let atStation = false;
 
 /**
- * @param {TrainInfo} train 
+ * @param {TrainInfo} train
  */
 function setRouteStations(train) {
-    /** @type {StopPoint[]} */
-    let nextStopsList = [];
+    const timetableStops = train.timetable.stopList;
 
-    train.timetable.stopList.forEach(stopPoint => {
+    const filteredTimetableStops = timetableStops.filter(stopPoint => stopPoint.stopType.includes('ph') || stopPoint.beginsHere === true || stopPoint.terminatesHere === true);
+
+    const formattedTimetableStops = formatStopsName(filteredTimetableStops);
+
+    /** @type {StopPoint[]} */
+    const nextStopsList = [];
+
+    formattedTimetableStops.forEach(stopPoint => {
         if (stopPoint.confirmed === 0) {
             nextStopsList.push(stopPoint);
         }
     });
 
-    nextStopsList = nextStopsList.filter(stopPoint => stopPoint.stopType.includes('ph') || stopPoint.beginsHere === true || stopPoint.terminatesHere === true);
+    const lastConfirmedStop = formattedTimetableStops.findLast((stopPoint) => { return stopPoint.confirmed === 1 });
 
-    nextStopsList = formatStopsName(nextStopsList);
+    const doneStopList = monitorArrivalCondition(nextStopsList, train);
 
-    /** @type {StopPoint[]} */
-    let removedStops = [];
-
-    nextStopsList.forEach(stopPoint => {
-        const currentTime = new Date().getTime();
-        if (stopPoint.stopNameType === 'po') {
-            /* check if stop has been passed (stop without confirmed arrival) */
-            // 30s additional buffer
-            const departureTime = stopPoint.departureRealTimestamp + 30000;
-            if (currentTime > departureTime) {
-                /* remove stop from the list */
-                const index = nextStopsList.indexOf(stopPoint);
-                if (index > -1) {
-                    removedStops.push = nextStopsList.splice(index, 1);
-                    console.log(removedStops);
-                }
-            }
-        }
-    });
-
-    if (checking === true) {
-        // TODO: Make it so while webpage is open, 'po' stops are deleted after speed drops below 20km/h and then over 20km/h again.
-    }
-
-    lastStopName = nextStopsList[0].stopNameRAW;
-    lastStopType = nextStopsList[0].stopNameType;
+    console.log(atStation);
+    console.log(removedStopsName);
     checking = true;
 
-    if (nextStopsList.length < 1) {
+    if (doneStopList.length < 1) {
         console.error("No stations left!!!");
         return;
     }
 
     if (displayTheme === Theme.IC) {
         // get first next stop
-        renderNextStops(nextStopsList);
+        renderNextStops(doneStopList);
     } else if (displayTheme === Theme.PR) {
-        renderStopHeader(nextStopsList[0], train.speed);
-        renderStopMap(nextStopsList, train.timetable.route);
+        renderStopHeader(doneStopList[0], train.speed);
+        renderStopMap(doneStopList, train.timetable.route);
     }
 }
 
 /**
- * @param {Object} obj1 
- * @param {Object} obj2 
+ * @param {StopPoint[]} nextStopsList 
+ * @param {TrainInfo} train 
+ * @returns 
+ */
+function monitorArrivalCondition(nextStopsList, train) {
+    const currentTime = new Date().getTime();
+
+    nextStopsList = nextStopsList.filter(stopPoint => !removedStopsName.includes(stopPoint.stopNameRAW));
+
+    if (checking === true) {
+        if (nextStopsList[0].stopNameType === "po") {
+            // TODO: Make it so while webpage is open, 'po' stops are deleted after speed drops below 20km/h and then over 20km/h again.
+            if (nextStopsList[0].arrivalRealTimestamp < currentTime && train.speed < 20 && atStation === false) {
+                atStation = true;
+            }
+
+            if (atStation === true && train.speed > 20) {
+                atStation = false;
+                removedStopsName.push(nextStopsList.splice(0, 1)[0].stopNameRAW);
+                console.log(removedStopsName);
+            }
+        } else {
+            if ((nextStopsList[0].arrivalRealTimestamp < currentTime && train.speed < 20) ||
+            (nextStopsList[0].departureRealTimestamp > currentTime && nextStopsList[0].beginsHere === true)) {
+                atStation = true;
+            } else {
+                atStation = false;
+            }
+        }
+    } else {
+        nextStopsList = nextStopsList.filter(stopPoint => {
+            if (stopPoint.stopNameType === 'po') {
+                /* check if stop has been passed (stop without confirmed arrival) */
+                const departureTime = stopPoint.departureRealTimestamp;
+                if (currentTime > departureTime) {
+                    /* remove stop from the list */
+                    removedStopsName.push(stopPoint.stopNameRAW);
+                    return false;
+                }
+            }
+            return true;
+        });
+    }
+    return nextStopsList;
+}
+
+/**
+ * @param {Object} obj1
+ * @param {Object} obj2
  * @returns {boolean}
  */
 function isTheSame(obj1, obj2) {
@@ -412,7 +441,7 @@ function renderNextStops(nextStopsList) {
     const nextStationDelayName = iframe.contentDocument.getElementById('next_station_delay_name');
 
     const firstNextStop = nextStopsList[0];
-    //console.log('First next stop:', firstNextStop); 
+    //console.log('First next stop:', firstNextStop);
     let departureTime = firstNextStop.arrivalTimestamp;
     let departureDelay = firstNextStop.arrivalDelay;
     let realDepartureTime = firstNextStop.arrivalRealTimestamp;
@@ -488,9 +517,7 @@ function renderStopHeader(nextStop, trainSpeed) {
     const stationLabelElement = iframe.contentDocument.getElementById("station_label");
     const stationNameElement = iframe.contentDocument.getElementById("station");
 
-    const currentTime = new Date().getTime();
-    if ((nextStop.arrivalRealTimestamp < currentTime && trainSpeed < 20) ||
-        (nextStop.departureRealTimestamp > currentTime && nextStop.beginsHere === true)) {
+    if (atStation) {
         // TRAIN ARRIVED AT STATION
         stationLabelElement.textContent = "Stacja/Station:";
     } else {
@@ -504,7 +531,7 @@ function renderStopHeader(nextStop, trainSpeed) {
     iframe.contentWindow.scrollText();
 }
 /**
- * @param {StopPoint[]} nextStopsList 
+ * @param {StopPoint[]} nextStopsList
  * @param {string} routeString
  */
 function renderStopMap(nextStopsList, routeString) {

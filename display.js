@@ -59,6 +59,7 @@
  * @property {string} timetable.category
  * @property {StopPoint[]} timetable.stopList
  * @property {string} timetable.route
+ * @property {[string, string]} [timetable.formattedRoute]
  * @property {number} timetable.timetableId
  * @property {string[]} timetable.sceneries
  * @property {string} timetable.path
@@ -239,6 +240,7 @@ async function setDataFromStacjownik() {
  * @param {TrainInfo} train
  */
 function updateTrainDisplay(train) {
+    formatTrainRoute(train);
     displayCurrentSpeed(train);
     if (displayTheme === Theme.IC) {
         setTrainName(train);
@@ -249,6 +251,18 @@ function updateTrainDisplay(train) {
     }
 
     setRouteStations(train);
+}
+
+/**
+ * @param {TrainInfo} train 
+ */
+function formatTrainRoute(train) {
+    const route = train.timetable?.route;
+    if (!route) return; // before split: DOBRZYNIEC|Wielichowo Główne
+    const capitalizedRoute = capitalizeStationNames(route.split("|"));
+    const formattedRoute = capitalizedRoute.map(stopName => correctStationName(stopName));
+    train.timetable.formattedRoute = formattedRoute;
+    return train;
 }
 
 /**
@@ -274,8 +288,8 @@ function setTrainName(train) {
  * @param {TrainInfo} train
  */
 function updateRoute(train) {
-    const route = train.timetable.route.split('|'); // before split: DOBRZYNIEC|Wielichowo Główne
-    iframe.contentDocument.getElementById('route_box').textContent = capitalizeStationNames(route).join(' - ');
+    const route = train.timetable.formattedRoute;
+    iframe.contentDocument.getElementById('route_box').textContent = route.join(' - ');
 }
 
 /**
@@ -292,8 +306,8 @@ function setTrainNumber(train) {
  * @param {TrainInfo} train
  */
 function updateDestination(train) {
-    const route = train.timetable.route.split('|');
-    iframe.contentDocument.getElementById('destination').textContent = capitalizeStationNames(route)[1];
+    const route = train.timetable.formattedRoute;
+    iframe.contentDocument.getElementById('destination').textContent = route[1];
 }
 
 function capitalizeStationNames(route) {
@@ -359,7 +373,7 @@ function setRouteStations(train) {
         // get first next stop
         renderNextStops(doneStopList);
     } else if (displayTheme === Theme.PR) {
-        renderStopHeader(doneStopList[0], train.speed);
+        renderStopHeader(doneStopList[0]);
         renderStopMap(doneStopList, train.timetable.route);
     }
 }
@@ -367,7 +381,7 @@ function setRouteStations(train) {
 /**
  * @param {StopPoint[]} nextStopsList 
  * @param {TrainInfo} train 
- * @returns 
+ * @returns {StopPoint[]}
  */
 function monitorArrivalCondition(nextStopsList, train) {
     const currentTime = new Date().getTime();
@@ -509,9 +523,8 @@ let lastStationText = "";
 
 /**
  * @param {StopPoint} nextStop
- * @param {number} trainSpeed
  */
-function renderStopHeader(nextStop, trainSpeed) {
+function renderStopHeader(nextStop) {
     const stationLabelElement = iframe.contentDocument.getElementById("station_label");
     const stationNameElement = iframe.contentDocument.getElementById("station");
 

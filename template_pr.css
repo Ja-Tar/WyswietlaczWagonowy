@@ -57,6 +57,10 @@ img {
     font-size: 2vw;
 }
 
+.passed {
+    color: #808080;
+}
+
 .side {
     font-weight: 800;
     font-size: 2.2vw;

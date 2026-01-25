@@ -374,7 +374,7 @@ function setRouteStations(train) {
         renderNextStops(doneStopList);
     } else if (displayTheme === Theme.PR) {
         renderStopHeader(doneStopList[0]);
-        renderStopMap(doneStopList, train.timetable.route);
+        renderStopMap(doneStopList, train.timetable.formattedRoute);
     }
 }
 
@@ -543,13 +543,20 @@ function renderStopHeader(nextStop) {
 }
 /**
  * @param {StopPoint[]} nextStopsList
- * @param {string} routeString
+ * @param {[string, string]} route
  */
-function renderStopMap(nextStopsList, routeString) {
-    const route = routeString.split("|");
-
+function renderStopMap(nextStopsList, route) {
+    const mainDisplay = iframe.contentDocument.getElementById("main_display");
     // TODO: Splittowanie dla ostatniej stacji kiedy jest za długa!! np. Warszawa Zachodnia
 
+    mainDisplay.style.gridTemplateColumns = "repeat(7, 9.7vw) 15vw 9.7vw";
+
+    // First and last stop
+
+    const startName = iframe.contentDocument.getElementById("start_name");
+    const endName = iframe.contentDocument.getElementById("end_name");
+    startName.textContent = route[0];
+    endName.textContent = route[1];
 }
 
 async function changeValues() {

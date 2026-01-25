@@ -37,10 +37,6 @@
          r="61.401859" />
     </g>
     <path
-       id="rect1"
-       style="display:none;fill:#0a2d41;stroke-width:0.567456"
-       d="M 24.449219,11.185547 V 38.814453 H 13.814453 L 0,25 13.814453,11.185547 Z" />
-    <path
        id="rect1-6"
        style="display:inline;fill:#0a2d41;stroke-width:0.567456"
        d="M -20,11.185547 -6.185547,25 -20,38.814453 H -6.185547 25 V 11.185547 H -6.185547 Z" />

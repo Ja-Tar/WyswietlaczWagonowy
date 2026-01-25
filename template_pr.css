@@ -42,7 +42,7 @@ OR
 img {
     width: 10.5vw;
     grid-row: 2;
-    padding-bottom: 2vw;
+    padding-bottom: 1.8vw;
 }
 
 #start_img, #end_img {
@@ -84,11 +84,20 @@ img {
     grid-row: 3;
     font-size: 1.5vw;
     font-weight: 500;
-    align-self: baseline;
+    align-self: start;
+}
+
+#start_time {
+    margin-right: 1.3vw;
 }
 
 #end_time {
     margin-left: 3.2vw;
+}
+
+#train_icon {
+    width: 3.5vw;
+    padding-right: 2vw;
 }
 
 #loader_box {

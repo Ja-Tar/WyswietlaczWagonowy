@@ -76,21 +76,30 @@ export async function getAPIsForTrainName(apiVersion) {
     try {
         const response = await fetch(win.nameCorrectionsAPI_URL);
         win.nameCorrectionsData = await response.json();
-        console.debug("Name corrections data loaded successfully.");
     } catch (error) {
         console.error("Error loading name corrections data:", error);
     }
 
     try {
         const responseOperator = await fetch(win.operatorConvertAPI_URL);
-        /** @type {operatorConvertAPI} */
         win.operatorConvertData = await responseOperator.json();
-        console.debug("Operator convert data loaded successfully.");
     } catch (error) {
         console.error("Error loading operator convert data:", error);
     }
 
     localStorage.setItem('apiVersion', apiVersion);
+}
+
+/**
+ * @param {string} stopName
+ * @returns {string}
+ */
+export function correctStationName(stopName) {
+    let output = stopName;
+    for (const element of Object.keys(win.nameCorrectionsData)) {
+        output = output.replaceAll(element, win.nameCorrectionsData[element]);
+    }
+    return output;
 }
 
 /**
@@ -132,7 +141,7 @@ function mapTrainName(operator, trainNo, trainNumberPrefix) {
         for (let k = 0; k < trainNoIs.length; k++) {
             if (trainNameData.operator === trainOperatorBefore) {
                 if (trainNoIs[k] === trainNo.toString()) {
-                    if (!isNaN(parseInt(trainNo))) console.error("WTF?!", trainNo, trainNoIs[k]);
+                    if (isNaN(parseInt(trainNo))) console.error("WTF?!", trainNo, trainNoIs[k]);
                     operator = trainNameData.operator;
                     endTrainName = trainNameData.trainName;
                     trainNumberPrefix = trainNameData.categoryOverwrite;
@@ -165,7 +174,8 @@ function getTrainPrefixByCategory(operator, trainCategory) {
             }
         }
     }
-    return "ERR";
+    console.warn("No prefix found!")
+    return "";
 }
 
 /**

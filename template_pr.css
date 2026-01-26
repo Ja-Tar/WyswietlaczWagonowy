@@ -31,13 +31,52 @@ OR
     height: 100%;
     box-sizing: border-box;
     padding: 0 2vw;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 1vh;
+    margin-left: -7vw;
+    display: grid;
+    grid: auto min-content 20% / repeat(9, 10.5vw);
     visibility: hidden;
-    flex: 1;
+    place-items: center;
+    margin-bottom: 8vw;
+    color: #0a2d41;
+}
+
+img {
+    width: 10.5vw;
+    grid-row: 2;
+    padding-bottom: 1.8vw;
+}
+
+.stop_name {
+    writing-mode: sideways-lr;
+    align-self: end;
+    justify-self: center;
+    margin-bottom: 0.5em;
+    transform-origin: bottom center;
+    transform: rotate(40deg);
+    font-weight: 400;
+    font-size: 2vw;
+}
+
+.passed {
+    color: #808080;
+}
+
+.side {
+    font-weight: 800;
+    font-size: 2.2vw;
+}
+
+.stop_time {
+    grid-row: 3;
+    font-size: 1.5vw;
+    font-weight: 500;
+    align-self: start;
+}
+
+#train_icon {
+    width: 3.5vw;
+    padding: revert;
+    margin-top: -0.8vw;
 }
 
 #loader_box {
@@ -83,15 +122,15 @@ OR
 
 #top_bar {
     width: 100%;
-    height: 14vw;
+    height: 20vw;
     display: grid;
-    grid-template-columns: 25% auto 27%;
+    grid-template-columns: 25% auto 25%;
     background-color: #d41541;
 }
 
 #number_destination_box {
     display: grid;
-    grid-template-rows: 55% auto;
+    grid-template-rows: minmax(2em, 50%) auto;
     justify-items: left;
     padding-bottom: 0.5vw;
 }
@@ -118,6 +157,14 @@ OR
     /* TODO: size should change when longer names */
     font-size: 4vw;
     font-weight: 300;
+    white-space: nowrap;
+}
+
+#destination.smaller {
+    white-space: pre-wrap;
+    font-weight: 200;
+    font-size: 2.4vw;
+    width:5px;
 }
 
 #station_box {
@@ -132,10 +179,14 @@ OR
     font-weight: 400;
 }
 
+#station_scroll {
+    align-self: center;
+}
+
 #station {
     font-size: 5.8vw;
     font-weight: 600;
-    align-self: center;
+    line-height: normal;
 }
 
 #date_time_box {
@@ -166,4 +217,18 @@ OR
     grid-area: time;
     font-size: 5vw;
     font-weight: 400;
+}
+
+.box_scroll {
+    display: flex;
+    align-content: center;
+    overflow: hidden;
+    white-space: nowrap;
+    text-align: center;
+    box-sizing: border-box;
+    width: 100%;
+}
+
+.box_scroll:has(.clone) {
+    justify-content: center;
 }

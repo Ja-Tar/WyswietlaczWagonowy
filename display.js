@@ -1,6 +1,6 @@
-// API DEFINITIONS: 
+// API DEFINITIONS:
 
-/** 
+/**
  * @typedef {object} StopPoint
  * @property {string} stopName
  * @property {string} stopNameRAW
@@ -27,7 +27,7 @@
  * @property {string} stopNameType
  */
 
-/** 
+/**
  * @typedef {object} TrainInfo
  * @property {string} id
  * @property {number} trainNo
@@ -50,7 +50,7 @@
  * @property {string} region
  * @property {boolean} isTimeout
  * @property {boolean} driverIsDonator
- * @property {object | null} timetable
+ * @property {object} [timetable]
  * @property {number} timetable.trainMaxSpeed
  * @property {boolean} timetable.hasDangerousCargo
  * @property {boolean} timetable.hasExtraDeliveries
@@ -59,6 +59,7 @@
  * @property {string} timetable.category
  * @property {StopPoint[]} timetable.stopList
  * @property {string} timetable.route
+ * @property {[string, string]} [timetable.formattedRoute]
  * @property {number} timetable.timetableId
  * @property {string[]} timetable.sceneries
  * @property {string} timetable.path
@@ -66,7 +67,7 @@
 
 // ===============================
 
-import {getAPIsForTrainName, getTrainFullName} from "./api/train_name.js";
+import { getAPIsForTrainName, getTrainFullName, correctStationName } from "./api/train_name.js";
 
 const Theme = {
     AUTO: "auto",
@@ -108,7 +109,7 @@ if (displayTheme === Theme.AUTO) {
 }
 
 /**
- * @param {string} templateUrl 
+ * @param {string} templateUrl
  */
 function fetchTemplate(templateUrl) {
     const options = { method: 'GET', headers: { 'Cache-Control': 'public' } };
@@ -163,7 +164,7 @@ function setDateAndTime() {
 }
 
 /**
- * @param {number} n 
+ * @param {number} n
  * @returns {string}
  */
 function twoDigits(n) {
@@ -205,7 +206,6 @@ async function setDataFromStacjownik() {
 
     const options = { method: 'GET' };
     try {
-        //throw new Error('An error has occurred'); 
         const response = await fetch(url, options);
         /** @type {TrainInfo[]} */
         const data = await response.json();
@@ -236,10 +236,11 @@ async function setDataFromStacjownik() {
 }
 
 /**
- * 
- * @param {TrainInfo} train 
+ *
+ * @param {TrainInfo} train
  */
 function updateTrainDisplay(train) {
+    train = formatTrainRoute(train);
     displayCurrentSpeed(train);
     if (displayTheme === Theme.IC) {
         setTrainName(train);
@@ -248,11 +249,25 @@ function updateTrainDisplay(train) {
         setTrainNumber(train);
         updateDestination(train);
     }
+
     setRouteStations(train);
 }
 
 /**
  * @param {TrainInfo} train 
+ * @returns {TrainInfo} with formattedRoute
+ */
+function formatTrainRoute(train) {
+    const route = train.timetable?.route;
+    if (!route) return train; // before split: DOBRZYNIEC|Wielichowo Główne
+    const capitalizedRoute = capitalizeStationNames(route.split("|"));
+    const formattedRoute = capitalizedRoute.map(stopName => correctStationName(stopName));
+    train.timetable.formattedRoute = formattedRoute;
+    return train;
+}
+
+/**
+ * @param {TrainInfo} train
  */
 function displayCurrentSpeed(train) {
     const currentSpeedDiv = iframe.contentDocument.getElementById('current_speed');
@@ -261,7 +276,7 @@ function displayCurrentSpeed(train) {
 }
 
 /**
- * @param {TrainInfo} train 
+ * @param {TrainInfo} train
  */
 function setTrainName(train) {
     const trainName = getTrainFullName(trainNumber, train.stockString, train.timetable.category);
@@ -271,15 +286,15 @@ function setTrainName(train) {
 }
 
 /**
- * @param {TrainInfo} train 
+ * @param {TrainInfo} train
  */
 function updateRoute(train) {
-    const route = train.timetable.route.split('|'); // before split: DOBRZYNIEC|Wielichowo Główne
-    iframe.contentDocument.getElementById('route_box').textContent = capitalizeStationNames(route).join(' - ');
+    const route = train.timetable.formattedRoute;
+    iframe.contentDocument.getElementById('route_box').textContent = route.join(' - ');
 }
 
 /**
- * @param {TrainInfo} train 
+ * @param {TrainInfo} train
  */
 function setTrainNumber(train) {
     const trainName = getTrainFullName(trainNumber, train.stockString, train.timetable.category);
@@ -289,11 +304,11 @@ function setTrainNumber(train) {
 }
 
 /**
- * @param {TrainInfo} train 
+ * @param {TrainInfo} train
  */
 function updateDestination(train) {
-    const route = train.timetable.route.split('|');
-    iframe.contentDocument.getElementById('destination').textContent = capitalizeStationNames(route)[1];
+    const route = train.timetable.formattedRoute;
+    iframe.contentDocument.getElementById('destination').textContent = route[1];
 }
 
 function capitalizeStationNames(route) {
@@ -302,8 +317,8 @@ function capitalizeStationNames(route) {
 }
 
 /**
- * @param {StopPoint[]} stopPoints 
- * @returns 
+ * @param {StopPoint[]} stopPoints
+ * @returns
  */
 function formatStopsName(stopPoints) {
     stopPoints.forEach(stopPoint => {
@@ -314,53 +329,117 @@ function formatStopsName(stopPoints) {
             stopNameType = '';
         }
         formattedStopName = formattedStopName[0].toLowerCase().split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
-        stopPoint.stopNameRAW = formattedStopName;
+        stopPoint.stopNameRAW = correctStationName(formattedStopName);
         stopPoint.stopNameType = stopNameType.trim();
     });
     return stopPoints;
 }
 
+/** @type {StopPoint[]} */
+const removedStopsName = [];
+let checking = false;
+let atStation = false;
+
 /**
- * @param {TrainInfo} train 
+ * @param {TrainInfo} train
  */
 function setRouteStations(train) {
-    /** @type {StopPoint[]} */
-    let nextStopsList = [];
+    const timetableStops = train.timetable.stopList;
 
-    train.timetable.stopList.forEach(stopPoint => {
+    const filteredTimetableStops = timetableStops.filter(stopPoint => stopPoint.stopType.includes('ph') || stopPoint.beginsHere === true || stopPoint.terminatesHere === true);
+
+    const formattedTimetableStops = formatStopsName(filteredTimetableStops);
+
+    /** @type {StopPoint[]} */
+    const nextStopsList = [];
+
+    formattedTimetableStops.forEach(stopPoint => {
         if (stopPoint.confirmed === 0) {
             nextStopsList.push(stopPoint);
         }
     });
 
-    nextStopsList = nextStopsList.filter(stopPoint => stopPoint.stopType.includes('ph') || stopPoint.beginsHere === true || stopPoint.terminatesHere === true);
+    const doneStopList = monitorArrivalCondition(nextStopsList, train);
 
-    nextStopsList = formatStopsName(nextStopsList);
+    console.debug("Is at station:", atStation);
+    console.debug("Removed stops:", removedStopsName);
+    checking = true;
 
-    nextStopsList.forEach(stopPoint => {
-        if (stopPoint.stopNameType === 'po') {
-            /* check if stop has been passed (stop without confirmed arrival) */
-            const departureTime = stopPoint.departureRealTimestamp;
-            const currentTime = new Date().getTime();
-            if (currentTime > departureTime) {
-                /* remove stop from the list */
-                const index = nextStopsList.indexOf(stopPoint);
-                if (index > -1) {
-                    nextStopsList.splice(index, 1);
-                }
-            }
-        }
-    });
+    if (doneStopList.length < 1) {
+        console.error("No stations left!!!");
+        return;
+    }
 
     if (displayTheme === Theme.IC) {
         // get first next stop
-        if (nextStopsList.length > 0) {
-            renderNextStops(nextStopsList);
-        }
+        renderNextStops(doneStopList);
     } else if (displayTheme === Theme.PR) {
-        renderStopHeader(nextStopsList[0], train.speed);
-        // TODO: renderStopMap(nextStopsList);
+        renderStopHeader(doneStopList[0]);
+        renderStopMap(formattedTimetableStops, doneStopList);
     }
+}
+
+/**
+ * @param {StopPoint[]} nextStopsList 
+ * @param {TrainInfo} train 
+ * @returns {StopPoint[]}
+ */
+function monitorArrivalCondition(nextStopsList, train) {
+    const currentTime = new Date().getTime();
+
+    nextStopsList = nextStopsList.filter(stopPoint => !removedStopsName.includes(stopPoint.stopNameRAW));
+
+    if (checking === true) {
+        // Normal flow
+        if (nextStopsList[0].stopNameType === "po") {
+            // TODO: Add option to change minimal speed!
+            if (nextStopsList[0].arrivalRealTimestamp < currentTime && train.speed < 20 && atStation === false) {
+                atStation = true;
+            }
+
+            if (atStation === true && train.speed > 20) {
+                atStation = false;
+                removedStopsName.push(nextStopsList.splice(0, 1)[0].stopNameRAW);
+            }
+        } else {
+            if ((nextStopsList[0].arrivalRealTimestamp < currentTime && train.speed < 20) ||
+                (nextStopsList[0].departureRealTimestamp > currentTime && nextStopsList[0].beginsHere === true)) {
+                atStation = true;
+            } else {
+                atStation = false;
+            }
+        }
+    } else {
+        // Fallback for starting website
+        nextStopsList = nextStopsList.filter(stopPoint => {
+            if (stopPoint.stopNameType === 'po') {
+                /* check if stop has been passed (stop without confirmed arrival) */
+                const departureTime = stopPoint.departureRealTimestamp;
+                if (currentTime > departureTime) {
+                    removedStopsName.push(stopPoint.stopNameRAW);
+                    return false;
+                }
+            }
+            return true;
+        });
+    }
+    return nextStopsList;
+}
+
+/**
+ * @param {Object} obj1
+ * @param {Object} obj2
+ * @returns {boolean}
+ */
+function isTheSame(obj1, obj2) { // REMOVE: Not used
+    if (obj1 === null || obj2 === null) return false;
+    let same = true;
+    for (const key of Object.keys(obj1)) {
+        if (!(obj1[key] === obj2[key])) {
+            same = false;
+        }
+    }
+    return same;
 }
 
 /**
@@ -375,7 +454,7 @@ function renderNextStops(nextStopsList) {
     const nextStationDelayName = iframe.contentDocument.getElementById('next_station_delay_name');
 
     const firstNextStop = nextStopsList[0];
-    //console.log('First next stop:', firstNextStop); 
+    //console.log('First next stop:', firstNextStop);
     let departureTime = firstNextStop.arrivalTimestamp;
     let departureDelay = firstNextStop.arrivalDelay;
     let realDepartureTime = firstNextStop.arrivalRealTimestamp;
@@ -437,24 +516,257 @@ function renderNextStops(nextStopsList) {
     } else {
         restStationsDiv.innerHTML = '';
     }
+
+    iframe.contentWindow.scrollText();
 }
+
+let lastStationText = "";
 
 /**
  * @param {StopPoint} nextStop
- * @param {number} trainSpeed
  */
-function renderStopHeader(nextStop, trainSpeed) {
+function renderStopHeader(nextStop) {
     const stationLabelElement = iframe.contentDocument.getElementById("station_label");
     const stationNameElement = iframe.contentDocument.getElementById("station");
 
-    const currentTime = new Date().getTime();
-    if (nextStop.arrivalRealTimestamp > currentTime && trainSpeed < 5) {
+    if (atStation) {
         // TRAIN ARRIVED AT STATION
         stationLabelElement.textContent = "Stacja/Station:";
     } else {
         stationLabelElement.textContent = "Następna stacja/Next station:";
     }
+
+    if (lastStationText === nextStop.stopNameRAW) return;
+
     stationNameElement.textContent = nextStop.stopNameRAW;
+    lastStationText = nextStop.stopNameRAW;
+    iframe.contentWindow.scrollText();
+}
+
+const DEPARTED_IMG = {
+    START: "./static/map/start_passed.svg",
+    STOP: "./static/map/stop_passed.svg",
+    END: "./static/map/end_passed.svg"
+}
+
+/**
+ * @param {StopPoint[]} stopsList StopPoint list with passed stops
+ * @param {StopPoint[]} nextStopsList
+ */
+function renderStopMap(stopsList, nextStopsList) {
+    const mainDisplay = iframe.contentDocument.getElementById("main_display");
+    // TODO: Splittowanie dla ostatniej stacji kiedy jest za długa!! np. Warszawa Zachodnia
+
+    const DISPLAY_CONFIG = {
+        CAROUSEL: "repeat(7, 9.7vw) 15vw 9.7vw",
+        CONTINUOS: "13vw repeat(7, 9.7vw) 13vw",
+        END: "15vw repeat(8, 9.7vw)"
+    }
+
+    // First and last stop
+
+    setStop("start", stopsList.at(0));
+    setStop("end", stopsList.at(-1));
+
+    // Check if left first station
+
+    if (nextStopsList[0].stopNameRAW !== stopsList[0].stopNameRAW) {
+        trainDeparted("start", DEPARTED_IMG.START);
+        moveTrainIndicator("start", true);
+    }
+
+    if (stopsList.length <= 9) {
+        showSmallerLayout();
+        return;
+    }
+
+    mainDisplay.style.gridTemplateColumns = DISPLAY_CONFIG.CAROUSEL;
+
+
+    if (nextStopsList.length <= 8) {
+        // TODO: If stop (7) is the last one move it closer to end station, stop moving stops afer departure, and only move train icon.
+        mainDisplay.style.gridTemplateColumns = DISPLAY_CONFIG.END;
+        console.error("IMPLEMENT: Less then 7 stops")
+        return;
+    }
+
+    if (nextStopsList.includes(stopsList.at(2))) {
+        showCarouselLayout();
+        return;
+    }
+
+    showContinuosLayout();
+
+    /**
+     * Shows only stops that are in timetable, because it's too short
+     */
+    function showSmallerLayout() {
+        mainDisplay.style.gridTemplateColumns = DISPLAY_CONFIG.END;
+
+        stopsList.shift();
+        stopsList.pop();
+
+        let firstPassedStopIndex = 0;
+
+        for (let i = 1; i < 8; i++) {
+            const stop = stopsList.at(-i);
+            if (stop) {
+                if (nextStopsList.includes(stop)) {
+                    setStop(`stop${-i + 8}`, stop);
+                } else {
+                    setPassedStop(`stop${-i + 8}`, stop);
+                    if (firstPassedStopIndex === 0) {
+                        firstPassedStopIndex = -i + 8;
+                    }
+                }
+            } else {
+                setEmptyStop(`stop${-i + 8}`);
+                if (firstPassedStopIndex === 0) {
+                    firstPassedStopIndex = -i + 8;
+                }
+            }
+        }
+
+        if (!firstPassedStopIndex) {
+            firstPassedStopIndex = 7;
+        }
+
+        if (atStation) {
+            moveTrainIndicator(`stop${firstPassedStopIndex + 1}`, false);
+        } else {
+            moveTrainIndicator(`stop${firstPassedStopIndex}`, true);
+        }
+    }
+
+    /**
+     * Show all stops after 6 one on 7 stop element, stop showing after departure from second stop.
+     */
+    function showCarouselLayout() {
+        // TODO: Show all stops after 6 one on 7 stop element, stop showing after departure from second stop.
+        console.error("IMPLEMENT: Show carousel");
+    }
+
+    /**
+     * Move stops to only show one passed (1), current / next (2), and other (3, 4, 5, 6, 7) 
+     */
+    function showContinuosLayout() {
+        mainDisplay.style.gridTemplateColumns = DISPLAY_CONFIG.CONTINUOS;
+
+        const currentNextStopIndex = stopsList.indexOf(nextStopsList[0]);
+        const passedStop = stopsList.at(currentNextStopIndex - 1);
+
+        setStop("stop1", passedStop);
+        trainDeparted("stop1", DEPARTED_IMG.STOP);
+        if (atStation) {
+            moveTrainIndicator("stop2", false);
+        } else {
+            moveTrainIndicator("stop1", true);
+        }
+        setStop("stop2", nextStopsList[0]);
+
+        for (let i = 3; i < 8; i++) {
+            setStop(`stop${i}`, nextStopsList[i]);
+        }
+    }
+}
+
+/**
+ * 
+ * @param {string} elementId 
+ * @param {StopPoint} stopPoint
+ */
+function setStop(elementId, stopPoint) {
+    setStopName(elementId, stopPoint.stopNameRAW);
+    if (elementId === "start") return;
+    if (elementId !== "end") {
+        setDepartTime(elementId, stopPoint.departureRealTimestamp);
+    } else {
+        setDepartTime(elementId, stopPoint.arrivalRealTimestamp);
+    }
+}
+
+/**
+ * @param {string} elementId
+ */
+function setEmptyStop(elementId) {
+    setStopName(elementId);
+    setDepartTime(elementId);
+    trainDeparted(elementId, DEPARTED_IMG.STOP);
+}
+
+/**
+ * 
+ * @param {string} elementId 
+ * @param {StopPoint} stopPoint
+ */
+function setPassedStop(elementId, stopPoint) {
+    setStopName(elementId, stopPoint.stopNameRAW);
+    trainDeparted(elementId, DEPARTED_IMG.STOP);
+    setDepartTime(elementId);
+}
+
+/**
+ * @param {string} elementId 
+ * @param {string} [stopName]
+ */
+function setStopName(elementId, stopName) {
+    const nameElement = iframe.contentDocument.getElementById(`${elementId}_name`);
+
+    nameElement.textContent = stopName;
+}
+
+/**
+ * @param {string} elementId 
+ * @param {number} [departureTimestamp]
+ */
+function setDepartTime(elementId, departureTimestamp) {
+    if (elementId > 7) {
+        elementId = "end";
+    }
+    const timeElement = iframe.contentDocument.getElementById(`${elementId}_time`);
+    if (departureTimestamp) {
+        const departureTime = new Date(departureTimestamp);
+        const hours = departureTime.getHours();
+        const minutes = departureTime.getMinutes();
+        timeElement.innerText = `${twoDigits(hours)}:${twoDigits(minutes)}`;
+    } else {
+        timeElement.innerText = "";
+    }
+}
+
+/**
+ * @param {string} elementId 
+ * @param {string} departedImgSrc
+ */
+function trainDeparted(elementId, departedImgSrc) {
+    const nameElement = iframe.contentDocument.getElementById(`${elementId}_name`);
+    const imgElement = iframe.contentDocument.getElementById(`${elementId}_img`);
+
+    nameElement.classList.add("passed");
+    imgElement.src = departedImgSrc;
+}
+
+/**
+ * @param {string} elementId 
+ * @param {boolean} passed 
+ */
+function moveTrainIndicator(elementId, passed) {
+    if (elementId > 7) {
+        elementId = "end";
+    }
+    const timeElement = iframe.contentDocument.getElementById(`${elementId}_time`);
+    const iconElement = iframe.contentDocument.getElementById("train_icon");
+
+    timeElement.innerHTML = "";
+    if (!passed) {
+        timeElement.appendChild(iconElement);
+        iconElement.removeAttribute("style");
+    } else {
+        if (iconElement.parentElement !== timeElement) {
+            timeElement.appendChild(iconElement);
+        }
+        iconElement.style.transform = "translateX(5vw)";
+    }
 }
 
 async function changeValues() {
@@ -462,7 +774,7 @@ async function changeValues() {
         console.warn("Iframe not LOADED!");
         return;
     };
-    
+
     //if (displayType === 'delay') {
     //    nextStationDelay = iframe.contentDocument.getElementById('next_station_delay');
     //    nextStation = iframe.contentDocument.getElementById('next_station');
@@ -532,14 +844,12 @@ function applyResponsiveStyles() {
     };
 
     if (displayTheme === Theme.IC) {
-        iframe.contentWindow.scrollText();
         if (iframe.contentDocument.getElementById('route_box').childElementCount === 0) {
             iframe.contentWindow.dynamicWrapText('route_box');
         }
         iframe.contentWindow.overflowRestStations();
     } else if (displayTheme === Theme.PR) {
-        // TODO: Add functions below!
-        //iframe.contentWindow.wrapDirectionText();
+        iframe.contentWindow.checkForWrap();
     }
 }
 

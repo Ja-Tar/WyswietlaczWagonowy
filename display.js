@@ -600,8 +600,6 @@ function renderStopMap(stopsList, nextStopsList) {
      * Shows only stops that are in timetable, because it's too short
      */
     function showSmallerLayout() {
-        // TODO: Think what happens when there is less then 9 stops in whole timetable.
-
         mainDisplay.style.gridTemplateColumns = DISPLAY_CONFIG.END;
 
         stopsList.shift();
@@ -622,6 +620,9 @@ function renderStopMap(stopsList, nextStopsList) {
                 }
             } else {
                 setEmptyStop(`stop${-i + 8}`);
+                if (firstPassedStopIndex === 0) {
+                    firstPassedStopIndex = -i + 8;
+                }
             }
         }
 
@@ -758,6 +759,7 @@ function moveTrainIndicator(elementId, passed) {
     timeElement.innerHTML = "";
     if (!passed) {
         timeElement.appendChild(iconElement);
+        iconElement.removeAttribute("style");
     } else {
         if (iconElement.parentElement !== timeElement) {
             timeElement.appendChild(iconElement);

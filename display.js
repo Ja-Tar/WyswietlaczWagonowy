@@ -374,7 +374,7 @@ function setRouteStations(train) {
         renderNextStops(doneStopList);
     } else if (displayTheme === Theme.PR) {
         renderStopHeader(doneStopList[0]);
-        renderStopMap(doneStopList, train.timetable.formattedRoute);
+        renderStopMap(formattedTimetableStops, doneStopList);
     }
 }
 
@@ -402,7 +402,7 @@ function monitorArrivalCondition(nextStopsList, train) {
             }
         } else {
             if ((nextStopsList[0].arrivalRealTimestamp < currentTime && train.speed < 20) ||
-            (nextStopsList[0].departureRealTimestamp > currentTime && nextStopsList[0].beginsHere === true)) {
+                (nextStopsList[0].departureRealTimestamp > currentTime && nextStopsList[0].beginsHere === true)) {
                 atStation = true;
             } else {
                 atStation = false;
@@ -549,41 +549,107 @@ const DEPARTED_IMG = {
 }
 
 /**
+ * @param {StopPoint[]} stopsList StopPoint list with passed stops
  * @param {StopPoint[]} nextStopsList
- * @param {[string, string]} route
  */
-function renderStopMap(nextStopsList, route) {
+function renderStopMap(stopsList, nextStopsList) {
     const mainDisplay = iframe.contentDocument.getElementById("main_display");
     // TODO: Splittowanie dla ostatniej stacji kiedy jest za długa!! np. Warszawa Zachodnia
 
-    mainDisplay.style.gridTemplateColumns = "repeat(7, 9.7vw) 15vw 9.7vw";
+    const DISPLAY_CONFIG = {
+        CAROUSEL: "repeat(7, 9.7vw) 15vw 9.7vw",
+        CONTINUOS: "13vw repeat(7, 9.7vw) 13vw",
+        END: ""
+    }
+
+    mainDisplay.style.gridTemplateColumns = DISPLAY_CONFIG.CAROUSEL;
 
     // First and last stop
 
-    const startName = iframe.contentDocument.getElementById("start_name");
-    const endName = iframe.contentDocument.getElementById("end_name");
-    startName.textContent = route[0];
-    endName.textContent = route[1];
+    setStop("start", stopsList.at(0));
+    setStop("end", stopsList.at(-1));
 
     // Check if left first station
 
-    if (nextStopsList[0].stopNameRAW !== route[0]) {
-        trainDeparted("start");
+    if (nextStopsList[0].stopNameRAW !== stopsList[0].stopNameRAW) {
+        trainDeparted("start", DEPARTED_IMG.START);
         moveTrainIndicator("start", true);
-    } else {
-        //setDepartTime("start", nextStopsList[0].departureRealTimestamp);
     }
+
+    // TODO: If stop (7) is the last one move it closer to end station, stop moving stops afer departure, and only move train icon.
+    if (nextStopsList.length < 7) {
+        console.error("IMPLEMENT: Less then 7 stops")
+        return;
+    }
+
+    if (nextStopsList.includes(stopsList.at(2))) {
+        // TODO: Show all stops after 6 one on 7 stop element, stop showing after departure from second stop.
+        console.error("IMPLEMENT: Show carousel")
+        return;
+    }
+
+    // Move stops to only show one passed (1), current / next (2), and other (3, 4, 5, 6, 7) 
+
+    mainDisplay.style.gridTemplateColumns = DISPLAY_CONFIG.CONTINUOS;
+
+    const currentNextStopIndex = stopsList.indexOf(nextStopsList[0]);
+    const passedStop = stopsList.at(currentNextStopIndex - 1);
+
+    setStop("stop1", passedStop);
+    trainDeparted("stop1", DEPARTED_IMG.STOP);
+    if (atStation) {
+        moveTrainIndicator("stop2", false);
+    } else {
+        moveTrainIndicator("stop1", true);
+    }
+    setStop("stop2", nextStopsList[0]);
+}
+
+/**
+ * 
+ * @param {string} elementId 
+ * @param {StopPoint} stopPoint
+ */
+function setStop(elementId, stopPoint) {
+    setStopName(elementId, stopPoint.stopNameRAW);
+    if (elementId === "start") return;
+    setDepartTime(elementId, stopPoint.departureRealTimestamp);
 }
 
 /**
  * @param {string} elementId 
+ * @param {string} stopName
  */
-function trainDeparted(elementId) {
+function setStopName(elementId, stopName) {
+    const nameElement = iframe.contentDocument.getElementById(`${elementId}_name`);
+
+    nameElement.textContent = stopName;
+}
+
+/**
+ * @param {string} elementId 
+ * @param {number} departureTimestamp 
+ */
+function setDepartTime(elementId, departureTimestamp) {
+    const timeElement = iframe.contentDocument.getElementById(`${elementId}_time`);
+    const departureTime = new Date(departureTimestamp);
+
+    const hours = departureTime.getHours();
+    const minutes = departureTime.getMinutes();
+
+    timeElement.innerText = `${twoDigits(hours)}:${twoDigits(minutes)}`;
+}
+
+/**
+ * @param {string} elementId 
+ * @param {string} departedImgSrc
+ */
+function trainDeparted(elementId, departedImgSrc) {
     const nameElement = iframe.contentDocument.getElementById(`${elementId}_name`);
     const imgElement = iframe.contentDocument.getElementById(`${elementId}_img`);
 
     nameElement.classList.add("passed");
-    imgElement.src = DEPARTED_IMG.START;
+    imgElement.src = departedImgSrc;
 }
 
 /**

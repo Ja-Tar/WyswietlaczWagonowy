@@ -559,7 +559,7 @@ function renderStopMap(stopsList, nextStopsList) {
     const DISPLAY_CONFIG = {
         CAROUSEL: "repeat(7, 9.7vw) 15vw 9.7vw",
         CONTINUOS: "13vw repeat(7, 9.7vw) 13vw",
-        END: ""
+        END: "15vw repeat(8, 9.7vw)"
     }
 
     mainDisplay.style.gridTemplateColumns = DISPLAY_CONFIG.CAROUSEL;
@@ -577,7 +577,8 @@ function renderStopMap(stopsList, nextStopsList) {
     }
 
     // TODO: If stop (7) is the last one move it closer to end station, stop moving stops afer departure, and only move train icon.
-    if (nextStopsList.length < 7) {
+    if (nextStopsList.length <= 8) {
+        mainDisplay.style.gridTemplateColumns = DISPLAY_CONFIG.END;
         console.error("IMPLEMENT: Less then 7 stops")
         return;
     }
@@ -603,6 +604,10 @@ function renderStopMap(stopsList, nextStopsList) {
         moveTrainIndicator("stop1", true);
     }
     setStop("stop2", nextStopsList[0]);
+
+    for (let i = 3; i < 8; i++) {
+        setStop(`stop${i}`, nextStopsList[i]);
+    }
 }
 
 /**

@@ -541,6 +541,13 @@ function renderStopHeader(nextStop) {
     lastStationText = nextStop.stopNameRAW;
     iframe.contentWindow.scrollText();
 }
+
+const DEPARTED_IMG = {
+    START: "./static/map/start_passed.svg",
+    STOP: "./static/map/stop_passed.svg",
+    END: "./static/map/end_passed.svg"
+}
+
 /**
  * @param {StopPoint[]} nextStopsList
  * @param {[string, string]} route
@@ -557,6 +564,45 @@ function renderStopMap(nextStopsList, route) {
     const endName = iframe.contentDocument.getElementById("end_name");
     startName.textContent = route[0];
     endName.textContent = route[1];
+
+    // Check if left first station
+
+    if (nextStopsList[0].stopNameRAW !== route[0]) {
+        trainDeparted("start");
+        moveTrainIndicator("start", true);
+    } else {
+        //setDepartTime("start", nextStopsList[0].departureRealTimestamp);
+    }
+}
+
+/**
+ * @param {string} elementId 
+ */
+function trainDeparted(elementId) {
+    const nameElement = iframe.contentDocument.getElementById(`${elementId}_name`);
+    const imgElement = iframe.contentDocument.getElementById(`${elementId}_img`);
+
+    nameElement.classList.add("passed");
+    imgElement.src = DEPARTED_IMG.START;
+}
+
+/**
+ * @param {string} elementId 
+ * @param {boolean} passed 
+ */
+function moveTrainIndicator(elementId, passed) {
+    const timeElement = iframe.contentDocument.getElementById(`${elementId}_time`);
+    const iconElement = iframe.contentDocument.getElementById("train_icon");
+
+    timeElement.innerHTML = "";
+    if (!passed) {
+        timeElement.appendChild(iconElement);
+    } else {
+        if (iconElement.parentElement !== timeElement) {
+            timeElement.appendChild(iconElement);
+        }
+        iconElement.style.transform = "translateX(5vw)";
+    }
 }
 
 async function changeValues() {

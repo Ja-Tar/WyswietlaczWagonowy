@@ -255,6 +255,7 @@ function updateTrainDisplay(train) {
 
 /**
  * @param {TrainInfo} train 
+ * @returns {TrainInfo} with formattedRoute
  */
 function formatTrainRoute(train) {
     const route = train.timetable?.route;

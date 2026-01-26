@@ -562,8 +562,6 @@ function renderStopMap(stopsList, nextStopsList) {
         END: "15vw repeat(8, 9.7vw)"
     }
 
-    mainDisplay.style.gridTemplateColumns = DISPLAY_CONFIG.CAROUSEL;
-
     // First and last stop
 
     setStop("start", stopsList.at(0));
@@ -576,37 +574,97 @@ function renderStopMap(stopsList, nextStopsList) {
         moveTrainIndicator("start", true);
     }
 
-    // TODO: If stop (7) is the last one move it closer to end station, stop moving stops afer departure, and only move train icon.
+    if (stopsList.length <= 9) {
+        showSmallerLayout();
+        return;
+    }
+
+    mainDisplay.style.gridTemplateColumns = DISPLAY_CONFIG.CAROUSEL;
+
+
     if (nextStopsList.length <= 8) {
+        // TODO: If stop (7) is the last one move it closer to end station, stop moving stops afer departure, and only move train icon.
         mainDisplay.style.gridTemplateColumns = DISPLAY_CONFIG.END;
         console.error("IMPLEMENT: Less then 7 stops")
         return;
     }
 
     if (nextStopsList.includes(stopsList.at(2))) {
-        // TODO: Show all stops after 6 one on 7 stop element, stop showing after departure from second stop.
-        console.error("IMPLEMENT: Show carousel")
+        showCarouselLayout();
         return;
     }
 
-    // Move stops to only show one passed (1), current / next (2), and other (3, 4, 5, 6, 7) 
+    showContinuosLayout();
 
-    mainDisplay.style.gridTemplateColumns = DISPLAY_CONFIG.CONTINUOS;
+    /**
+     * Shows only stops that are in timetable, because it's too short
+     */
+    function showSmallerLayout() {
+        // TODO: Think what happens when there is less then 9 stops in whole timetable.
 
-    const currentNextStopIndex = stopsList.indexOf(nextStopsList[0]);
-    const passedStop = stopsList.at(currentNextStopIndex - 1);
+        mainDisplay.style.gridTemplateColumns = DISPLAY_CONFIG.END;
 
-    setStop("stop1", passedStop);
-    trainDeparted("stop1", DEPARTED_IMG.STOP);
-    if (atStation) {
-        moveTrainIndicator("stop2", false);
-    } else {
-        moveTrainIndicator("stop1", true);
+        stopsList.shift();
+        stopsList.pop();
+
+        let firstPassedStopIndex = 0;
+
+        for (let i = 1; i < 8; i++) {
+            const stop = stopsList.at(-i);
+            if (stop) {
+                if (nextStopsList.includes(stop)) {
+                    setStop(`stop${-i + 8}`, stop);
+                } else {
+                    setPassedStop(`stop${-i + 8}`, stop);
+                    if (firstPassedStopIndex === 0) {
+                        firstPassedStopIndex = -i + 8;
+                    }
+                }
+            } else {
+                setEmptyStop(`stop${-i + 8}`);
+            }
+        }
+
+        if (!firstPassedStopIndex) {
+            firstPassedStopIndex = 7;
+        }
+
+        if (atStation) {
+            moveTrainIndicator(`stop${firstPassedStopIndex + 1}`, false);
+        } else {
+            moveTrainIndicator(`stop${firstPassedStopIndex}`, true);
+        }
     }
-    setStop("stop2", nextStopsList[0]);
 
-    for (let i = 3; i < 8; i++) {
-        setStop(`stop${i}`, nextStopsList[i]);
+    /**
+     * Show all stops after 6 one on 7 stop element, stop showing after departure from second stop.
+     */
+    function showCarouselLayout() {
+        // TODO: Show all stops after 6 one on 7 stop element, stop showing after departure from second stop.
+        console.error("IMPLEMENT: Show carousel");
+    }
+
+    /**
+     * Move stops to only show one passed (1), current / next (2), and other (3, 4, 5, 6, 7) 
+     */
+    function showContinuosLayout() {
+        mainDisplay.style.gridTemplateColumns = DISPLAY_CONFIG.CONTINUOS;
+
+        const currentNextStopIndex = stopsList.indexOf(nextStopsList[0]);
+        const passedStop = stopsList.at(currentNextStopIndex - 1);
+
+        setStop("stop1", passedStop);
+        trainDeparted("stop1", DEPARTED_IMG.STOP);
+        if (atStation) {
+            moveTrainIndicator("stop2", false);
+        } else {
+            moveTrainIndicator("stop1", true);
+        }
+        setStop("stop2", nextStopsList[0]);
+
+        for (let i = 3; i < 8; i++) {
+            setStop(`stop${i}`, nextStopsList[i]);
+        }
     }
 }
 
@@ -618,12 +676,36 @@ function renderStopMap(stopsList, nextStopsList) {
 function setStop(elementId, stopPoint) {
     setStopName(elementId, stopPoint.stopNameRAW);
     if (elementId === "start") return;
-    setDepartTime(elementId, stopPoint.departureRealTimestamp);
+    if (elementId !== "end") {
+        setDepartTime(elementId, stopPoint.departureRealTimestamp);
+    } else {
+        setDepartTime(elementId, stopPoint.arrivalRealTimestamp);
+    }
+}
+
+/**
+ * @param {string} elementId
+ */
+function setEmptyStop(elementId) {
+    setStopName(elementId);
+    setDepartTime(elementId);
+    trainDeparted(elementId, DEPARTED_IMG.STOP);
+}
+
+/**
+ * 
+ * @param {string} elementId 
+ * @param {StopPoint} stopPoint
+ */
+function setPassedStop(elementId, stopPoint) {
+    setStopName(elementId, stopPoint.stopNameRAW);
+    trainDeparted(elementId, DEPARTED_IMG.STOP);
+    setDepartTime(elementId);
 }
 
 /**
  * @param {string} elementId 
- * @param {string} stopName
+ * @param {string} [stopName]
  */
 function setStopName(elementId, stopName) {
     const nameElement = iframe.contentDocument.getElementById(`${elementId}_name`);
@@ -633,16 +715,21 @@ function setStopName(elementId, stopName) {
 
 /**
  * @param {string} elementId 
- * @param {number} departureTimestamp 
+ * @param {number} [departureTimestamp]
  */
 function setDepartTime(elementId, departureTimestamp) {
+    if (elementId > 7) {
+        elementId = "end";
+    }
     const timeElement = iframe.contentDocument.getElementById(`${elementId}_time`);
-    const departureTime = new Date(departureTimestamp);
-
-    const hours = departureTime.getHours();
-    const minutes = departureTime.getMinutes();
-
-    timeElement.innerText = `${twoDigits(hours)}:${twoDigits(minutes)}`;
+    if (departureTimestamp) {
+        const departureTime = new Date(departureTimestamp);
+        const hours = departureTime.getHours();
+        const minutes = departureTime.getMinutes();
+        timeElement.innerText = `${twoDigits(hours)}:${twoDigits(minutes)}`;
+    } else {
+        timeElement.innerText = "";
+    }
 }
 
 /**
@@ -662,6 +749,9 @@ function trainDeparted(elementId, departedImgSrc) {
  * @param {boolean} passed 
  */
 function moveTrainIndicator(elementId, passed) {
+    if (elementId > 7) {
+        elementId = "end";
+    }
     const timeElement = iframe.contentDocument.getElementById(`${elementId}_time`);
     const iconElement = iframe.contentDocument.getElementById("train_icon");
 

@@ -259,7 +259,7 @@ function updateTrainDisplay(train) {
  */
 function formatTrainRoute(train) {
     const route = train.timetable?.route;
-    if (!route) return; // before split: DOBRZYNIEC|Wielichowo Główne
+    if (!route) return train; // before split: DOBRZYNIEC|Wielichowo Główne
     const capitalizedRoute = capitalizeStationNames(route.split("|"));
     const formattedRoute = capitalizedRoute.map(stopName => correctStationName(stopName));
     train.timetable.formattedRoute = formattedRoute;

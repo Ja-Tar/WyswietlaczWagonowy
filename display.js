@@ -96,7 +96,6 @@ function resizeIframe() {
 window.addEventListener('resize', resizeIframe);
 resizeIframe();
 
-// TODO: Major rework needed! (separate ic display function specific things to prepare for pr ones)
 const templatesUrl = { ic: "template.html", pr: "template_pr.html" };
 
 if (displayTheme === Theme.AUTO) {
@@ -366,8 +365,8 @@ function setRouteStations(train) {
     checking = true;
 
     if (doneStopList.length < 1) {
+        // TODO: Implement no stations left / no stations
         console.error("No stations left!!!");
-        return;
     }
 
     if (displayTheme === Theme.IC) {
@@ -602,6 +601,7 @@ function renderStopMap(stopsList, nextStopsList) {
      */
     function showSmallerLayout() {
         mainDisplay.style.gridTemplateColumns = DISPLAY_CONFIG.END;
+        mainDisplay.style.alignSelf = "center";
 
         stopsList.shift();
         stopsList.pop();
@@ -632,10 +632,16 @@ function renderStopMap(stopsList, nextStopsList) {
         }
 
         if (atStation) {
-            moveTrainIndicator(`stop${firstPassedStopIndex + 1}`, false);
+            if (firstPassedStopIndex + 1 > 7) {
+                moveTrainIndicator("end", false);
+            } else {
+                moveTrainIndicator(`stop${firstPassedStopIndex + 1}`, false);
+            }
         } else {
             moveTrainIndicator(`stop${firstPassedStopIndex}`, true);
         }
+
+        mainDisplay.style.gridTemplateColumns = `repeat(${stopsList.length + 2}, 9.7vw)`
     }
 
     /**
@@ -689,9 +695,13 @@ function setStop(elementId, stopPoint) {
  * @param {string} elementId
  */
 function setEmptyStop(elementId) {
-    setStopName(elementId);
-    setDepartTime(elementId);
-    trainDeparted(elementId, DEPARTED_IMG.STOP);
+    const nameElement = iframe.contentDocument.getElementById(`${elementId}_name`);
+    const timeElement = iframe.contentDocument.getElementById(`${elementId}_time`);
+    const imgElement = iframe.contentDocument.getElementById(`${elementId}_img`);
+
+    nameElement.style.display = "none";
+    timeElement.style.display = "none";
+    imgElement.style.display = "none";
 }
 
 /**

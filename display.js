@@ -240,7 +240,7 @@ async function setDataFromStacjownik() {
  * @param {TrainInfo} train
  */
 function updateTrainDisplay(train) {
-    formatTrainRoute(train);
+    train = formatTrainRoute(train);
     displayCurrentSpeed(train);
     if (displayTheme === Theme.IC) {
         setTrainName(train);
@@ -335,7 +335,7 @@ function formatStopsName(stopPoints) {
 }
 
 /** @type {StopPoint[]} */
-let removedStopsName = [];
+const removedStopsName = [];
 let checking = false;
 let atStation = false;
 
@@ -430,7 +430,7 @@ function monitorArrivalCondition(nextStopsList, train) {
  * @param {Object} obj2
  * @returns {boolean}
  */
-function isTheSame(obj1, obj2) {
+function isTheSame(obj1, obj2) { // REMOVE: Not used
     if (obj1 === null || obj2 === null) return false;
     let same = true;
     for (const key of Object.keys(obj1)) {

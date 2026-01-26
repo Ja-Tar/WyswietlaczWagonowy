@@ -1,5 +1,4 @@
 import { horizontalLoop } from "./api/gsap_simless_loop.js";
-import { getTrainFullName } from "./api/train_name.js";
 
 /** @type {*} */ 
 const gsap = (window.gsap);

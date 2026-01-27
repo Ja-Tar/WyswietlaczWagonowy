@@ -344,6 +344,7 @@ function formatStopsName(stopPoints) {
 const removedStopsName = [];
 let checking = false;
 let atStation = false;
+let atOrigin = false;
 
 /**
  * @param {TrainInfo} train
@@ -398,6 +399,11 @@ function monitorArrivalCondition(nextStopsList, train) {
         // Normal flow
         if (nextStopsList[0].stopNameType === "po") {
             // TODO: Add option to change minimal speed!
+            if (atOrigin) {
+                atStation = false;
+                atOrigin = false;
+            }
+
             if (nextStopsList[0].arrivalRealTimestamp < currentTime && train.speed < 20 && atStation === false) {
                 atStation = true;
             }
@@ -435,6 +441,7 @@ function monitorArrivalCondition(nextStopsList, train) {
 
         if (nextStopsList[0].beginsHere === true) {
             atStation = true;
+            atOrigin = true;
         }
     }
     return nextStopsList;

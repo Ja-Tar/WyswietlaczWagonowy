@@ -578,6 +578,8 @@ function renderStopMap(stopsList, nextStopsList) {
         END: "15vw repeat(8, 9.7vw)"
     }
 
+    stopCarousel();
+
     // First and last stop
 
     setStop("start", stopsList.at(0));
@@ -608,11 +610,11 @@ function renderStopMap(stopsList, nextStopsList) {
     }
 
     if (nextStopsList.includes(stopsList.at(2))) {
-        showCarouselLayout();
+        showCarouselStartLayout();
         return;
     }
 
-    showContinuosLayout();
+    showContinuosLayout(); // TODO: Add option to choose Continuos (NEW) or Carousel (OLD) layout
 
     /**
      * Shows only stops that are in timetable, because it's too short
@@ -673,9 +675,24 @@ function renderStopMap(stopsList, nextStopsList) {
     /**
      * Show all stops after 6 one on 7 stop element, stop showing after departure from second stop.
      */
-    function showCarouselLayout() {
-        // TODO: Show all stops after 6 one on 7 stop element, stop showing after departure from second stop.
-        console.error("IMPLEMENT: Show carousel");
+    function showCarouselStartLayout() {
+        // TODO: Show all stops after 6 one on 7 stop element, 
+
+        const currentNextStopIndex = stopsList.indexOf(nextStopsList[0]);
+
+        for (let i = 1; i < 7; i++) {
+            const elementId = `stop${i}`;
+            if (currentNextStopIndex <= i) {
+                // NOT PASSED
+                setStop(elementId, stopsList[i]);
+            } else {
+                // PASSED
+                setPassedStop(elementId, stopsList[i]);
+                moveTrainIndicator(elementId, true);
+            }
+        }
+
+        startCarousel(nextStopsList);
     }
 
     /**
@@ -805,12 +822,44 @@ function moveTrainIndicator(elementId, passed) {
     }
 }
 
+let carouselWorking = false;
+let carouselStep = 0;
+
+/**
+ * @param {StopPoint[]} nextStopsList 
+ */
+function startCarousel(nextStopsList) {
+    nextStopsList.splice(0, 5);
+    nextStopsList.pop();
+    const mappedStops = nextStopsList.map(stopPoint => {return [stopPoint.stopNameRAW, stopPoint.departureTimestamp]});
+    console.log(mappedStops);
+    carouselWorking = true;
+    carouselStep = 0;
+
+    nextStationCarousel(mappedStops);
+}
+
+/**
+ * 
+ * @param {(string | number)[][]} mappedStops 
+ */
+function nextStationCarousel(mappedStops) {
+    if (carouselWorking === true) {
+        setStopName("stop7", mappedStops[carouselStep][0]);
+    }
+}
+
+function stopCarousel() {
+    carouselWorking === false;
+}
+
 async function changeValues() {
     if (!iframeLoaded) {
         console.warn("Iframe not LOADED!");
         return;
     };
 
+    // TODO: Readd functionality:
     //if (displayType === 'delay') {
     //    nextStationDelay = iframe.contentDocument.getElementById('next_station_delay');
     //    nextStation = iframe.contentDocument.getElementById('next_station');

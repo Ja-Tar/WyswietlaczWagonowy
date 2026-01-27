@@ -416,7 +416,7 @@ function monitorArrivalCondition(nextStopsList, train) {
             }
         }
     } else {
-        let firstCheckedStop = false; 
+        let firstCheckedStop = false;
 
         // Fallback for starting website
         nextStopsList = nextStopsList.filter(stopPoint => {
@@ -578,8 +578,6 @@ function renderStopMap(stopsList, nextStopsList) {
         END: "15vw repeat(8, 9.7vw)"
     }
 
-    stopCarousel();
-
     // First and last stop
 
     setStop("start", stopsList.at(0));
@@ -614,6 +612,7 @@ function renderStopMap(stopsList, nextStopsList) {
         return;
     }
 
+    stopCarousel();
     showContinuosLayout(); // TODO: Add option to choose Continuos (NEW) or Carousel (OLD) layout
 
     /**
@@ -822,8 +821,10 @@ function moveTrainIndicator(elementId, passed) {
     }
 }
 
-let carouselWorking = false;
+let carouselRunning = false;
 let carouselStep = 0;
+let carouselMappedStops = [];
+let carouselId = 0;
 
 /**
  * @param {StopPoint[]} nextStopsList 
@@ -831,26 +832,53 @@ let carouselStep = 0;
 function startCarousel(nextStopsList) {
     nextStopsList.splice(0, 5);
     nextStopsList.pop();
-    const mappedStops = nextStopsList.map(stopPoint => {return [stopPoint.stopNameRAW, stopPoint.departureTimestamp]});
-    console.log(mappedStops);
-    carouselWorking = true;
-    carouselStep = 0;
+    const mappedStops = nextStopsList.map(stopPoint => { return [stopPoint.stopNameRAW, stopPoint.departureTimestamp] });
 
-    nextStationCarousel(mappedStops);
+    if (arraysEqual(carouselMappedStops, mappedStops)) return;
+    if (carouselRunning) stopCarousel();
+
+    carouselRunning = true;
+    carouselMappedStops = mappedStops;
+    nextStationCarousel();
+    carouselId = setInterval(nextStationCarousel, 5000);
 }
 
-/**
- * 
- * @param {(string | number)[][]} mappedStops 
- */
-function nextStationCarousel(mappedStops) {
-    if (carouselWorking === true) {
-        setStopName("stop7", mappedStops[carouselStep][0]);
+function nextStationCarousel() {
+    if (carouselStep >= carouselMappedStops.length) {
+        carouselStep = 0;
     }
+    setStopName("stop7", carouselMappedStops[carouselStep][0]);
+    setDepartTime("stop7", carouselMappedStops[carouselStep][1]);
+    carouselStep += 1;
+    console.log(carouselRunning, carouselStep, carouselId)
 }
 
 function stopCarousel() {
-    carouselWorking === false;
+    if (carouselRunning) {
+        clearInterval(carouselId);
+        carouselRunning = false;
+    }
+}
+
+/**
+ * @param {Array} a 
+ * @param {Array} b 
+ * @returns {boolean}
+ */
+function arraysEqual(a, b) {
+    if (a === b) return true;
+    if (!Array.isArray(a) || !Array.isArray(b)) return false;
+    if (a.length !== b.length) return false;
+    for (let i = 0; i < a.length; ++i) {
+        const va = a[i], vb = b[i];
+        const bothArr = Array.isArray(va) && Array.isArray(vb);
+        if (bothArr) {
+            if (!arraysEqual(va, vb)) return false;
+        } else {
+            if (!Object.is(va, vb)) return false;
+        }
+    }
+    return true;
 }
 
 async function changeValues() {

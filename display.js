@@ -86,6 +86,7 @@ const displayTheme = urlParams.get('theme') || Theme.AUTO;
 /** @type {HTMLIFrameElement} */
 const iframe = document.querySelector('#container');
 let iframeLoaded = false;
+const devMode = localStorage.getItem("dev"); // Used for debugging 
 
 function resizeIframe() {
     const scale = Math.min(window.innerWidth / 1920, window.innerHeight / 1050);
@@ -96,7 +97,6 @@ function resizeIframe() {
 window.addEventListener('resize', resizeIframe);
 resizeIframe();
 
-// TODO: Major rework needed! (separate ic display function specific things to prepare for pr ones)
 const templatesUrl = { ic: "template.html", pr: "template_pr.html" };
 
 if (displayTheme === Theme.AUTO) {
@@ -202,7 +202,12 @@ async function setTemperature() {
  * @returns {boolean} True -> OK
  */
 async function setDataFromStacjownik() {
-    const url = "https://stacjownik.spythere.eu/api/getActiveTrainList";
+    let url = "";
+    if (devMode) {
+        url = `${window.location.origin}/exampleData/getActiveTrainList.json`;
+    } else {
+        url = "https://stacjownik.spythere.eu/api/getActiveTrainList";
+    }
 
     const options = { method: 'GET' };
     try {
@@ -339,6 +344,7 @@ function formatStopsName(stopPoints) {
 const removedStopsName = [];
 let checking = false;
 let atStation = false;
+let atOrigin = false;
 
 /**
  * @param {TrainInfo} train
@@ -366,8 +372,8 @@ function setRouteStations(train) {
     checking = true;
 
     if (doneStopList.length < 1) {
+        // TODO: Implement no stations left / no stations
         console.error("No stations left!!!");
-        return;
     }
 
     if (displayTheme === Theme.IC) {
@@ -393,6 +399,11 @@ function monitorArrivalCondition(nextStopsList, train) {
         // Normal flow
         if (nextStopsList[0].stopNameType === "po") {
             // TODO: Add option to change minimal speed!
+            if (atOrigin) {
+                atStation = false;
+                atOrigin = false;
+            }
+
             if (nextStopsList[0].arrivalRealTimestamp < currentTime && train.speed < 20 && atStation === false) {
                 atStation = true;
             }
@@ -402,44 +413,38 @@ function monitorArrivalCondition(nextStopsList, train) {
                 removedStopsName.push(nextStopsList.splice(0, 1)[0].stopNameRAW);
             }
         } else {
-            if ((nextStopsList[0].arrivalRealTimestamp < currentTime && train.speed < 20) ||
-                (nextStopsList[0].departureRealTimestamp > currentTime && nextStopsList[0].beginsHere === true)) {
+            if ((nextStopsList[0].arrivalRealTimestamp < currentTime && train.speed < 20) || nextStopsList[0].beginsHere === true) {
                 atStation = true;
-            } else {
+            }
+
+            if (nextStopsList[0].arrivalRealTimestamp > currentTime) {
                 atStation = false;
             }
         }
     } else {
+        let firstCheckedStop = false;
+
         // Fallback for starting website
         nextStopsList = nextStopsList.filter(stopPoint => {
-            if (stopPoint.stopNameType === 'po') {
+            if (stopPoint.stopNameType === 'po' && firstCheckedStop === false) {
                 /* check if stop has been passed (stop without confirmed arrival) */
                 const departureTime = stopPoint.departureRealTimestamp;
                 if (currentTime > departureTime) {
                     removedStopsName.push(stopPoint.stopNameRAW);
                     return false;
                 }
+            } else {
+                firstCheckedStop = true;
             }
             return true;
         });
-    }
-    return nextStopsList;
-}
 
-/**
- * @param {Object} obj1
- * @param {Object} obj2
- * @returns {boolean}
- */
-function isTheSame(obj1, obj2) { // REMOVE: Not used
-    if (obj1 === null || obj2 === null) return false;
-    let same = true;
-    for (const key of Object.keys(obj1)) {
-        if (!(obj1[key] === obj2[key])) {
-            same = false;
+        if (nextStopsList[0].beginsHere === true) {
+            atStation = true;
+            atOrigin = true;
         }
     }
-    return same;
+    return nextStopsList;
 }
 
 /**
@@ -558,7 +563,8 @@ function renderStopMap(stopsList, nextStopsList) {
     // TODO: Splittowanie dla ostatniej stacji kiedy jest za długa!! np. Warszawa Zachodnia
 
     const DISPLAY_CONFIG = {
-        CAROUSEL: "repeat(7, 9.7vw) 15vw 9.7vw",
+        CAROUSEL_START: "repeat(7, 9.7vw) 15vw 9.7vw",
+        CAROUSEL_CONTINUE: "repeat(7, 9.7vw) 15vw 9.7vw",
         CONTINUOS: "13vw repeat(7, 9.7vw) 13vw",
         END: "15vw repeat(8, 9.7vw)"
     }
@@ -568,40 +574,46 @@ function renderStopMap(stopsList, nextStopsList) {
     setStop("start", stopsList.at(0));
     setStop("end", stopsList.at(-1));
 
-    // Check if left first station
+    // First station checks
 
     if (nextStopsList[0].stopNameRAW !== stopsList[0].stopNameRAW) {
         trainDeparted("start", DEPARTED_IMG.START);
         moveTrainIndicator("start", true);
     }
 
+    // Smaller layout for less then 9 stops
+
     if (stopsList.length <= 9) {
         showSmallerLayout();
         return;
     }
 
-    mainDisplay.style.gridTemplateColumns = DISPLAY_CONFIG.CAROUSEL;
+    mainDisplay.style.gridTemplateColumns = DISPLAY_CONFIG.CAROUSEL_START;
 
 
-    if (nextStopsList.length <= 8) {
-        // TODO: If stop (7) is the last one move it closer to end station, stop moving stops afer departure, and only move train icon.
-        mainDisplay.style.gridTemplateColumns = DISPLAY_CONFIG.END;
-        console.error("IMPLEMENT: Less then 7 stops")
+    if (nextStopsList.length <= 7) {
+        showEndLayout();
         return;
     }
 
     if (nextStopsList.includes(stopsList.at(2))) {
-        showCarouselLayout();
+        showCarouselStartLayout();
         return;
     }
 
-    showContinuosLayout();
+    stopCarousel();
+    showContinuosLayout(); // TODO: Add option to choose Continuos (NEW) or Carousel (OLD) layout
+    // TODO: Show all stops after 6 one on 7 stop element with Carousel layout
 
     /**
      * Shows only stops that are in timetable, because it's too short
      */
     function showSmallerLayout() {
         mainDisplay.style.gridTemplateColumns = DISPLAY_CONFIG.END;
+        mainDisplay.style.alignSelf = "center";
+
+        /** @type {string[]} */
+        const emptyStops = [];
 
         stopsList.shift();
         stopsList.pop();
@@ -621,6 +633,7 @@ function renderStopMap(stopsList, nextStopsList) {
                 }
             } else {
                 setEmptyStop(`stop${-i + 8}`);
+                emptyStops.push(`stop${-i + 8}`);
                 if (firstPassedStopIndex === 0) {
                     firstPassedStopIndex = -i + 8;
                 }
@@ -631,19 +644,76 @@ function renderStopMap(stopsList, nextStopsList) {
             firstPassedStopIndex = 7;
         }
 
-        if (atStation) {
-            moveTrainIndicator(`stop${firstPassedStopIndex + 1}`, false);
-        } else {
-            moveTrainIndicator(`stop${firstPassedStopIndex}`, true);
+        if (!nextStopsList[0].beginsHere === true) {
+            if (atStation) {
+                if (firstPassedStopIndex + 1 > 7) {
+                    moveTrainIndicator("end", false);
+                } else {
+                    moveTrainIndicator(`stop${firstPassedStopIndex + 1}`, false);
+                }
+            } else {
+                if (!emptyStops.includes(`stop${firstPassedStopIndex}`)) {
+                    moveTrainIndicator(`stop${firstPassedStopIndex}`, true);
+                }
+            }
+        }
+
+        mainDisplay.style.gridTemplateColumns = `repeat(${stopsList.length + 2}, 9.7vw)`
+    }
+
+    /**
+     * If stop (7) is the last one move it closer to end station, stop moving stops afer departure, and only move train icon.
+     */
+    function showEndLayout() {
+        mainDisplay.style.gridTemplateColumns = DISPLAY_CONFIG.END;
+        mainDisplay.style.marginLeft = '-10vw';
+
+        const currentNextStopIndex = stopsList.indexOf(nextStopsList[0]);
+        const numberOfStopsLeft = stopsList.length - currentNextStopIndex - 1;
+
+        let currentStop = 0;
+        for (let i = 1; i < 8; i++) {
+            const elementId = `stop${i}`
+            if (-i+8 > numberOfStopsLeft) {
+                // PASSED
+                setPassedStop(elementId, stopsList.at(-(-i+9)));
+                if (!atStation) {
+                    moveTrainIndicator(elementId, true);
+                }
+            } else {
+                // NOT PASSED
+                setStop(elementId, nextStopsList[currentStop]);
+                if (atStation && currentStop === 0) { 
+                    moveTrainIndicator(elementId, false);
+                }
+                currentStop += 1;
+            }
+        }
+
+        if (nextStopsList[0].terminatesHere === true && atStation) {
+            moveTrainIndicator("end", false)
         }
     }
 
     /**
      * Show all stops after 6 one on 7 stop element, stop showing after departure from second stop.
      */
-    function showCarouselLayout() {
-        // TODO: Show all stops after 6 one on 7 stop element, stop showing after departure from second stop.
-        console.error("IMPLEMENT: Show carousel");
+    function showCarouselStartLayout() {
+        const currentNextStopIndex = stopsList.indexOf(nextStopsList[0]);
+
+        for (let i = 1; i < 7; i++) {
+            const elementId = `stop${i}`;
+            if (currentNextStopIndex <= i) {
+                // NOT PASSED
+                setStop(elementId, stopsList[i]);
+            } else {
+                // PASSED
+                setPassedStop(elementId, stopsList[i]);
+                moveTrainIndicator(elementId, true);
+            }
+        }
+
+        startCarousel(nextStopsList);
     }
 
     /**
@@ -655,17 +725,17 @@ function renderStopMap(stopsList, nextStopsList) {
         const currentNextStopIndex = stopsList.indexOf(nextStopsList[0]);
         const passedStop = stopsList.at(currentNextStopIndex - 1);
 
-        setStop("stop1", passedStop);
-        trainDeparted("stop1", DEPARTED_IMG.STOP);
+        setPassedStop("stop1", passedStop);
+        setStop("stop2", nextStopsList[0]);
+
         if (atStation) {
             moveTrainIndicator("stop2", false);
         } else {
             moveTrainIndicator("stop1", true);
         }
-        setStop("stop2", nextStopsList[0]);
 
         for (let i = 3; i < 8; i++) {
-            setStop(`stop${i}`, nextStopsList[i]);
+            setStop(`stop${i}`, nextStopsList[i-2]);
         }
     }
 }
@@ -689,9 +759,13 @@ function setStop(elementId, stopPoint) {
  * @param {string} elementId
  */
 function setEmptyStop(elementId) {
-    setStopName(elementId);
-    setDepartTime(elementId);
-    trainDeparted(elementId, DEPARTED_IMG.STOP);
+    const nameElement = iframe.contentDocument.getElementById(`${elementId}_name`);
+    const timeElement = iframe.contentDocument.getElementById(`${elementId}_time`);
+    const imgElement = iframe.contentDocument.getElementById(`${elementId}_img`);
+
+    nameElement.style.display = "none";
+    timeElement.style.display = "none";
+    imgElement.style.display = "none";
 }
 
 /**
@@ -724,6 +798,12 @@ function setDepartTime(elementId, departureTimestamp) {
         elementId = "end";
     }
     const timeElement = iframe.contentDocument.getElementById(`${elementId}_time`);
+
+    if (timeElement.children.length) {
+        console.warn("Train icon HERE: ", elementId);
+        return;
+    }
+
     if (departureTimestamp) {
         const departureTime = new Date(departureTimestamp);
         const hours = departureTime.getHours();
@@ -769,12 +849,72 @@ function moveTrainIndicator(elementId, passed) {
     }
 }
 
+let carouselRunning = false;
+let carouselStep = 0;
+let carouselMappedStops = [];
+let carouselId = 0;
+
+/**
+ * @param {StopPoint[]} nextStopsList 
+ */
+function startCarousel(nextStopsList) {
+    nextStopsList.splice(0, 5);
+    nextStopsList.pop();
+    const mappedStops = nextStopsList.map(stopPoint => { return [stopPoint.stopNameRAW, stopPoint.departureTimestamp] });
+
+    if (arraysEqual(carouselMappedStops, mappedStops)) return;
+    if (carouselRunning) stopCarousel();
+
+    carouselRunning = true;
+    carouselMappedStops = mappedStops;
+    nextStationCarousel();
+    carouselId = setInterval(nextStationCarousel, 5000);
+}
+
+function nextStationCarousel() {
+    if (carouselStep >= carouselMappedStops.length) {
+        carouselStep = 0;
+    }
+    setStopName("stop7", carouselMappedStops[carouselStep][0]);
+    setDepartTime("stop7", carouselMappedStops[carouselStep][1]);
+    carouselStep += 1;
+}
+
+function stopCarousel() {
+    if (carouselRunning) {
+        clearInterval(carouselId);
+        carouselRunning = false;
+    }
+}
+
+/**
+ * @param {Array} a 
+ * @param {Array} b 
+ * @returns {boolean}
+ */
+function arraysEqual(a, b) {
+    if (a === b) return true;
+    if (!Array.isArray(a) || !Array.isArray(b)) return false;
+    if (a.length !== b.length) return false;
+    for (let i = 0; i < a.length; ++i) {
+        const va = a[i], vb = b[i];
+        const bothArr = Array.isArray(va) && Array.isArray(vb);
+        if (bothArr) {
+            if (!arraysEqual(va, vb)) return false;
+        } else {
+            if (!Object.is(va, vb)) return false;
+        }
+    }
+    return true;
+}
+
 async function changeValues() {
     if (!iframeLoaded) {
         console.warn("Iframe not LOADED!");
         return;
     };
 
+    // TODO: Readd functionality:
     //if (displayType === 'delay') {
     //    nextStationDelay = iframe.contentDocument.getElementById('next_station_delay');
     //    nextStation = iframe.contentDocument.getElementById('next_station');

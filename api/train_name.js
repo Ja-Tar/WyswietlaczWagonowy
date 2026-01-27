@@ -163,8 +163,8 @@ function mapTrainName(operator, trainNo, trainNumberPrefix) {
 function getTrainPrefixByCategory(operator, trainCategory) {
     for (let j = 0; j < win.operatorConvertData.categories.length; j++) {
         const prefixData = win.operatorConvertData.categories[j];
-        let trainOperator = operator;
-        let prefixObject = prefixData.category;
+        const trainOperator = operator;
+        const prefixObject = prefixData.category;
 
         if (prefixData.operator === trainOperator) {
             for (const key in prefixObject) {

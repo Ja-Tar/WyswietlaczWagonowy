@@ -86,6 +86,7 @@ const displayTheme = urlParams.get('theme') || Theme.AUTO;
 /** @type {HTMLIFrameElement} */
 const iframe = document.querySelector('#container');
 let iframeLoaded = false;
+const devMode = localStorage.getItem("dev"); // Used for debugging 
 
 function resizeIframe() {
     const scale = Math.min(window.innerWidth / 1920, window.innerHeight / 1050);
@@ -201,7 +202,12 @@ async function setTemperature() {
  * @returns {boolean} True -> OK
  */
 async function setDataFromStacjownik() {
-    const url = "https://stacjownik.spythere.eu/api/getActiveTrainList";
+    let url = "";
+    if (devMode) {
+        url = `${window.location.origin}/exampleData/getActiveTrainList.json`;
+    } else {
+        url = "https://stacjownik.spythere.eu/api/getActiveTrainList";
+    }
 
     const options = { method: 'GET' };
     try {
@@ -410,15 +416,19 @@ function monitorArrivalCondition(nextStopsList, train) {
             }
         }
     } else {
+        let firstCheckedStop = false; 
+
         // Fallback for starting website
         nextStopsList = nextStopsList.filter(stopPoint => {
-            if (stopPoint.stopNameType === 'po') {
+            if (stopPoint.stopNameType === 'po' && firstCheckedStop === false) {
                 /* check if stop has been passed (stop without confirmed arrival) */
                 const departureTime = stopPoint.departureRealTimestamp;
                 if (currentTime > departureTime) {
                     removedStopsName.push(stopPoint.stopNameRAW);
                     return false;
                 }
+            } else {
+                firstCheckedStop = true;
             }
             return true;
         });
@@ -562,7 +572,8 @@ function renderStopMap(stopsList, nextStopsList) {
     // TODO: Splittowanie dla ostatniej stacji kiedy jest za długa!! np. Warszawa Zachodnia
 
     const DISPLAY_CONFIG = {
-        CAROUSEL: "repeat(7, 9.7vw) 15vw 9.7vw",
+        CAROUSEL_START: "repeat(7, 9.7vw) 15vw 9.7vw",
+        CAROUSEL_CONTINUE: "repeat(7, 9.7vw) 15vw 9.7vw",
         CONTINUOS: "13vw repeat(7, 9.7vw) 13vw",
         END: "15vw repeat(8, 9.7vw)"
     }
@@ -572,19 +583,21 @@ function renderStopMap(stopsList, nextStopsList) {
     setStop("start", stopsList.at(0));
     setStop("end", stopsList.at(-1));
 
-    // Check if left first station
+    // First station checks
 
     if (nextStopsList[0].stopNameRAW !== stopsList[0].stopNameRAW) {
         trainDeparted("start", DEPARTED_IMG.START);
         moveTrainIndicator("start", true);
     }
 
+    // Smaller layout for less then 9 stops
+
     if (stopsList.length <= 9) {
         showSmallerLayout();
         return;
     }
 
-    mainDisplay.style.gridTemplateColumns = DISPLAY_CONFIG.CAROUSEL;
+    mainDisplay.style.gridTemplateColumns = DISPLAY_CONFIG.CAROUSEL_START;
 
 
     if (nextStopsList.length <= 8) {

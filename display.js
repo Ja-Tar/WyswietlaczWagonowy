@@ -705,6 +705,10 @@ function renderStopMap(stopsList, nextStopsList) {
                 currentStop += 1;
             }
         }
+
+        if (nextStopsList[0].terminatesHere === true && atStation) {
+            moveTrainIndicator("end", false)
+        }
     }
 
     /**
@@ -810,6 +814,12 @@ function setDepartTime(elementId, departureTimestamp) {
         elementId = "end";
     }
     const timeElement = iframe.contentDocument.getElementById(`${elementId}_time`);
+
+    if (timeElement.children.length) {
+        console.warn("Train icon HERE: ", elementId);
+        return;
+    }
+
     if (departureTimestamp) {
         const departureTime = new Date(departureTimestamp);
         const hours = departureTime.getHours();

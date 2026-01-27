@@ -401,10 +401,11 @@ function monitorArrivalCondition(nextStopsList, train) {
                 removedStopsName.push(nextStopsList.splice(0, 1)[0].stopNameRAW);
             }
         } else {
-            if ((nextStopsList[0].arrivalRealTimestamp < currentTime && train.speed < 20) ||
-                (nextStopsList[0].departureRealTimestamp > currentTime && nextStopsList[0].beginsHere === true)) {
+            if ((nextStopsList[0].arrivalRealTimestamp < currentTime && train.speed < 20) || nextStopsList[0].beginsHere === true) {
                 atStation = true;
-            } else {
+            }
+
+            if (nextStopsList[0].arrivalRealTimestamp > currentTime) {
                 atStation = false;
             }
         }
@@ -421,6 +422,10 @@ function monitorArrivalCondition(nextStopsList, train) {
             }
             return true;
         });
+
+        if (nextStopsList[0].beginsHere === true) {
+            atStation = true;
+        }
     }
     return nextStopsList;
 }
@@ -603,6 +608,9 @@ function renderStopMap(stopsList, nextStopsList) {
         mainDisplay.style.gridTemplateColumns = DISPLAY_CONFIG.END;
         mainDisplay.style.alignSelf = "center";
 
+        /** @type {string[]} */
+        const emptyStops = [];
+
         stopsList.shift();
         stopsList.pop();
 
@@ -621,6 +629,7 @@ function renderStopMap(stopsList, nextStopsList) {
                 }
             } else {
                 setEmptyStop(`stop${-i + 8}`);
+                emptyStops.push(`stop${-i + 8}`);
                 if (firstPassedStopIndex === 0) {
                     firstPassedStopIndex = -i + 8;
                 }
@@ -631,14 +640,18 @@ function renderStopMap(stopsList, nextStopsList) {
             firstPassedStopIndex = 7;
         }
 
-        if (atStation) {
-            if (firstPassedStopIndex + 1 > 7) {
-                moveTrainIndicator("end", false);
+        if (!nextStopsList[0].beginsHere === true) {
+            if (atStation) {
+                if (firstPassedStopIndex + 1 > 7) {
+                    moveTrainIndicator("end", false);
+                } else {
+                    moveTrainIndicator(`stop${firstPassedStopIndex + 1}`, false);
+                }
             } else {
-                moveTrainIndicator(`stop${firstPassedStopIndex + 1}`, false);
+                if (!emptyStops.includes(`stop${firstPassedStopIndex}`)) {
+                    moveTrainIndicator(`stop${firstPassedStopIndex}`, true);
+                }
             }
-        } else {
-            moveTrainIndicator(`stop${firstPassedStopIndex}`, true);
         }
 
         mainDisplay.style.gridTemplateColumns = `repeat(${stopsList.length + 2}, 9.7vw)`

@@ -600,10 +600,8 @@ function renderStopMap(stopsList, nextStopsList) {
     mainDisplay.style.gridTemplateColumns = DISPLAY_CONFIG.CAROUSEL_START;
 
 
-    if (nextStopsList.length <= 8) {
-        // TODO: If stop (7) is the last one move it closer to end station, stop moving stops afer departure, and only move train icon.
-        mainDisplay.style.gridTemplateColumns = DISPLAY_CONFIG.END;
-        console.error("IMPLEMENT: Less then 7 stops")
+    if (nextStopsList.length <= 7) {
+        showEndLayout();
         return;
     }
 
@@ -614,6 +612,7 @@ function renderStopMap(stopsList, nextStopsList) {
 
     stopCarousel();
     showContinuosLayout(); // TODO: Add option to choose Continuos (NEW) or Carousel (OLD) layout
+    // TODO: Show all stops after 6 one on 7 stop element with Carousel layout
 
     /**
      * Shows only stops that are in timetable, because it's too short
@@ -672,11 +671,39 @@ function renderStopMap(stopsList, nextStopsList) {
     }
 
     /**
+     * If stop (7) is the last one move it closer to end station, stop moving stops afer departure, and only move train icon.
+     */
+    function showEndLayout() {
+        mainDisplay.style.gridTemplateColumns = DISPLAY_CONFIG.END;
+        mainDisplay.style.marginLeft = '-10vw';
+
+        const currentNextStopIndex = stopsList.indexOf(nextStopsList[0]);
+        const numberOfStopsLeft = stopsList.length - currentNextStopIndex - 1;
+
+        let currentStop = 0;
+        for (let i = 1; i < 8; i++) {
+            const elementId = `stop${i}`
+            if (-i+8 > numberOfStopsLeft) {
+                // PASSED
+                setPassedStop(elementId, stopsList.at(-(-i+9)));
+                if (!atStation) {
+                    moveTrainIndicator(elementId, true);
+                }
+            } else {
+                // NOT PASSED
+                setStop(elementId, nextStopsList[currentStop]);
+                if (atStation && currentStop === 0) { 
+                    moveTrainIndicator(elementId, false);
+                }
+                currentStop += 1;
+            }
+        }
+    }
+
+    /**
      * Show all stops after 6 one on 7 stop element, stop showing after departure from second stop.
      */
     function showCarouselStartLayout() {
-        // TODO: Show all stops after 6 one on 7 stop element, 
-
         const currentNextStopIndex = stopsList.indexOf(nextStopsList[0]);
 
         for (let i = 1; i < 7; i++) {
@@ -703,17 +730,17 @@ function renderStopMap(stopsList, nextStopsList) {
         const currentNextStopIndex = stopsList.indexOf(nextStopsList[0]);
         const passedStop = stopsList.at(currentNextStopIndex - 1);
 
-        setStop("stop1", passedStop);
-        trainDeparted("stop1", DEPARTED_IMG.STOP);
+        setPassedStop("stop1", passedStop);
+        setStop("stop2", nextStopsList[0]);
+
         if (atStation) {
             moveTrainIndicator("stop2", false);
         } else {
             moveTrainIndicator("stop1", true);
         }
-        setStop("stop2", nextStopsList[0]);
 
         for (let i = 3; i < 8; i++) {
-            setStop(`stop${i}`, nextStopsList[i]);
+            setStop(`stop${i}`, nextStopsList[i-2]);
         }
     }
 }

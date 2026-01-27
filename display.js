@@ -850,7 +850,6 @@ function nextStationCarousel() {
     setStopName("stop7", carouselMappedStops[carouselStep][0]);
     setDepartTime("stop7", carouselMappedStops[carouselStep][1]);
     carouselStep += 1;
-    console.log(carouselRunning, carouselStep, carouselId)
 }
 
 function stopCarousel() {

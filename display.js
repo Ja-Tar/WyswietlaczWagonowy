@@ -448,22 +448,6 @@ function monitorArrivalCondition(nextStopsList, train) {
 }
 
 /**
- * @param {Object} obj1
- * @param {Object} obj2
- * @returns {boolean}
- */
-function isTheSame(obj1, obj2) { // REMOVE: Not used
-    if (obj1 === null || obj2 === null) return false;
-    let same = true;
-    for (const key of Object.keys(obj1)) {
-        if (!(obj1[key] === obj2[key])) {
-            same = false;
-        }
-    }
-    return same;
-}
-
-/**
  * @param {StopPoint[]} nextStopsList
  */
 function renderNextStops(nextStopsList) {

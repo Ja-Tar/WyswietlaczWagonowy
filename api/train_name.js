@@ -266,5 +266,3 @@ function overwriteTrainInfo(operator, trainNo, trainCategory) {
 
     return {operator, trainNumberPrefix, endTrainName};
 }
-
-win.overwriteTrainInfo = overwriteTrainInfo;

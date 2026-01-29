@@ -116,11 +116,11 @@ export function correctStationName(stopName) {
 export function getTrainFullName(number, stockString, trainCategory) {
     console.debug('Stock string:', stockString);
 
-    const operator = determineOperator(stockString);
+    let operator = determineOperator(stockString);
     let prefix = getTrainPrefixByCategory(operator, trainCategory);
 
     let trainName = '';
-    ({ trainNumberPrefix: prefix, endTrainName: trainName } = mapTrainName(operator, number, trainCategory));
+    ({operator: operator, trainNumberPrefix: prefix, endTrainName: trainName } = mapTrainName(operator, number));
 
     const overwrite = overwriteTrainInfo(operator, number, trainCategory);
     if (overwrite) {

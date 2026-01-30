@@ -704,6 +704,9 @@ function renderStopMap(stopsList, nextStopsList) {
             if (currentNextStopIndex <= i) {
                 // NOT PASSED
                 setStop(elementId, stopsList[i]);
+                if (atStation && currentNextStopIndex === i) {
+                    moveTrainIndicator(elementId, false);
+                }
             } else {
                 // PASSED
                 setPassedStop(elementId, stopsList[i]);

@@ -80,6 +80,9 @@ const trainNumber = urlParams.get('train');
 const wagonNumber = urlParams.get('wagon');
 const showDelay = parseInt(urlParams.get("delay")) || 0;
 const displayTheme = urlParams.get('theme') || Theme.AUTO;
+/** Default -> 20km/h */
+const stopSpeed = parseInt(urlParams.get('stopSpeed')) || 20;
+const newPrLayout = parseInt(urlParams.get('prLayout')) || 0;
 /** @type {HTMLIFrameElement} */
 const iframe = document.querySelector('#container');
 let iframeLoaded = false;
@@ -97,8 +100,6 @@ resizeIframe();
 const templatesUrl = { ic: "template.html", pr: "template_pr.html" };
 
 if (displayTheme === Theme.AUTO) {
-    /* fetch main template.html (for now) */
-    fetchTemplate("template.html");
     /* AUTO needs to change it later after loading train stock data */
     console.error("AUTO NOT IMPLEMENTED!!!"); // TODO: Add AUTO theme changes.
 } else {
@@ -401,16 +402,16 @@ function monitorArrivalCondition(nextStopsList, train) {
                 atOrigin = false;
             }
 
-            if (nextStopsList[0].arrivalRealTimestamp < currentTime && train.speed < 20 && atStation === false) {
+            if (nextStopsList[0].arrivalRealTimestamp < currentTime && train.speed < stopSpeed && atStation === false) {
                 atStation = true;
             }
 
-            if (atStation === true && train.speed > 20) {
+            if (atStation === true && train.speed > stopSpeed) {
                 atStation = false;
                 removedStopsName.push(nextStopsList.splice(0, 1)[0].stopNameRAW);
             }
         } else {
-            if ((nextStopsList[0].arrivalRealTimestamp < currentTime && train.speed < 20) || nextStopsList[0].beginsHere === true) {
+            if ((nextStopsList[0].arrivalRealTimestamp < currentTime && train.speed < stopSpeed) || nextStopsList[0].beginsHere === true) {
                 atStation = true;
             }
 
@@ -599,9 +600,12 @@ function renderStopMap(stopsList, nextStopsList) {
         return;
     }
 
-    stopCarousel();
-    showContinuosLayout(); // TODO: Add option to choose Continuos (NEW) or Carousel (OLD) layout
-    // TODO: Show all stops after 6 one on 7 stop element with Carousel layout
+    //if (newPrLayout) {  // REMOVE: After finishing CarouselLayout
+        stopCarousel();
+        showContinuosLayout();
+    //} else {
+    //    showCarouselLayout();
+    //}
 
     /**
      * Shows only stops that are in timetable, because it's too short
@@ -672,16 +676,16 @@ function renderStopMap(stopsList, nextStopsList) {
         let currentStop = 0;
         for (let i = 1; i < 8; i++) {
             const elementId = `stop${i}`;
-            if (-i+8 > numberOfStopsLeft) {
+            if (-i + 8 > numberOfStopsLeft) {
                 // PASSED
-                setPassedStop(elementId, stopsList.at(-(-i+9)));
+                setPassedStop(elementId, stopsList.at(-(-i + 9)));
                 if (!atStation) {
                     moveTrainIndicator(elementId, true);
                 }
             } else {
                 // NOT PASSED
                 setStop(elementId, nextStopsList[currentStop]);
-                if (atStation && currentStop === 0) { 
+                if (atStation && currentStop === 0) {
                     moveTrainIndicator(elementId, false);
                 }
                 currentStop += 1;
@@ -704,6 +708,9 @@ function renderStopMap(stopsList, nextStopsList) {
             if (currentNextStopIndex <= i) {
                 // NOT PASSED
                 setStop(elementId, stopsList[i]);
+                if (atStation && currentNextStopIndex === i) {
+                    moveTrainIndicator(elementId, false);
+                }
             } else {
                 // PASSED
                 setPassedStop(elementId, stopsList[i]);
@@ -712,6 +719,17 @@ function renderStopMap(stopsList, nextStopsList) {
         }
 
         startCarousel(nextStopsList);
+    }
+
+    /**
+     * Show rest of stops that doesn't fit on 7 stop element, stop showing when there is only 1 stop to show.
+     * 
+     * Alternative to ContinuosLayout
+     */
+    function showCarouselLayout() {
+        const currentNextStopIndex = stopsList.indexOf(nextStopsList[0]);
+        console.debug(currentNextStopIndex);
+        // TODO: Finish main CarouselLayout
     }
 
     /**
@@ -733,7 +751,7 @@ function renderStopMap(stopsList, nextStopsList) {
         }
 
         for (let i = 3; i < 8; i++) {
-            setStop(`stop${i}`, nextStopsList[i-2]);
+            setStop(`stop${i}`, nextStopsList[i - 2]);
         }
     }
 }
@@ -910,21 +928,6 @@ function arraysEqual(a, b) {
 }
 
 async function changeValues() {
-    if (!iframeLoaded) {
-        console.warn("Iframe not LOADED!");
-        return;
-    };
-
-    // TODO: Readd functionality:
-    //if (displayType === 'delay') {
-    //    nextStationDelay = iframe.contentDocument.getElementById('next_station_delay');
-    //    nextStation = iframe.contentDocument.getElementById('next_station');
-    //    nextStationDelay.style.display = '';
-    //    nextStationDelay.classList.add('currently_displayed');
-    //    nextStation.style.display = 'none';
-    //    nextStation.classList.remove('currently_displayed');
-    //}
-
     if (!trainNumber || !wagonNumber) {
         return;
     }
@@ -933,6 +936,11 @@ async function changeValues() {
     setCarriageNumber();
 
     const success = await setDataFromStacjownik();
+
+    if (!iframeLoaded) {
+        console.warn("Iframe not LOADED!");
+        return;
+    }
 
     if (!success) {
         displayErrorBox();

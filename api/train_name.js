@@ -72,18 +72,23 @@ window.operatorFullNames = {
 const win = window;
 
 export async function getAPIsForTrainName() {
-    try {
-        const response = await fetch(win.nameCorrectionsAPI_URL);
-        win.nameCorrectionsData = await response.json();
-    } catch (error) {
-        console.error("Error loading name corrections data:", error);
+    if (!win.nameCorrectionsData) {
+        try {
+            const response = await fetch(win.nameCorrectionsAPI_URL);
+            win.nameCorrectionsData = await response.json();
+        } catch (error) {
+            console.error("Error loading name corrections data:", error);
+        }
     }
 
-    try {
-        const responseOperator = await fetch(win.operatorConvertAPI_URL);
-        win.operatorConvertData = await responseOperator.json();
-    } catch (error) {
-        console.error("Error loading operator convert data:", error);
+
+    if (!win.operatorConvertData) {
+        try {
+            const responseOperator = await fetch(win.operatorConvertAPI_URL);
+            win.operatorConvertData = await responseOperator.json();
+        } catch (error) {
+            console.error("Error loading operator convert data:", error);
+        }
     }
 }
 
@@ -113,7 +118,7 @@ export function getTrainFullName(trainNo, stockString, trainCategory) {
     let operator = determineOperator(stockString);
     if (!operator) {
         console.error("No operator found from stockString!");
-        return {prefix:"", trainNo, trainName:""};
+        return { prefix: "", trainNo, trainName: "" };
     }
 
     let prefix = getTrainPrefixByCategory(operator, trainCategory);
@@ -261,7 +266,7 @@ function overwriteTrainInfo(operator, trainNo, trainCategory) {
     if (Object.keys(matches).length < 1) {
         return null;
     } else if (Object.keys(matches).length > 1) {
-        const matchesSorted = Object.entries(matches).sort(([a, ], [b, ]) => b - a);
+        const matchesSorted = Object.entries(matches).sort(([a,], [b,]) => b - a);
         chosenOverwrite = matchesSorted[0][1];
     } else {
         chosenOverwrite = Object.entries(matches)[0][1];
@@ -277,5 +282,5 @@ function overwriteTrainInfo(operator, trainNo, trainCategory) {
         }
     }
 
-    return {operator, trainNumberPrefix, endTrainName};
+    return { operator, trainNumberPrefix, endTrainName };
 }

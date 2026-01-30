@@ -22,28 +22,34 @@ function navigateToDisplay() {
     const wagonNumber = document.getElementById('wagon_number');
     const displayDelayCheckbox = document.getElementById('delay');
     const displayThemeSelect = document.getElementById("company_theme");
+    const stopSpeed = document.getElementById("stop_speed");
+    const prLayout = document.getElementById("pr_layout");
     const trainNumberValue = trainNumber.value;
     const wagonNumberValue = wagonNumber.value;
-    const showDelay = displayDelayCheckbox.checked;
+    const showDelay = Number(displayDelayCheckbox.checked);
     const displayTheme = displayThemeSelect.value;
+    const stopSpeedValue = parseInt(stopSpeed.value);
+    const prLayoutValue = Number(prLayout.checked);
+
+    const urlParams = new URLSearchParams();
+    urlParams.set("train", trainNumberValue);
+    urlParams.set("wagon", wagonNumberValue);
+    if (showDelay) {
+        urlParams.set("delay", showDelay);
+    }
+    if (displayTheme) {
+        urlParams.set("theme", displayTheme);
+    }
+    if (stopSpeedValue !== 20) {
+        urlParams.set("stopSpeed", stopSpeedValue);
+    }
+    if (prLayoutValue) {
+        urlParams.set("prLayout", prLayoutValue);
+    }
 
     if (validateRequiredFields(inputBox)) {
-        window.location.href = `display.html?train=${trainNumberValue}&wagon=${wagonNumberValue}&delay=${showDelay}&theme=${displayTheme}`;
+        window.location.href = `display.html?${urlParams.toString()}`;
     }
-}
-
-function toggleSettingsDiv() {
-    const settingsDiv = document.getElementById('settings_div');
-    if (settingsDiv.classList.contains('show')) {
-        settingsDiv.style.maxHeight = '0';
-        settingsDiv.style.opacity = '0';
-        settingsDiv.style.padding = '0 2vw';
-    } else {
-        settingsDiv.style.maxHeight = `${settingsDiv.scrollHeight}px`;
-        settingsDiv.style.opacity = '1';
-        settingsDiv.style.padding = '2vh 2vw';
-    }
-    settingsDiv.classList.toggle('show');
 }
 
 /**
@@ -58,7 +64,6 @@ function submitOnEnter(e) {
 
 document.getElementById('input_box').addEventListener('keydown', submitOnEnter);
 document.getElementById('submit').addEventListener('click', navigateToDisplay);
-document.getElementById('settings').addEventListener('click', toggleSettingsDiv);
 
 // THEME CHANGES
 
@@ -73,5 +78,5 @@ function selectTheme(themeName) {
 
 const companyThemeSelect = document.getElementById("company_theme");
 
-selectTheme(companyThemeSelect.value)
-companyThemeSelect.addEventListener("change", (ev) => selectTheme(ev.target.value))
+selectTheme(companyThemeSelect.value);
+companyThemeSelect.addEventListener("change", (ev) => selectTheme(ev.target.value));

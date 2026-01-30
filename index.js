@@ -26,10 +26,10 @@ function navigateToDisplay() {
     const prLayout = document.getElementById("pr_layout");
     const trainNumberValue = trainNumber.value;
     const wagonNumberValue = wagonNumber.value;
-    const showDelay = +displayDelayCheckbox.checked;
+    const showDelay = Number(displayDelayCheckbox.checked);
     const displayTheme = displayThemeSelect.value;
     const stopSpeedValue = parseInt(stopSpeed.value);
-    const prLayoutValue = +prLayout.checked;
+    const prLayoutValue = Number(prLayout.checked);
 
     const urlParams = new URLSearchParams();
     urlParams.set("train", trainNumberValue);

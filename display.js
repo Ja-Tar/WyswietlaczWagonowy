@@ -600,12 +600,12 @@ function renderStopMap(stopsList, nextStopsList) {
         return;
     }
 
-    if (newPrLayout || 1) {  // REMOVE: After finishing CarouselLayout
+    //if (newPrLayout) {  // REMOVE: After finishing CarouselLayout
         stopCarousel();
         showContinuosLayout(); 
-    } else {
-        showCarouselLayout();
-    }
+    //} else {
+    //    showCarouselLayout();
+    //}
 
     /**
      * Shows only stops that are in timetable, because it's too short
@@ -728,6 +728,7 @@ function renderStopMap(stopsList, nextStopsList) {
      */
     function showCarouselLayout() {
         const currentNextStopIndex = stopsList.indexOf(nextStopsList[0]);
+        console.debug(currentNextStopIndex);
         // TODO: Finish main CarouselLayout
     }
 

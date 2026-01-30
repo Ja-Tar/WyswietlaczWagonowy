@@ -32,20 +32,6 @@ function navigateToDisplay() {
     }
 }
 
-function toggleSettingsDiv() {
-    const settingsDiv = document.getElementById('settings_div');
-    if (settingsDiv.classList.contains('show')) {
-        settingsDiv.style.maxHeight = '0';
-        settingsDiv.style.opacity = '0';
-        settingsDiv.style.padding = '0 2vw';
-    } else {
-        settingsDiv.style.maxHeight = `${settingsDiv.scrollHeight}px`;
-        settingsDiv.style.opacity = '1';
-        settingsDiv.style.padding = '2vh 2vw';
-    }
-    settingsDiv.classList.toggle('show');
-}
-
 /**
  * @param {KeyboardEvent} e 
  */
@@ -58,7 +44,6 @@ function submitOnEnter(e) {
 
 document.getElementById('input_box').addEventListener('keydown', submitOnEnter);
 document.getElementById('submit').addEventListener('click', navigateToDisplay);
-document.getElementById('settings').addEventListener('click', toggleSettingsDiv);
 
 // THEME CHANGES
 

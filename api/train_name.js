@@ -86,6 +86,7 @@ export async function getAPIsForTrainName() {
         console.error("Error loading operator convert data:", error);
     }
 
+    console.log(overwriteTrainInfo("PR", "94163", "RPE"));
 }
 
 /**
@@ -102,13 +103,16 @@ export function correctStationName(stopName) {
 
 /**
  * 
- * @param {Number} number 
+ * @param {string} number 
  * @param {string} stockString 
  * @param {string} trainCategory 
  * @returns {{prefix: string, trainName: string, name: string}}
  */
 export function getTrainFullName(number, stockString, trainCategory) {
     console.debug('Stock string:', stockString);
+    if (typeof number === "number") {
+        number = number.toString();
+    }
 
     let operator = determineOperator(stockString);
     let prefix = getTrainPrefixByCategory(operator, trainCategory);
@@ -118,6 +122,7 @@ export function getTrainFullName(number, stockString, trainCategory) {
 
     const overwrite = overwriteTrainInfo(operator, number, trainCategory);
     if (overwrite) {
+        console.warn(`Overwrite: [${prefix}] -> "${overwrite.trainNumberPrefix}" | [${trainName}] -> "${overwrite.endTrainName}"`);
         prefix = overwrite.trainNumberPrefix;
         trainName = overwrite.endTrainName;
     }
@@ -127,7 +132,7 @@ export function getTrainFullName(number, stockString, trainCategory) {
 
 /**
  * @param {string} operator 
- * @param {Number} trainNo 
+ * @param {string} trainNo 
  * @returns {{operator: string, trainNumberPrefix: string, endTrainName: string}}
  */
 function mapTrainName(operator, trainNo) {
@@ -141,7 +146,7 @@ function mapTrainName(operator, trainNo) {
 
         for (let k = 0; k < trainNoIs.length; k++) {
             if (trainNameData.operator === trainOperatorBefore) {
-                if (trainNoIs[k] === trainNo.toString()) {
+                if (trainNoIs[k] === trainNo) {
                     if (isNaN(parseInt(trainNo))) console.error("WTF?!", trainNo, trainNoIs[k]);
                     operator = trainNameData.operator;
                     endTrainName = trainNameData.trainName;

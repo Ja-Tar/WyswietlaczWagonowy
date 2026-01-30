@@ -104,7 +104,7 @@ export function correctStationName(stopName) {
  * @param {string} trainNo 
  * @param {string} stockString 
  * @param {string} trainCategory 
- * @returns {{prefix: string, trainNo: string, trainName: string}}
+ * @returns {{prefix: string, trainNo: string, trainName: string, operator: string}}
  */
 export function getTrainFullName(trainNo, stockString, trainCategory) {
     console.debug('Stock string:', stockString);
@@ -138,7 +138,7 @@ export function getTrainFullName(trainNo, stockString, trainCategory) {
         trainName = overwrite.endTrainName;
     }
 
-    return { prefix, trainNo, trainName };
+    return { prefix, trainNo, trainName, operator };
 }
 
 /**

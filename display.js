@@ -600,8 +600,8 @@ function renderStopMap(stopsList, nextStopsList) {
     }
 
     stopCarousel();
-    showContinuosLayout(); // TODO: Add option to choose Continuos (NEW) or Carousel (OLD) layout
-    // TODO: Show all stops after 6 one on 7 stop element with Carousel layout
+    showContinuosLayout(); 
+    // TODO: Add option to choose Continuos (NEW) or Carousel (OLD) layout
 
     /**
      * Shows only stops that are in timetable, because it's too short
@@ -724,6 +724,7 @@ function renderStopMap(stopsList, nextStopsList) {
      */
     function showCarouselLayout() {
         const currentNextStopIndex = stopsList.indexOf(nextStopsList[0]);
+        // TODO: Finish main CarouselLayout
     }
 
     /**

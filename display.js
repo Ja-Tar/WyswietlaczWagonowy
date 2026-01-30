@@ -497,9 +497,12 @@ function renderNextStops(nextStopsList) {
         nextStation.classList.add('currently_displayed');
     }
 
+    if (mainStationsOnly) {
+        nextStopsList = nextStopsList.filter((stopPoint) => stopPoint.mainStop === true);
+    }
+
     if (nextStopsList.length > maxDisplayedStops) {
         console.warn(`Wykryto więcej niż ${maxDisplayedStops} przystanków na trasie`);
-        // ADD: wyświetlanie tylko głównych stacji
         nextStopsList = nextStopsList.slice(0, maxDisplayedStops);
     }
 

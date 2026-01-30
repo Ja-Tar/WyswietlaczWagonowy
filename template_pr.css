@@ -153,7 +153,6 @@ img {
 }
 
 #destination {
-    /* TODO: size should change when longer names */
     font-size: 4vw;
     font-weight: 300;
     white-space: nowrap;

@@ -133,7 +133,7 @@ export function getTrainFullName(trainNo, stockString, trainCategory) {
         console.debug(`[${prefix}] -> "${overwrite.trainNumberPrefix}"`);
         console.debug(`[${trainName}] -> "${overwrite.endTrainName}"`);
 
-        operator = overwrite.operator; // Not used but who knows
+        operator = overwrite.operator;
         prefix = overwrite.trainNumberPrefix;
         trainName = overwrite.endTrainName;
     }

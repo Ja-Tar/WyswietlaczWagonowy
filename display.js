@@ -371,7 +371,10 @@ function setRouteStations(train) {
 
     if (doneStopList.length < 1) {
         // TODO: Implement no stations left / no stations
-        console.error("No stations left!!!");
+        // showArrivedLayout();
+        // Also change data updates to 1m, don't show error screen on no data
+        // Implement some kind of route continue when new timetable is given
+        throw new Error("No stations left!!!");
     }
 
     if (displayTheme === Theme.IC) {
@@ -396,7 +399,6 @@ function monitorArrivalCondition(nextStopsList, train) {
     if (checking === true) {
         // Normal flow
         if (nextStopsList[0].stopNameType === "po") {
-            // TODO: Add option to change minimal speed!
             if (atOrigin) {
                 atStation = false;
                 atOrigin = false;

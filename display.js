@@ -81,7 +81,7 @@ const wagonNumber = urlParams.get('wagon');
 const showDelay = parseInt(urlParams.get("delay")) || 0;
 const displayTheme = urlParams.get('theme') || Theme.AUTO;
 /** Default -> 20km/h */
-const stopSpeed = parseInt(urlParams.get('stopSpeed')) || 20; 
+const stopSpeed = parseInt(urlParams.get('stopSpeed')) || 20;
 const newPrLayout = parseInt(urlParams.get('prLayout')) || 0;
 /** @type {HTMLIFrameElement} */
 const iframe = document.querySelector('#container');
@@ -602,7 +602,7 @@ function renderStopMap(stopsList, nextStopsList) {
 
     //if (newPrLayout) {  // REMOVE: After finishing CarouselLayout
         stopCarousel();
-        showContinuosLayout(); 
+        showContinuosLayout();
     //} else {
     //    showCarouselLayout();
     //}
@@ -676,16 +676,16 @@ function renderStopMap(stopsList, nextStopsList) {
         let currentStop = 0;
         for (let i = 1; i < 8; i++) {
             const elementId = `stop${i}`;
-            if (-i+8 > numberOfStopsLeft) {
+            if (-i + 8 > numberOfStopsLeft) {
                 // PASSED
-                setPassedStop(elementId, stopsList.at(-(-i+9)));
+                setPassedStop(elementId, stopsList.at(-(-i + 9)));
                 if (!atStation) {
                     moveTrainIndicator(elementId, true);
                 }
             } else {
                 // NOT PASSED
                 setStop(elementId, nextStopsList[currentStop]);
-                if (atStation && currentStop === 0) { 
+                if (atStation && currentStop === 0) {
                     moveTrainIndicator(elementId, false);
                 }
                 currentStop += 1;
@@ -722,7 +722,7 @@ function renderStopMap(stopsList, nextStopsList) {
     }
 
     /**
-     * Show rest of stops that does't fit on 7 stop element, stop showing when there is only 1 stop to show.
+     * Show rest of stops that doesn't fit on 7 stop element, stop showing when there is only 1 stop to show.
      * 
      * Alternative to ContinuosLayout
      */
@@ -751,7 +751,7 @@ function renderStopMap(stopsList, nextStopsList) {
         }
 
         for (let i = 3; i < 8; i++) {
-            setStop(`stop${i}`, nextStopsList[i-2]);
+            setStop(`stop${i}`, nextStopsList[i - 2]);
         }
     }
 }

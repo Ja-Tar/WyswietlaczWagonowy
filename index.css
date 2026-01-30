@@ -140,8 +140,15 @@ body {
     font-size: 1.5em;
 }
 
+/* One theme settings  */
+
 :root[data-company-theme="pr"] #delay,
 :root[data-company-theme="pr"] label[for="delay"] {
+    display: none;
+}
+
+:root[data-company-theme="ic"] #pr_layout,
+:root[data-company-theme="ic"] label[for="pr_layout"] {
     display: none;
 }
 

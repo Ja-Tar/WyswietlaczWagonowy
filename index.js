@@ -23,11 +23,13 @@ function navigateToDisplay() {
     const displayDelayCheckbox = document.getElementById('delay');
     const displayThemeSelect = document.getElementById("company_theme");
     const stopSpeed = document.getElementById("stop_speed");
+    const prLayout = document.getElementById("pr_layout");
     const trainNumberValue = trainNumber.value;
     const wagonNumberValue = wagonNumber.value;
     const showDelay = +displayDelayCheckbox.checked;
     const displayTheme = displayThemeSelect.value;
     const stopSpeedValue = parseInt(stopSpeed.value);
+    const prLayoutValue = +prLayout.checked;
 
     const urlParams = new URLSearchParams();
     urlParams.set("train", trainNumberValue);
@@ -40,6 +42,9 @@ function navigateToDisplay() {
     }
     if (stopSpeedValue !== 20) {
         urlParams.set("stopSpeed", stopSpeedValue);
+    }
+    if (prLayoutValue) {
+        urlParams.set("prLayout", prLayoutValue);
     }
 
     if (validateRequiredFields(inputBox)) {

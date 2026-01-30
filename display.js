@@ -589,6 +589,7 @@ function renderStopMap(stopsList, nextStopsList) {
 
 
     if (nextStopsList.length <= 7) {
+        stopCarousel();
         showEndLayout();
         return;
     }
@@ -877,6 +878,9 @@ function nextStationCarousel() {
     carouselStep += 1;
 }
 
+/**
+ * Stops last stop showing next stations if on
+ */
 function stopCarousel() {
     if (carouselRunning) {
         clearInterval(carouselId);

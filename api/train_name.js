@@ -112,7 +112,7 @@ export function getTrainFullName(trainNo, stockString, trainCategory) {
 
     let operator = determineOperator(stockString);
     if (!operator) {
-        console.error("No operator found from stockString!")
+        console.error("No operator found from stockString!");
         return {prefix:"", trainNo, trainName:""};
     }
 
@@ -131,7 +131,7 @@ export function getTrainFullName(trainNo, stockString, trainCategory) {
         console.debug("Overwrite!");
         console.debug(`[${operator}] -> "${overwrite.operator}"`);
         console.debug(`[${prefix}] -> "${overwrite.trainNumberPrefix}"`);
-        console.debug(`[${trainName}] -> "${overwrite.endTrainName}"`)
+        console.debug(`[${trainName}] -> "${overwrite.endTrainName}"`);
 
         operator = overwrite.operator; // Not used but who knows
         prefix = overwrite.trainNumberPrefix;
@@ -194,7 +194,7 @@ function getTrainPrefixByCategory(operator, trainCategory) {
         }
     }
 
-    console.warn("No prefix found!")
+    console.warn("No prefix found!");
     return "";
 }
 

@@ -716,6 +716,15 @@ function renderStopMap(stopsList, nextStopsList) {
     }
 
     /**
+     * Show rest of stops that does't fit on 7 stop element, stop showing when there is only 1 stop to show.
+     * 
+     * Alternative to ContinuosLayout
+     */
+    function showCarouselLayout() {
+        const currentNextStopIndex = stopsList.indexOf(nextStopsList[0]);
+    }
+
+    /**
      * Move stops to only show one passed (1), current / next (2), and other (3, 4, 5, 6, 7) 
      */
     function showContinuosLayout() {

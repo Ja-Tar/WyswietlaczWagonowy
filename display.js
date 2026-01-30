@@ -567,7 +567,7 @@ const DEPARTED_IMG = {
  */
 function renderStopMap(stopsList, nextStopsList) {
     const mainDisplay = iframe.contentDocument.getElementById("main_display");
-    // TODO: Splittowanie dla stacji kiedy jest za długa!! np. Warszawa Zachodnia
+    // TODO: Popraw domyślne dzielenie stacji kiedy jest za długa np. Warszawa Zachodnia
 
     const DISPLAY_CONFIG = {
         CAROUSEL_START: "repeat(7, 9.7vw) 15vw 9.7vw",

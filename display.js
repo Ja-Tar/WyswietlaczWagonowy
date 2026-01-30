@@ -78,7 +78,7 @@ const Theme = {
 const urlParams = new URLSearchParams(window.location.search);
 const trainNumber = urlParams.get('train');
 const wagonNumber = urlParams.get('wagon');
-const showDelay = parseInt(urlParams.get("delay")) || 0;
+const showDelay = parseInt(urlParams.get("delay")) || 1;
 const displayTheme = urlParams.get('theme') || Theme.AUTO;
 /** Default -> 20km/h */
 const stopSpeed = parseInt(urlParams.get('stopSpeed')) || 20;

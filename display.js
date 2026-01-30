@@ -97,8 +97,6 @@ resizeIframe();
 const templatesUrl = { ic: "template.html", pr: "template_pr.html" };
 
 if (displayTheme === Theme.AUTO) {
-    /* fetch main template.html (for now) */
-    fetchTemplate("template.html");
     /* AUTO needs to change it later after loading train stock data */
     console.error("AUTO NOT IMPLEMENTED!!!"); // TODO: Add AUTO theme changes.
 } else {
@@ -913,11 +911,6 @@ function arraysEqual(a, b) {
 }
 
 async function changeValues() {
-    if (!iframeLoaded) {
-        console.warn("Iframe not LOADED!");
-        return;
-    };
-
     // TODO: Readd functionality:
     //if (displayType === 'delay') {
     //    nextStationDelay = iframe.contentDocument.getElementById('next_station_delay');
@@ -936,6 +929,11 @@ async function changeValues() {
     setCarriageNumber();
 
     const success = await setDataFromStacjownik();
+
+    if (!iframeLoaded) {
+        console.warn("Iframe not LOADED!");
+        return;
+    }
 
     if (!success) {
         displayErrorBox();

@@ -567,7 +567,7 @@ const DEPARTED_IMG = {
  */
 function renderStopMap(stopsList, nextStopsList) {
     const mainDisplay = iframe.contentDocument.getElementById("main_display");
-    // TODO: Popraw domyślne dzielenie stacji kiedy jest za długa np. Warszawa Zachodnia
+    // TODO: Better station name wrapping needed when it's too long
 
     const DISPLAY_CONFIG = {
         CAROUSEL_START: "repeat(7, 9.7vw) 15vw 9.7vw",
@@ -773,6 +773,7 @@ function renderStopMap(stopsList, nextStopsList) {
 function setStop(elementId, stopPoint) {
     setStopName(elementId, stopPoint.stopNameRAW);
     if (elementId === "start") return;
+    // ADD: Option to have timestamp with delay and without (default).
     if (elementId !== "end") {
         setDepartTime(elementId, stopPoint.departureRealTimestamp);
     } else {

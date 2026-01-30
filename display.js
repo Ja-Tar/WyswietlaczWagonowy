@@ -920,16 +920,6 @@ function arraysEqual(a, b) {
 }
 
 async function changeValues() {
-    // TODO: Readd functionality:
-    //if (displayType === 'delay') {
-    //    nextStationDelay = iframe.contentDocument.getElementById('next_station_delay');
-    //    nextStation = iframe.contentDocument.getElementById('next_station');
-    //    nextStationDelay.style.display = '';
-    //    nextStationDelay.classList.add('currently_displayed');
-    //    nextStation.style.display = 'none';
-    //    nextStation.classList.remove('currently_displayed');
-    //}
-
     if (!trainNumber || !wagonNumber) {
         return;
     }

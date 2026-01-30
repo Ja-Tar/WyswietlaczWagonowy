@@ -24,7 +24,7 @@ function navigateToDisplay() {
     const displayThemeSelect = document.getElementById("company_theme");
     const trainNumberValue = trainNumber.value;
     const wagonNumberValue = wagonNumber.value;
-    const showDelay = displayDelayCheckbox.checked;
+    const showDelay = +displayDelayCheckbox.checked;
     const displayTheme = displayThemeSelect.value;
 
     if (validateRequiredFields(inputBox)) {

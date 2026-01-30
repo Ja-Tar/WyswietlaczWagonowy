@@ -75,6 +75,7 @@ const Theme = {
     PR: "pr"
 };
 
+// URL PARAMS
 const urlParams = new URLSearchParams(window.location.search);
 const trainNumber = urlParams.get('train');
 const wagonNumber = urlParams.get('wagon');
@@ -83,10 +84,13 @@ const displayTheme = urlParams.get('theme') || Theme.AUTO;
 /** Default -> 20km/h */
 const stopSpeed = parseInt(urlParams.get('stopSpeed')) || 20;
 const newPrLayout = parseInt(urlParams.get('prLayout')) || 0;
+const mainStationsOnly = parseInt(urlParams.get('mainStations')) || 0;
+const stopsDisplayed = parseInt(urlParams.get('stopsNumber')) || 5;
+
 /** @type {HTMLIFrameElement} */
 const iframe = document.querySelector('#container');
-let iframeLoaded = false;
-const devMode = localStorage.getItem("dev"); // Used for debugging 
+let iframeLoaded = false; 
+const devMode = localStorage.getItem("dev");
 
 function resizeIframe() {
     const scale = Math.min(window.innerWidth / 1920, window.innerHeight / 1050);
@@ -495,7 +499,8 @@ function renderNextStops(nextStopsList) {
 
     if (nextStopsList.length > 5) {
         console.warn('Wykryto więcej niż 5 przystanków na trasie');
-        // TODO: Dodać możliwość zmiany maksymalnej ilości + czy wyświetlać tylko główne stacje
+        // ADD: możliwość zmiany maksymalnej ilości
+        // ADD: wyświetlanie tylko głównych stacji
         nextStopsList = nextStopsList.slice(0, 5);
     }
 

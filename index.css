@@ -133,6 +133,7 @@ body {
 #settings_div .options_box input:not([type="checkbox"]) {
     background: var(--company-select-color);
     width: min-content;
+    height: 1em;
 }
 
 .checkbox_div label {
@@ -141,13 +142,27 @@ body {
 
 /* One theme settings  */
 
+/* IC */
+
+:root[data-company-theme="ic"] #pr_layout,
+:root[data-company-theme="ic"] label[for="pr_layout"] {
+    display: none;
+}
+
+/* PR */
+
 :root[data-company-theme="pr"] #delay,
 :root[data-company-theme="pr"] label[for="delay"] {
     display: none;
 }
 
-:root[data-company-theme="ic"] #pr_layout,
-:root[data-company-theme="ic"] label[for="pr_layout"] {
+:root[data-company-theme="pr"] #main_stations,
+:root[data-company-theme="pr"] label[for="main_stations"] {
+    display: none;
+}
+
+:root[data-company-theme="pr"] #stops_number,
+:root[data-company-theme="pr"] label[for="stops_number"] {
     display: none;
 }
 

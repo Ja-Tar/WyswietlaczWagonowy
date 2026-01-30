@@ -18,38 +18,69 @@ function validateRequiredFields(element) {
 
 function navigateToDisplay() {
     const inputBox = document.getElementById("input_box");
+    const urlParams = getUrlParamsFromInputs();
+
+    if (validateRequiredFields(inputBox)) {
+        window.location.href = `display.html?${urlParams.toString()}`;
+    }
+}
+
+/**
+ * @returns {URLSearchParams}
+ */
+function getUrlParamsFromInputs() {
+    // TODO: Maybe make this automatic - from list of element id
     const trainNumber = document.getElementById('train_number');
     const wagonNumber = document.getElementById('wagon_number');
     const displayDelayCheckbox = document.getElementById('delay');
     const displayThemeSelect = document.getElementById("company_theme");
     const stopSpeed = document.getElementById("stop_speed");
-    const prLayout = document.getElementById("pr_layout");
+    const prLayoutCheckbox = document.getElementById("pr_layout");
+    const mainStationsCheckbox = document.getElementById("main_stations");
+    const stopsNumber = document.getElementById("stops_number");
+
     const trainNumberValue = trainNumber.value;
     const wagonNumberValue = wagonNumber.value;
     const showDelay = Number(displayDelayCheckbox.checked);
+    /** @type {('ic'|'pr'|'')} */
     const displayTheme = displayThemeSelect.value;
     const stopSpeedValue = parseInt(stopSpeed.value);
-    const prLayoutValue = Number(prLayout.checked);
+    const prLayout = Number(prLayoutCheckbox.checked);
+    const mainStations = Number(mainStationsCheckbox.checked);
+    const stopsNumberValue = parseInt(stopsNumber.value);
 
     const urlParams = new URLSearchParams();
     urlParams.set("train", trainNumberValue);
     urlParams.set("wagon", wagonNumberValue);
-    if (showDelay) {
+
+    if (showDelay !== 1) {
         urlParams.set("delay", showDelay);
     }
-    if (displayTheme) {
+    if (displayTheme !== "") {
         urlParams.set("theme", displayTheme);
     }
     if (stopSpeedValue !== 20) {
         urlParams.set("stopSpeed", stopSpeedValue);
     }
-    if (prLayoutValue) {
-        urlParams.set("prLayout", prLayoutValue);
+
+    // IC ONLY
+
+    if (displayTheme === "ic") {
+        if (mainStations !== 0) {
+            urlParams.set("mainStations", mainStations);
+        }
+        if (stopsNumberValue !== 5) {
+            urlParams.set("stopsNumber", stopsNumberValue);
+        }
     }
 
-    if (validateRequiredFields(inputBox)) {
-        window.location.href = `display.html?${urlParams.toString()}`;
+    // PR ONLY
+
+    if (prLayout && displayTheme === "pr") {
+        urlParams.set("prLayout", prLayout);
     }
+
+    return urlParams;
 }
 
 /**

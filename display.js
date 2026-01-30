@@ -75,18 +75,22 @@ const Theme = {
     PR: "pr"
 };
 
+// URL PARAMS
 const urlParams = new URLSearchParams(window.location.search);
 const trainNumber = urlParams.get('train');
 const wagonNumber = urlParams.get('wagon');
-const showDelay = parseInt(urlParams.get("delay")) || 0;
+const showDelay = parseInt(urlParams.get("delay")) || 1;
 const displayTheme = urlParams.get('theme') || Theme.AUTO;
 /** Default -> 20km/h */
 const stopSpeed = parseInt(urlParams.get('stopSpeed')) || 20;
 const newPrLayout = parseInt(urlParams.get('prLayout')) || 0;
+const mainStationsOnly = parseInt(urlParams.get('mainStations')) || 0;
+const maxDisplayedStops = parseInt(urlParams.get('stopsNumber')) || 5;
+
 /** @type {HTMLIFrameElement} */
 const iframe = document.querySelector('#container');
-let iframeLoaded = false;
-const devMode = localStorage.getItem("dev"); // Used for debugging 
+let iframeLoaded = false; 
+const devMode = localStorage.getItem("dev");
 
 function resizeIframe() {
     const scale = Math.min(window.innerWidth / 1920, window.innerHeight / 1050);
@@ -101,7 +105,7 @@ const templatesUrl = { ic: "template.html", pr: "template_pr.html" };
 
 if (displayTheme === Theme.AUTO) {
     /* AUTO needs to change it later after loading train stock data */
-    console.error("AUTO NOT IMPLEMENTED!!!"); // TODO: Add AUTO theme changes.
+    console.error("AUTO NOT IMPLEMENTED!!!"); // ADD: AUTO theme changes
 } else {
     fetchTemplate(templatesUrl[displayTheme]);
 }
@@ -370,8 +374,11 @@ function setRouteStations(train) {
     checking = true;
 
     if (doneStopList.length < 1) {
-        // TODO: Implement no stations left / no stations
-        console.error("No stations left!!!");
+        // ADD: Implement no stations left / no stations
+        // showArrivedLayout();
+        // Also change data updates to 1m, don't show error screen on no data
+        // Implement some kind of route continue when new timetable is given
+        throw new Error("No stations left!!!");
     }
 
     if (displayTheme === Theme.IC) {
@@ -396,7 +403,6 @@ function monitorArrivalCondition(nextStopsList, train) {
     if (checking === true) {
         // Normal flow
         if (nextStopsList[0].stopNameType === "po") {
-            // TODO: Add option to change minimal speed!
             if (atOrigin) {
                 atStation = false;
                 atOrigin = false;
@@ -491,10 +497,13 @@ function renderNextStops(nextStopsList) {
         nextStation.classList.add('currently_displayed');
     }
 
-    if (nextStopsList.length > 5) {
-        console.warn('Wykryto więcej niż 5 przystanków na trasie');
-        // TODO: Dodać możliwość zmiany maksymalnej ilości + czy wyświetlać tylko główne stacje
-        nextStopsList = nextStopsList.slice(0, 5);
+    if (mainStationsOnly) {
+        nextStopsList = nextStopsList.filter((stopPoint) => stopPoint.mainStop === true);
+    }
+
+    if (nextStopsList.length > maxDisplayedStops) {
+        console.warn(`Wykryto więcej niż ${maxDisplayedStops} przystanków na trasie`);
+        nextStopsList = nextStopsList.slice(0, maxDisplayedStops);
     }
 
     if (nextStopsList.length > 1) {
@@ -558,7 +567,7 @@ const DEPARTED_IMG = {
  */
 function renderStopMap(stopsList, nextStopsList) {
     const mainDisplay = iframe.contentDocument.getElementById("main_display");
-    // TODO: Splittowanie dla ostatniej stacji kiedy jest za długa!! np. Warszawa Zachodnia
+    // TODO: Splittowanie dla stacji kiedy jest za długa!! np. Warszawa Zachodnia
 
     const DISPLAY_CONFIG = {
         CAROUSEL_START: "repeat(7, 9.7vw) 15vw 9.7vw",

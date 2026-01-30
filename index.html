@@ -23,12 +23,14 @@
         <div id="settings_div">
             <div id="settings_name">Ustawienia</div>
             <div class="options_box">
-                <label for="delay">Wyświetlać opóźnienie:</label>
-                <input type="checkbox" id="delay" checked>
                 <select id="company_theme">
                     <option value="ic" selected>Wersja IC</option>
                     <option value="pr" class="reg_color">Wersja PR</option>
                 </select>
+                <label for="stop_speed">Próg postoju (na <i>po.</i>)</label>
+                <input type="number" min="0" max="99" value="20" id="stop_speed" required> 
+                <label for="delay">Wyświetlać opóźnienie:</label>
+                <input type="checkbox" id="delay" checked>
             </div>
         </div>
     </div>

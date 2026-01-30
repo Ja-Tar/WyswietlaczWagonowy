@@ -22,13 +22,28 @@ function navigateToDisplay() {
     const wagonNumber = document.getElementById('wagon_number');
     const displayDelayCheckbox = document.getElementById('delay');
     const displayThemeSelect = document.getElementById("company_theme");
+    const stopSpeed = document.getElementById("stop_speed");
     const trainNumberValue = trainNumber.value;
     const wagonNumberValue = wagonNumber.value;
     const showDelay = +displayDelayCheckbox.checked;
     const displayTheme = displayThemeSelect.value;
+    const stopSpeedValue = parseInt(stopSpeed.value);
+
+    const urlParams = new URLSearchParams();
+    urlParams.set("train", trainNumberValue);
+    urlParams.set("wagon", wagonNumberValue);
+    if (showDelay) {
+        urlParams.set("delay", showDelay);
+    }
+    if (displayTheme) {
+        urlParams.set("theme", displayTheme);
+    }
+    if (stopSpeedValue !== 20) {
+        urlParams.set("stopSpeed", stopSpeedValue);
+    }
 
     if (validateRequiredFields(inputBox)) {
-        window.location.href = `display.html?train=${trainNumberValue}&wagon=${wagonNumberValue}&delay=${showDelay}&theme=${displayTheme}`;
+        window.location.href = `display.html?${urlParams.toString()}`;
     }
 }
 

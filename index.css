@@ -48,7 +48,6 @@ body {
 .options_box>label {
     grid-column: 1;
     font-size: 1.8em;
-    white-space: nowrap;
 }
 
 .options_box>input,

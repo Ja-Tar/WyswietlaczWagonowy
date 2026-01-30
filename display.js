@@ -82,6 +82,7 @@ const showDelay = parseInt(urlParams.get("delay")) || 0;
 const displayTheme = urlParams.get('theme') || Theme.AUTO;
 /** Default -> 20km/h */
 const stopSpeed = parseInt(urlParams.get('stopSpeed')) || 20; 
+const newPrLayout = parseInt(urlParams.get('prLayout')) || 0;
 /** @type {HTMLIFrameElement} */
 const iframe = document.querySelector('#container');
 let iframeLoaded = false;
@@ -599,9 +600,12 @@ function renderStopMap(stopsList, nextStopsList) {
         return;
     }
 
-    stopCarousel();
-    showContinuosLayout(); 
-    // TODO: Add option to choose Continuos (NEW) or Carousel (OLD) layout
+    if (newPrLayout || 1) {  // REMOVE: After finishing CarouselLayout
+        stopCarousel();
+        showContinuosLayout(); 
+    } else {
+        showCarouselLayout();
+    }
 
     /**
      * Shows only stops that are in timetable, because it's too short

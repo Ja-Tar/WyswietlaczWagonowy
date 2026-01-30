@@ -996,9 +996,9 @@ iframe.onload = function () {
     }
     changeValues();
     setTemperature();
+    setInterval(setDateAndTime, 1000); // 1 second
+    setInterval(setTemperature, 600000); // 10 minutes
+    setInterval(changeValues, 15000); // 15 seconds
 };
 
-setInterval(setDateAndTime, 1000); // 1 second
-setInterval(setTemperature, 600000); // 10 minutes
-setInterval(changeValues, 15000); // 15 seconds
 window.addEventListener('resize', applyResponsiveStyles);

@@ -85,8 +85,6 @@ export async function getAPIsForTrainName() {
     } catch (error) {
         console.error("Error loading operator convert data:", error);
     }
-
-    console.log(overwriteTrainInfo("PR", "94163", "RPE"));
 }
 
 /**

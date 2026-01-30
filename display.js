@@ -75,9 +75,6 @@ const Theme = {
     PR: "pr"
 }
 
-// Change version on API update
-const apiVersion = '1';
-
 const urlParams = new URLSearchParams(window.location.search);
 const trainNumber = urlParams.get('train');
 const wagonNumber = urlParams.get('wagon');
@@ -928,7 +925,7 @@ async function changeValues() {
         return;
     }
 
-    await getAPIsForTrainName(apiVersion);
+    await getAPIsForTrainName();
     setCarriageNumber();
 
     const success = await setDataFromStacjownik();

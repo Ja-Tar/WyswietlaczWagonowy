@@ -71,12 +71,7 @@ window.operatorFullNames = {
 /** @type {WindowWithAPIs} */
 const win = window;
 
-export async function getAPIsForTrainName(apiVersion) {
-    if (localStorage.getItem('apiVersion') === apiVersion && win.operatorConvertData && win.nameCorrectionsData) {
-        //console.log("APIs already loaded.");
-        return;
-    }
-
+export async function getAPIsForTrainName() {
     try {
         const response = await fetch(win.nameCorrectionsAPI_URL);
         win.nameCorrectionsData = await response.json();
@@ -91,7 +86,6 @@ export async function getAPIsForTrainName(apiVersion) {
         console.error("Error loading operator convert data:", error);
     }
 
-    localStorage.setItem('apiVersion', apiVersion);
 }
 
 /**

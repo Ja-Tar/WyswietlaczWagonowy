@@ -80,6 +80,8 @@ const trainNumber = urlParams.get('train');
 const wagonNumber = urlParams.get('wagon');
 const showDelay = parseInt(urlParams.get("delay")) || 0;
 const displayTheme = urlParams.get('theme') || Theme.AUTO;
+/** Default -> 20km/h */
+const stopSpeed = parseInt(urlParams.get('stopSpeed')) || 20; 
 /** @type {HTMLIFrameElement} */
 const iframe = document.querySelector('#container');
 let iframeLoaded = false;
@@ -399,16 +401,16 @@ function monitorArrivalCondition(nextStopsList, train) {
                 atOrigin = false;
             }
 
-            if (nextStopsList[0].arrivalRealTimestamp < currentTime && train.speed < 20 && atStation === false) {
+            if (nextStopsList[0].arrivalRealTimestamp < currentTime && train.speed < stopSpeed && atStation === false) {
                 atStation = true;
             }
 
-            if (atStation === true && train.speed > 20) {
+            if (atStation === true && train.speed > stopSpeed) {
                 atStation = false;
                 removedStopsName.push(nextStopsList.splice(0, 1)[0].stopNameRAW);
             }
         } else {
-            if ((nextStopsList[0].arrivalRealTimestamp < currentTime && train.speed < 20) || nextStopsList[0].beginsHere === true) {
+            if ((nextStopsList[0].arrivalRealTimestamp < currentTime && train.speed < stopSpeed) || nextStopsList[0].beginsHere === true) {
                 atStation = true;
             }
 

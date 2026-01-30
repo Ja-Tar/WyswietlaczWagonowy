@@ -101,37 +101,50 @@ export function correctStationName(stopName) {
 
 /**
  * 
- * @param {string} number 
+ * @param {string} trainNo 
  * @param {string} stockString 
  * @param {string} trainCategory 
- * @returns {{prefix: string, trainName: string, name: string}}
+ * @returns {{prefix: string, trainNo: string, trainName: string, operator: string}}
  */
-export function getTrainFullName(number, stockString, trainCategory) {
+export function getTrainFullName(trainNo, stockString, trainCategory) {
     console.debug('Stock string:', stockString);
-    if (typeof number === "number") {
-        number = number.toString();
-    }
+    trainNo = trainNo.toString();
 
     let operator = determineOperator(stockString);
+    if (!operator) {
+        console.error("No operator found from stockString!");
+        return {prefix:"", trainNo, trainName:""};
+    }
+
     let prefix = getTrainPrefixByCategory(operator, trainCategory);
 
     let trainName = '';
-    ({operator: operator, trainNumberPrefix: prefix, endTrainName: trainName } = mapTrainName(operator, number));
+    const trainNameInfo = mapTrainName(operator, trainNo);
+    if (trainNameInfo) {
+        console.debug(`Train name found: ${trainNameInfo.trainNumberPrefix} ${trainNo} ${trainNameInfo.endTrainName}`);
+        prefix = trainNameInfo.trainNumberPrefix;
+        trainName = trainNameInfo.endTrainName;
+    }
 
-    const overwrite = overwriteTrainInfo(operator, number, trainCategory);
+    const overwrite = overwriteTrainInfo(operator, trainNo, trainCategory);
     if (overwrite) {
-        console.warn(`Overwrite: [${prefix}] -> "${overwrite.trainNumberPrefix}" | [${trainName}] -> "${overwrite.endTrainName}"`);
+        console.debug("Overwrite!");
+        console.debug(`[${operator}] -> "${overwrite.operator}"`);
+        console.debug(`[${prefix}] -> "${overwrite.trainNumberPrefix}"`);
+        console.debug(`[${trainName}] -> "${overwrite.endTrainName}"`);
+
+        operator = overwrite.operator;
         prefix = overwrite.trainNumberPrefix;
         trainName = overwrite.endTrainName;
     }
 
-    return { prefix, number, trainName };
+    return { prefix, trainNo, trainName, operator };
 }
 
 /**
  * @param {string} operator 
  * @param {string} trainNo 
- * @returns {{operator: string, trainNumberPrefix: string, endTrainName: string}}
+ * @returns {{trainNumberPrefix: string, endTrainName: string} | null}
  */
 function mapTrainName(operator, trainNo) {
     let endTrainName = "";
@@ -139,14 +152,12 @@ function mapTrainName(operator, trainNo) {
 
     for (let j = 0; j < win.operatorConvertData.trainNames.length; j++) {
         const trainNameData = win.operatorConvertData.trainNames[j];
-        const trainOperatorBefore = operator;
         const trainNoIs = trainNameData.trainNo;
 
         for (let k = 0; k < trainNoIs.length; k++) {
-            if (trainNameData.operator === trainOperatorBefore) {
+            if (trainNameData.operator === operator) {
                 if (trainNoIs[k] === trainNo) {
                     if (isNaN(parseInt(trainNo))) console.error("WTF?!", trainNo, trainNoIs[k]);
-                    operator = trainNameData.operator;
                     endTrainName = trainNameData.trainName;
                     trainNumberPrefix = trainNameData.categoryOverwrite;
                 }
@@ -156,7 +167,11 @@ function mapTrainName(operator, trainNo) {
         }
     }
 
-    return { operator, trainNumberPrefix, endTrainName };
+    if (endTrainName === "" && trainNumberPrefix === "") {
+        return null;
+    }
+
+    return { trainNumberPrefix, endTrainName };
 }
 
 /**
@@ -178,7 +193,8 @@ function getTrainPrefixByCategory(operator, trainCategory) {
             }
         }
     }
-    console.warn("No prefix found!")
+
+    console.warn("No prefix found!");
     return "";
 }
 

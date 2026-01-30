@@ -73,7 +73,7 @@ const Theme = {
     AUTO: "auto",
     IC: "ic",
     PR: "pr"
-}
+};
 
 const urlParams = new URLSearchParams(window.location.search);
 const trainNumber = urlParams.get('train');
@@ -129,7 +129,7 @@ function setDateAndTime() {
     if (!iframeLoaded) {
         console.warn("Iframe not LOADED!");
         return;
-    };
+    }
     const dateDiv = iframe.contentDocument.getElementById('date');
     const minDiv = iframe.contentDocument.getElementById('min');
     const colonDiv = iframe.contentDocument.getElementById('colon');
@@ -172,7 +172,7 @@ async function setTemperature() {
     if (!iframeLoaded) {
         console.warn("Iframe not LOADED!");
         return;
-    };
+    }
     const temperatureDiv = iframe.contentDocument.getElementById('temperature');
     if (!temperatureDiv) return;
 
@@ -282,7 +282,7 @@ function displayCurrentSpeed(train) {
  */
 function setTrainName(train) {
     const trainName = getTrainFullName(trainNumber, train.stockString, train.timetable.category);
-    const trainNameString = `${trainName.prefix} ${trainName.number} ${trainName.trainName}`
+    const trainNameString = `${trainName.prefix} ${trainName.trainNo} ${trainName.trainName}`;
     iframe.contentDocument.getElementById('train_name').textContent = trainNameString;
     document.title = `Wagon ${wagonNumber} - ${trainNameString}`;
 }
@@ -300,7 +300,7 @@ function updateRoute(train) {
  */
 function setTrainNumber(train) {
     const trainName = getTrainFullName(trainNumber, train.stockString, train.timetable.category);
-    const trainNameString = `${trainName.prefix} ${trainName.number}`
+    const trainNameString = `${trainName.prefix} ${trainName.trainNo}`;
     iframe.contentDocument.getElementById('train_number').textContent = trainNameString;
     document.title = `Wagon ${wagonNumber} - ${trainNameString}`;
 }
@@ -549,7 +549,7 @@ const DEPARTED_IMG = {
     START: "./static/map/start_passed.svg",
     STOP: "./static/map/stop_passed.svg",
     END: "./static/map/end_passed.svg"
-}
+};
 
 /**
  * @param {StopPoint[]} stopsList StopPoint list with passed stops
@@ -564,7 +564,7 @@ function renderStopMap(stopsList, nextStopsList) {
         CAROUSEL_CONTINUE: "repeat(7, 9.7vw) 15vw 9.7vw",
         CONTINUOS: "13vw repeat(7, 9.7vw) 13vw",
         END: "15vw repeat(8, 9.7vw)"
-    }
+    };
 
     // First and last stop
 
@@ -655,7 +655,7 @@ function renderStopMap(stopsList, nextStopsList) {
             }
         }
 
-        mainDisplay.style.gridTemplateColumns = `repeat(${stopsList.length + 2}, 9.7vw)`
+        mainDisplay.style.gridTemplateColumns = `repeat(${stopsList.length + 2}, 9.7vw)`;
     }
 
     /**
@@ -670,7 +670,7 @@ function renderStopMap(stopsList, nextStopsList) {
 
         let currentStop = 0;
         for (let i = 1; i < 8; i++) {
-            const elementId = `stop${i}`
+            const elementId = `stop${i}`;
             if (-i+8 > numberOfStopsLeft) {
                 // PASSED
                 setPassedStop(elementId, stopsList.at(-(-i+9)));
@@ -688,7 +688,7 @@ function renderStopMap(stopsList, nextStopsList) {
         }
 
         if (nextStopsList[0].terminatesHere === true && atStation) {
-            moveTrainIndicator("end", false)
+            moveTrainIndicator("end", false);
         }
     }
 
@@ -857,7 +857,7 @@ let carouselId = 0;
 function startCarousel(nextStopsList) {
     nextStopsList.splice(0, 5);
     nextStopsList.pop();
-    const mappedStops = nextStopsList.map(stopPoint => { return [stopPoint.stopNameRAW, stopPoint.departureTimestamp] });
+    const mappedStops = nextStopsList.map(stopPoint => [stopPoint.stopNameRAW, stopPoint.departureTimestamp]);
 
     if (arraysEqual(carouselMappedStops, mappedStops)) return;
     if (carouselRunning) stopCarousel();
@@ -959,7 +959,7 @@ async function changeValues() {
 }
 
 function setCarriageNumber() {
-    const carriageNumberElement = iframe.contentDocument.getElementById('carriage_number')
+    const carriageNumberElement = iframe.contentDocument.getElementById('carriage_number');
     if (!carriageNumberElement) return;
     carriageNumberElement.textContent = wagonNumber;
 }
@@ -978,7 +978,7 @@ function applyResponsiveStyles() {
     if (!iframeLoaded) {
         console.warn("Iframe not LOADED!");
         return;
-    };
+    }
 
     if (displayTheme === Theme.IC) {
         if (iframe.contentDocument.getElementById('route_box').childElementCount === 0) {
@@ -996,9 +996,9 @@ iframe.onload = function () {
     }
     changeValues();
     setTemperature();
-}
+    setInterval(setDateAndTime, 1000); // 1 second
+    setInterval(setTemperature, 600000); // 10 minutes
+    setInterval(changeValues, 15000); // 15 seconds
+};
 
-setInterval(setDateAndTime, 1000); // 1 second
-setInterval(setTemperature, 600000); // 10 minutes
-setInterval(changeValues, 15000); // 15 seconds
 window.addEventListener('resize', applyResponsiveStyles);

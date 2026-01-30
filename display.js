@@ -282,7 +282,7 @@ function displayCurrentSpeed(train) {
  */
 function setTrainName(train) {
     const trainName = getTrainFullName(trainNumber, train.stockString, train.timetable.category);
-    const trainNameString = `${trainName.prefix} ${trainName.number} ${trainName.trainName}`
+    const trainNameString = `${trainName.prefix} ${trainName.trainNo} ${trainName.trainName}`;
     iframe.contentDocument.getElementById('train_name').textContent = trainNameString;
     document.title = `Wagon ${wagonNumber} - ${trainNameString}`;
 }
@@ -300,7 +300,7 @@ function updateRoute(train) {
  */
 function setTrainNumber(train) {
     const trainName = getTrainFullName(trainNumber, train.stockString, train.timetable.category);
-    const trainNameString = `${trainName.prefix} ${trainName.number}`
+    const trainNameString = `${trainName.prefix} ${trainName.trainNo}`;
     iframe.contentDocument.getElementById('train_number').textContent = trainNameString;
     document.title = `Wagon ${wagonNumber} - ${trainNameString}`;
 }

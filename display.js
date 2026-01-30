@@ -85,7 +85,7 @@ const displayTheme = urlParams.get('theme') || Theme.AUTO;
 const stopSpeed = parseInt(urlParams.get('stopSpeed')) || 20;
 const newPrLayout = parseInt(urlParams.get('prLayout')) || 0;
 const mainStationsOnly = parseInt(urlParams.get('mainStations')) || 0;
-const stopsDisplayed = parseInt(urlParams.get('stopsNumber')) || 5;
+const maxDisplayedStops = parseInt(urlParams.get('stopsNumber')) || 5;
 
 /** @type {HTMLIFrameElement} */
 const iframe = document.querySelector('#container');
@@ -105,7 +105,7 @@ const templatesUrl = { ic: "template.html", pr: "template_pr.html" };
 
 if (displayTheme === Theme.AUTO) {
     /* AUTO needs to change it later after loading train stock data */
-    console.error("AUTO NOT IMPLEMENTED!!!"); // TODO: Add AUTO theme changes.
+    console.error("AUTO NOT IMPLEMENTED!!!"); // ADD: AUTO theme changes
 } else {
     fetchTemplate(templatesUrl[displayTheme]);
 }
@@ -374,7 +374,7 @@ function setRouteStations(train) {
     checking = true;
 
     if (doneStopList.length < 1) {
-        // TODO: Implement no stations left / no stations
+        // ADD: Implement no stations left / no stations
         // showArrivedLayout();
         // Also change data updates to 1m, don't show error screen on no data
         // Implement some kind of route continue when new timetable is given
@@ -497,11 +497,10 @@ function renderNextStops(nextStopsList) {
         nextStation.classList.add('currently_displayed');
     }
 
-    if (nextStopsList.length > 5) {
-        console.warn('Wykryto więcej niż 5 przystanków na trasie');
-        // ADD: możliwość zmiany maksymalnej ilości
+    if (nextStopsList.length > maxDisplayedStops) {
+        console.warn(`Wykryto więcej niż ${maxDisplayedStops} przystanków na trasie`);
         // ADD: wyświetlanie tylko głównych stacji
-        nextStopsList = nextStopsList.slice(0, 5);
+        nextStopsList = nextStopsList.slice(0, maxDisplayedStops);
     }
 
     if (nextStopsList.length > 1) {
@@ -565,7 +564,7 @@ const DEPARTED_IMG = {
  */
 function renderStopMap(stopsList, nextStopsList) {
     const mainDisplay = iframe.contentDocument.getElementById("main_display");
-    // TODO: Splittowanie dla ostatniej stacji kiedy jest za długa!! np. Warszawa Zachodnia
+    // TODO: Splittowanie dla stacji kiedy jest za długa!! np. Warszawa Zachodnia
 
     const DISPLAY_CONFIG = {
         CAROUSEL_START: "repeat(7, 9.7vw) 15vw 9.7vw",

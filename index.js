@@ -73,5 +73,5 @@ function selectTheme(themeName) {
 
 const companyThemeSelect = document.getElementById("company_theme");
 
-selectTheme(companyThemeSelect.value)
-companyThemeSelect.addEventListener("change", (ev) => selectTheme(ev.target.value))
+selectTheme(companyThemeSelect.value);
+companyThemeSelect.addEventListener("change", (ev) => selectTheme(ev.target.value));

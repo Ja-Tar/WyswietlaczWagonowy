@@ -66,7 +66,7 @@ function checkForWrap() {
     const destinationElement = document.getElementById("destination");
 
     if (destinationBox.scrollWidth > destinationBox.clientWidth) {
-        destinationElement.classList.add("smaller")
+        destinationElement.classList.add("smaller");
     }
 }
 

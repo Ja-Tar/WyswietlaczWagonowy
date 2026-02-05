@@ -89,7 +89,7 @@ const maxDisplayedStops = parseInt(urlParams.get('stopsNumber')) || 5;
 
 /** @type {HTMLIFrameElement} */
 const iframe = document.querySelector('#container');
-let iframeLoaded = false; 
+let iframeLoaded = false;
 const devMode = localStorage.getItem("dev");
 
 function resizeIframe() {
@@ -342,8 +342,8 @@ function formatStopsName(stopPoints) {
     return stopPoints;
 }
 
-/** @type {StopPoint[]} */
-const removedStopsName = [];
+/** @type {{Object.<string, number>}} StopNameRaw, arrivalTimestamp */
+const removedStopsName = {};
 let checking = false;
 let atStation = false;
 let atOrigin = false;
@@ -398,7 +398,7 @@ function setRouteStations(train) {
 function monitorArrivalCondition(nextStopsList, train) {
     const currentTime = new Date().getTime();
 
-    nextStopsList = nextStopsList.filter(stopPoint => !removedStopsName.includes(stopPoint.stopNameRAW));
+    nextStopsList = nextStopsList.filter(stopPoint => !(removedStopsName?.[stopPoint.stopNameRAW] === stopPoint.arrivalTimestamp));
 
     if (checking === true) {
         // Normal flow
@@ -414,7 +414,8 @@ function monitorArrivalCondition(nextStopsList, train) {
 
             if (atStation === true && train.speed > stopSpeed) {
                 atStation = false;
-                removedStopsName.push(nextStopsList.splice(0, 1)[0].stopNameRAW);
+                const removedStop = nextStopsList.splice(0, 1)[0];
+                removedStopsName[removedStop.stopNameRAW] = removedStop.arrivalTimestamp;
             }
         } else {
             if ((nextStopsList[0].arrivalRealTimestamp < currentTime && train.speed < stopSpeed) || nextStopsList[0].beginsHere === true) {
@@ -434,7 +435,7 @@ function monitorArrivalCondition(nextStopsList, train) {
                 /* check if stop has been passed (stop without confirmed arrival) */
                 const departureTime = stopPoint.departureRealTimestamp;
                 if (currentTime > departureTime) {
-                    removedStopsName.push(stopPoint.stopNameRAW);
+                    removedStopsName[stopPoint.stopNameRAW] = stopPoint.arrivalTimestamp;
                     return false;
                 }
             } else {
@@ -610,8 +611,8 @@ function renderStopMap(stopsList, nextStopsList) {
     }
 
     //if (newPrLayout) {  // REMOVE: After finishing CarouselLayout
-        stopCarousel();
-        showContinuosLayout();
+    stopCarousel();
+    showContinuosLayout();
     //} else {
     //    showCarouselLayout();
     //}

@@ -1,8 +1,8 @@
 # Wyswietlacz Wagonowy
 # PL 🇵🇱
 
-<img height="250" alt="ic-0" src="https://github.com/user-attachments/assets/cfa54f34-2b68-445b-a3df-d4b71b916904" />
-<img height="250" alt="ic-0" src="https://github.com/user-attachments/assets/b30cdc7c-ac10-4e4f-9f07-feea8d3ee751" />
+<img height="400" alt="ic-0" src="https://github.com/user-attachments/assets/cfa54f34-2b68-445b-a3df-d4b71b916904" />
+<img height="400" alt="ic-0" src="https://github.com/user-attachments/assets/b30cdc7c-ac10-4e4f-9f07-feea8d3ee751" />
 
 
 ## Funkcje

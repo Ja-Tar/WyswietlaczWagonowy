@@ -46,21 +46,34 @@ function getUrlParamsFromInputs() {
     /** @type {CompanyThemeOptions} */
     const companyTheme = document.getElementById("company_theme")?.value || "";
     /** @type {OptionConfig[]} */
-    const normalOptions = [{id: 'train_number'}, {id: 'wagon_number'}, {id: "stop_speed", default: 20}];
+    const normalOptions = [
+        { id: 'train_number' },
+        { id: 'wagon_number' },
+        { id: 'company_theme', default: "" },
+        { id: "stop_speed", default: 20 }
+    ];
     /** @type {ThemeRelatedOptionsConfig} */
     const themeRelatedOptions = {
-        ic: [{id: 'delay', default: 1}, {id: 'main_stations', default: 0}, {id: 'stops_number', default: 5}],
-        pr: [{id:'pr_layout', default: 1}]
+        ic: [
+            { id: 'delay', default: 1 },
+            { id: 'main_stations', default: 0 },
+            { id: 'stops_number', default: 5 }
+        ],
+        pr: [
+            { id: 'pr_layout', default: 1 }
+        ]
     };
 
-    if (companyTheme === "") return; // TODO For AUTO
-    const allOptions = normalOptions.concat(themeRelatedOptions[companyTheme]);
+    if (companyTheme === "") return new URLSearchParams(); // TODO For AUTO
+    const allOptions = normalOptions.concat(themeRelatedOptions[companyTheme] || []);
     const urlParams = new URLSearchParams();
 
     allOptions.forEach((optionConfig, i) => {
         const element = document.getElementById(optionConfig.id);
 
-        /** @type {null | Number | string} */
+        if (!element) console.error("No element found", optionConfig.id);
+
+        /** @type {null | number | string} */
         let value = null;
         if (element?.type === "checkbox") {
             value = Number(element.checked);
@@ -73,9 +86,7 @@ function getUrlParamsFromInputs() {
             console.error("Wrong input element type!", element);
         }
 
-        if (!element.name) {
-            console.error("No element NAME tag found!", element);
-        }
+        if (!element.name) console.error("No element NAME tag found!", element);
 
         if (value !== optionConfig?.default) {
             urlParams.set(element.name, value);

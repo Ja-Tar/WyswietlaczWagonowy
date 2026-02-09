@@ -22,13 +22,13 @@ Zmiana minimalnej prędkości, którą symulator uznaję za postój.
 
 ### Tylko wersja IC
 #### Wyświetlaj opóźnienie
-WŁĄCZONE:
+- **WŁĄCZONE:**
 
-<img height="78" alt="obraz" src="https://github.com/user-attachments/assets/0978ba26-47a0-4f9c-b6d8-e01211a64911" />
+    <img height="78" alt="obraz" src="https://github.com/user-attachments/assets/0978ba26-47a0-4f9c-b6d8-e01211a64911" />
 
-WYŁĄCZONE:
+- **WYŁĄCZONE:**
 
-<img height="78" alt="obraz" src="https://github.com/user-attachments/assets/e3c1ba35-b5c1-4fe5-889c-676cc608b026" />
+    <img height="78" alt="obraz" src="https://github.com/user-attachments/assets/e3c1ba35-b5c1-4fe5-889c-676cc608b026" />
 
 #### Tylko główne stacje
 Pokazywane są tylko stację uznane za główne przez TD2.
@@ -38,13 +38,13 @@ Pokazywana ilość przystanków na wyświetlaczu.
 
 ### Tylko wersja PR
 #### Przewijaj pozostałe przystanki
-WŁĄCZONE:
+- **WŁĄCZONE:**
 
-**ZDJĘCIE**
+    <img height="150" alt="obraz" src="https://github.com/user-attachments/assets/4a06ea7c-47e8-4431-afef-7aadec14741c" />
 
-WYŁĄCZONE:
+- **WYŁĄCZONE:**
 
-**ZDJĘCIE**
+    <img height="150" alt="obraz" src="https://github.com/user-attachments/assets/e2765f94-97bb-4033-8979-689f030b1578" />
 
 # EN 🇬🇧
 <!-- ADD EN -->

@@ -13,9 +13,10 @@
         <div id="required-data" class="options_box">
             <label for="train_number">Numer pociągu:</label>
             <input type="number" id="train_number" min="1000" max="999999" placeholder="123456" required
-                inputmode="numeric">
+                inputmode="numeric" name="train">
             <label for="wagon_number">Numer wagonu:</label>
-            <input type="number" id="wagon_number" min="1" max="999" value="1" required inputmode="numeric">
+            <input type="number" id="wagon_number" min="1" max="999" value="1" required inputmode="numeric"
+                name="wagon">
         </div>
         <div class="button_box">
             <div id="submit" class="button">Otwórz podgląd</div>
@@ -23,22 +24,22 @@
         <div id="settings_div">
             <div id="settings_name">Ustawienia</div>
             <div class="options_box">
-                <select id="company_theme">
+                <select id="company_theme" name="theme">
                     <option value="ic" selected>Wersja IC</option>
                     <option value="pr" class="reg_color">Wersja PR</option>
                 </select>
                 <label for="stop_speed">Prędkość wykrywania postoju (na <i>po.</i>)</label>
-                <input type="number" min="0" max="99" value="20" id="stop_speed" required>
+                <input type="number" min="0" max="99" value="20" id="stop_speed" name="stopSpeed" required>
                 <!-- IC ONLY -->
                 <label for="delay">Wyświetlaj opóźnienie:</label>
-                <input type="checkbox" id="delay" checked>
+                <input type="checkbox" id="delay" name="delay" checked>
                 <label for="main_stations">Tylko główne stacje</label>
-                <input type="checkbox" id="main_stations">
+                <input type="checkbox" id="main_stations" name="mainStations">
                 <label for="stops_number">Następne przystanki:</label>
-                <input type="number" min="1" max="30" value="5" id="stops_number" required>
+                <input type="number" min="1" max="30" value="5" id="stops_number" name="stopsNumber" required>
                 <!-- PR ONLY -->
                 <label for="pr_layout">Przewijaj pozostałe przystanki</label>
-                <input type="checkbox" id="pr_layout" checked>
+                <input type="checkbox" id="pr_layout" name="prLayout" checked>
             </div>
         </div>
     </div>

@@ -26,59 +26,72 @@ function navigateToDisplay() {
 }
 
 /**
+ * @typedef OptionConfig
+ * @property {string} id
+ * @property {string | number} [default]
+ */
+
+/**
+ * @typedef {Object.<string, OptionConfig[]>} ThemeRelatedOptionsConfig
+ */
+
+/**
+ * @typedef {('ic'|'pr'|'')} CompanyThemeOptions
+ */
+
+/**
  * @returns {URLSearchParams}
  */
 function getUrlParamsFromInputs() {
-    // TODO: Maybe make this automatic - from list of element id
-    const trainNumber = document.getElementById('train_number');
-    const wagonNumber = document.getElementById('wagon_number');
-    const displayDelayCheckbox = document.getElementById('delay');
-    const displayThemeSelect = document.getElementById("company_theme");
-    const stopSpeed = document.getElementById("stop_speed");
-    const prLayoutCheckbox = document.getElementById("pr_layout");
-    const mainStationsCheckbox = document.getElementById("main_stations");
-    const stopsNumber = document.getElementById("stops_number");
+    /** @type {CompanyThemeOptions} */
+    const companyTheme = document.getElementById("company_theme")?.value || "";
+    /** @type {OptionConfig[]} */
+    const normalOptions = [
+        { id: 'train_number' },
+        { id: 'wagon_number' },
+        { id: 'company_theme', default: "" },
+        { id: "stop_speed", default: 20 }
+    ];
+    /** @type {ThemeRelatedOptionsConfig} */
+    const themeRelatedOptions = {
+        ic: [
+            { id: 'delay', default: 1 },
+            { id: 'main_stations', default: 0 },
+            { id: 'stops_number', default: 5 }
+        ],
+        pr: [
+            { id: 'pr_layout', default: 1 }
+        ]
+    };
 
-    const trainNumberValue = trainNumber.value;
-    const wagonNumberValue = wagonNumber.value;
-    const showDelay = Number(displayDelayCheckbox.checked);
-    /** @type {('ic'|'pr'|'')} */
-    const displayTheme = displayThemeSelect.value;
-    const stopSpeedValue = parseInt(stopSpeed.value);
-    const prLayout = Number(prLayoutCheckbox.checked);
-    const mainStations = Number(mainStationsCheckbox.checked);
-    const stopsNumberValue = parseInt(stopsNumber.value);
-
+    if (companyTheme === "") return new URLSearchParams(); // TODO For AUTO
+    const allOptions = normalOptions.concat(themeRelatedOptions[companyTheme] || []);
     const urlParams = new URLSearchParams();
-    urlParams.set("train", trainNumberValue);
-    urlParams.set("wagon", wagonNumberValue);
 
-    if (showDelay !== 1) {
-        urlParams.set("delay", showDelay);
-    }
-    if (displayTheme !== "") {
-        urlParams.set("theme", displayTheme);
-    }
-    if (stopSpeedValue !== 20) {
-        urlParams.set("stopSpeed", stopSpeedValue);
-    }
+    allOptions.forEach(optionConfig => {
+        const element = document.getElementById(optionConfig.id);
 
-    // IC ONLY
+        if (!element) console.error("No element found", optionConfig.id);
 
-    if (displayTheme === "ic") {
-        if (mainStations !== 0) {
-            urlParams.set("mainStations", mainStations);
+        /** @type {null | number | string} */
+        let value = null;
+        if (element?.type === "checkbox") {
+            value = Number(element.checked);
+        } else if (element?.type === "number") {
+            value = parseInt(element.value);
+            if (isNaN(value)) console.error("PARSE INT is NAN!");
+        } else if (element.tagName === "SELECT") {
+            value = element.value;
+        } else {
+            console.error("Wrong input element type!", element);
         }
-        if (stopsNumberValue !== 5) {
-            urlParams.set("stopsNumber", stopsNumberValue);
+
+        if (!element.name) console.error("No element NAME tag found!", element);
+
+        if (value !== optionConfig?.default) {
+            urlParams.set(element.name, value);
         }
-    }
-
-    // PR ONLY
-
-    if (prLayout && displayTheme === "pr") {
-        urlParams.set("prLayout", prLayout);
-    }
+    });
 
     return urlParams;
 }

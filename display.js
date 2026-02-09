@@ -712,6 +712,7 @@ function renderStopMap(stopsList, nextStopsList) {
      */
     function showCarouselStartLayout() {
         const currentNextStopIndex = stopsList.indexOf(nextStopsList[0]);
+        const removeStartOnlyStops = -currentNextStopIndex + 2;
 
         for (let i = 1; i < 7; i++) {
             const elementId = `stop${i}`;
@@ -728,6 +729,7 @@ function renderStopMap(stopsList, nextStopsList) {
             }
         }
 
+        nextStopsList.splice(0, removeStartOnlyStops);
         startCarousel(nextStopsList);
     }
 
@@ -774,11 +776,10 @@ function renderStopMap(stopsList, nextStopsList) {
 function setStop(elementId, stopPoint) {
     setStopName(elementId, stopPoint.stopNameRAW);
     if (elementId === "start") return;
-    // ADD: Option to have timestamp with delay and without (default).
     if (elementId !== "end") {
-        setDepartTime(elementId, stopPoint.departureRealTimestamp);
+        setDepartTime(elementId, stopPoint.departureTimestamp);
     } else {
-        setDepartTime(elementId, stopPoint.arrivalRealTimestamp);
+        setDepartTime(elementId, stopPoint.arrivalTimestamp);
     }
 }
 

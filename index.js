@@ -26,58 +26,61 @@ function navigateToDisplay() {
 }
 
 /**
+ * @typedef OptionConfig
+ * @property {string} id
+ * @property {string | number} [default]
+ */
+
+/**
+ * @typedef {Object.<string, OptionConfig[]>} ThemeRelatedOptionsConfig
+ */
+
+/**
+ * @typedef {('ic'|'pr'|'')} CompanyThemeOptions
+ */
+
+/**
  * @returns {URLSearchParams}
  */
 function getUrlParamsFromInputs() {
-    /** @type {('ic'|'pr'|'')} */
+    /** @type {CompanyThemeOptions} */
     const companyTheme = document.getElementById("company_theme")?.value || "";
+    /** @type {OptionConfig[]} */
     const normalOptions = [{id: 'train_number'}, {id: 'wagon_number'}, {id: "stop_speed", default: 20}];
+    /** @type {ThemeRelatedOptionsConfig} */
     const themeRelatedOptions = {
         ic: [{id: 'delay', default: 1}, {id: 'main_stations', default: 0}, {id: 'stops_number', default: 5}],
-        pr: [{id:'pr_layout', default: 0}]
+        pr: [{id:'pr_layout', default: 1}]
     };
 
-    // FIX: Finish this!!!!
-    // BUG: Finish this!!!!
-
+    if (companyTheme === "") return; // TODO For AUTO
+    const allOptions = normalOptions.concat(themeRelatedOptions[companyTheme]);
     const urlParams = new URLSearchParams();
-    elements.forEach((inputElement, i) => {
+
+    allOptions.forEach((optionConfig, i) => {
+        const element = document.getElementById(optionConfig.id);
+
         /** @type {null | Number | string} */
         let value = null;
-        if (inputElement?.type === "checkbox") {
-            value = Number(inputElement.checked);
-        } else if (inputElement?.type === "number") {
-            value = parseInt(inputElement.value);
-        } else if (inputElement.tagName === "SELECT") {
-            value = inputElement.value;
+        if (element?.type === "checkbox") {
+            value = Number(element.checked);
+        } else if (element?.type === "number") {
+            value = parseInt(element.value);
+            if (isNaN(value)) console.error("PARSE INT is NAN!");
+        } else if (element.tagName === "SELECT") {
+            value = element.value;
         } else {
-            console.error("Wrong input element type!!!", inputElement);
+            console.error("Wrong input element type!", element);
         }
 
-        if (themeRelatedOptions?.[companyTheme].includes(inputElement.id)) {
-            debugger;
+        if (!element.name) {
+            console.error("No element NAME tag found!", element);
         }
-        if (defaultValues[i] === null || value !== defaultValues[i]) {
-            urlParams.set(inputElement.name, value);
+
+        if (value !== optionConfig?.default) {
+            urlParams.set(element.name, value);
         }
     });
-
-    // IC ONLY
-
-    if (displayTheme === "ic") {
-        if (mainStations !== 0) {
-            urlParams.set("mainStations", mainStations);
-        }
-        if (stopsNumberValue !== 5) {
-            urlParams.set("stopsNumber", stopsNumberValue);
-        }
-    }
-
-    // PR ONLY
-
-    if (prLayout && displayTheme === "pr") {
-        urlParams.set("prLayout", prLayout);
-    }
 
     return urlParams;
 }

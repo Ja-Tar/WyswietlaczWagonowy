@@ -1,6 +1,10 @@
 # Wyswietlacz Wagonowy
 # PL 🇵🇱
 
+<img width="856" height="466" alt="obraz" src="https://github.com/user-attachments/assets/7f228e28-760e-4d8c-8fa1-e7a195e9bf93" />
+<img width="856" height="466" alt="obraz" src="https://github.com/user-attachments/assets/5f92c342-5f6f-464c-bd2c-efa815cad508" />
+
+
 ## Funkcje
 - [x] Symulacja wyświetlania
     - [x] według wzoru IC

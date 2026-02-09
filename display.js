@@ -607,12 +607,12 @@ function renderStopMap(stopsList, nextStopsList) {
         return;
     }
 
-    //if (newPrLayout) {  // REMOVE: After finishing CarouselLayout
-    //stopCarousel();
-    //showContinuosLayout();
-    //} else {
-    showCarouselLayout();
-    //}
+    if (newPrLayout) {
+        stopCarousel();
+        showContinuosLayout();
+    } else {
+        showCarouselLayout();
+    }
 
     /**
      * Shows only stops that are in timetable, because it's too short
@@ -745,7 +745,7 @@ function renderStopMap(stopsList, nextStopsList) {
         moveTrainIndicator("stop1", true);
 
         for (let i = 0; i < 5; i++) {
-            const elementId = `stop${i+2}`;
+            const elementId = `stop${i + 2}`;
             setStop(elementId, nextStopsList[i]);
             if (atStation && i === 0) {
                 moveTrainIndicator(elementId, false);

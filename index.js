@@ -29,21 +29,16 @@ function navigateToDisplay() {
  * @returns {URLSearchParams}
  */
 function getUrlParamsFromInputs() {
-    const elementIds = ['train_number', 'wagon_number', "pr_layout", "main_stations", "stops_number"];
-    const defaultValues = [null, null, 1, 20, 0, 0, 5]; // null -> send always
-    if (elementIds.length !== defaultValues.length) throw new ReferenceError("Different value / id number");
-    
     /** @type {('ic'|'pr'|'')} */
     const companyTheme = document.getElementById("company_theme")?.value || "";
-    const normalOptions = ['train_number', 'wagon_number', "stop_speed"]
+    const normalOptions = [{id: 'train_number'}, {id: 'wagon_number'}, {id: "stop_speed", default: 20}];
     const themeRelatedOptions = {
-        ic: ['delay', 'main_stations', 'stops_number'],
-        pr: ['pr_layout']
+        ic: [{id: 'delay', default: 1}, {id: 'main_stations', default: 0}, {id: 'stops_number', default: 5}],
+        pr: [{id:'pr_layout', default: 0}]
     };
 
-    /** @type {HTMLInputElement[] | HTMLSelectElement[]} */
-    const elements = [];
-    elementIds.forEach(elementId => elements.push(document.getElementById(elementId)));
+    // FIX: Finish this!!!!
+    // BUG: Finish this!!!!
 
     const urlParams = new URLSearchParams();
     elements.forEach((inputElement, i) => {

@@ -79,13 +79,13 @@ const Theme = {
 const urlParams = new URLSearchParams(window.location.search);
 const trainNumber = urlParams.get('train');
 const wagonNumber = urlParams.get('wagon');
-const showDelay = parseInt(urlParams.get("delay")) ?? 1;
+const showDelay = parseInt(urlParams.get("delay") ?? 0);
 const displayTheme = urlParams.get('theme') ?? Theme.AUTO;
 /** Default -> 20km/h */
-const stopSpeed = parseInt(urlParams.get('stopSpeed')) ?? 20;
-const newPrLayout = parseInt(urlParams.get('prLayout')) ?? 0;
-const mainStationsOnly = parseInt(urlParams.get('mainStations')) ?? 0;
-const maxDisplayedStops = parseInt(urlParams.get('stopsNumber')) ?? 5;
+const stopSpeed = parseInt(urlParams.get('stopSpeed') ?? 20);
+const newPrLayout = parseInt(urlParams.get('prLayout') ?? 0);
+const mainStationsOnly = parseInt(urlParams.get('mainStations') ?? 0);
+const maxDisplayedStops = parseInt(urlParams.get('stopsNumber') ?? 5);
 
 /** @type {HTMLIFrameElement} */
 const iframe = document.querySelector('#container');

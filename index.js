@@ -46,7 +46,7 @@ function getUrlParamsFromInputs() {
     /** @type {CompanyThemeOptions} */
     const companyTheme = document.getElementById("company_theme")?.value || "";
     /** @type {OptionConfig[]} */
-    const normalOptions = [
+    const normalOptions = [ // NOTE Add options here as needed!
         { id: 'train_number' },
         { id: 'wagon_number' },
         { id: 'company_theme', default: "" },
@@ -64,7 +64,7 @@ function getUrlParamsFromInputs() {
         ]
     };
 
-    if (companyTheme === "") return new URLSearchParams(); // TODO For AUTO
+    if (companyTheme === "") return new URLSearchParams(); // ADD For AUTO
     const allOptions = normalOptions.concat(themeRelatedOptions[companyTheme] || []);
     const urlParams = new URLSearchParams();
 

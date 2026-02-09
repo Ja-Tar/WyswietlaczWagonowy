@@ -26,8 +26,6 @@ OR
 #8d1519
 */
 
-/* TODO: Move layouts to the left until last station text isn't out of bounds */
-
 #main_display {
     height: 100%;
     box-sizing: border-box;

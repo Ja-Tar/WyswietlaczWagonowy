@@ -68,7 +68,7 @@ function getUrlParamsFromInputs() {
     const allOptions = normalOptions.concat(themeRelatedOptions[companyTheme] || []);
     const urlParams = new URLSearchParams();
 
-    allOptions.forEach((optionConfig, i) => {
+    allOptions.forEach(optionConfig => {
         const element = document.getElementById(optionConfig.id);
 
         if (!element) console.error("No element found", optionConfig.id);

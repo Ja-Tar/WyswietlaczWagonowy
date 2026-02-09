@@ -83,7 +83,7 @@ const showDelay = parseInt(urlParams.get("delay") ?? 1);
 const displayTheme = urlParams.get('theme') ?? Theme.AUTO;
 /** Default -> 20km/h */
 const stopSpeed = parseInt(urlParams.get('stopSpeed') ?? 20);
-const newPrLayout = parseInt(urlParams.get('prLayout') ?? 0);
+const newPrLayout = parseInt(urlParams.get('prLayout') ?? 1);
 const mainStationsOnly = parseInt(urlParams.get('mainStations') ?? 0);
 const maxDisplayedStops = parseInt(urlParams.get('stopsNumber') ?? 5);
 

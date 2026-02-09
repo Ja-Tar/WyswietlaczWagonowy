@@ -572,7 +572,7 @@ function renderStopMap(stopsList, nextStopsList) {
 
     const DISPLAY_CONFIG = {
         CAROUSEL_START: "repeat(7, 9.7vw) 15vw 9.7vw",
-        CAROUSEL_CONTINUE: "repeat(7, 9.7vw) 15vw 9.7vw",
+        CAROUSEL_CONTINUE: "13vw repeat(6, 9.7vw) 13vw 9.7vw",
         CONTINUOS: "13vw repeat(7, 9.7vw) 13vw",
         END: "15vw repeat(8, 9.7vw)"
     };
@@ -596,9 +596,6 @@ function renderStopMap(stopsList, nextStopsList) {
         return;
     }
 
-    mainDisplay.style.gridTemplateColumns = DISPLAY_CONFIG.CAROUSEL_START;
-
-
     if (nextStopsList.length <= 7) {
         stopCarousel();
         showEndLayout();
@@ -611,10 +608,10 @@ function renderStopMap(stopsList, nextStopsList) {
     }
 
     //if (newPrLayout) {  // REMOVE: After finishing CarouselLayout
-    stopCarousel();
-    showContinuosLayout();
+    //stopCarousel();
+    //showContinuosLayout();
     //} else {
-    //    showCarouselLayout();
+    showCarouselLayout();
     //}
 
     /**
@@ -711,6 +708,7 @@ function renderStopMap(stopsList, nextStopsList) {
      * Show all stops after 6 one on 7 stop element, stop showing after departure from second stop.
      */
     function showCarouselStartLayout() {
+        mainDisplay.style.gridTemplateColumns = DISPLAY_CONFIG.CAROUSEL_START;
         const currentNextStopIndex = stopsList.indexOf(nextStopsList[0]);
         const removeStartOnlyStops = -currentNextStopIndex + 2;
 
@@ -739,9 +737,22 @@ function renderStopMap(stopsList, nextStopsList) {
      * Alternative to ContinuosLayout
      */
     function showCarouselLayout() {
+        mainDisplay.style.gridTemplateColumns = DISPLAY_CONFIG.CAROUSEL_CONTINUE;
+        mainDisplay.style.marginLeft = '-10vw';
         const currentNextStopIndex = stopsList.indexOf(nextStopsList[0]);
-        console.debug(currentNextStopIndex);
-        // TODO: Finish main CarouselLayout
+
+        setPassedStop("stop1", stopsList[currentNextStopIndex - 1]);
+        moveTrainIndicator("stop1", true);
+
+        for (let i = 0; i < 5; i++) {
+            const elementId = `stop${i+2}`;
+            setStop(elementId, nextStopsList[i]);
+            if (atStation && i === 0) {
+                moveTrainIndicator(elementId, false);
+            }
+        }
+
+        startCarousel(nextStopsList);
     }
 
     /**

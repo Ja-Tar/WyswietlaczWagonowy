@@ -29,39 +29,43 @@ function navigateToDisplay() {
  * @returns {URLSearchParams}
  */
 function getUrlParamsFromInputs() {
-    // TODO: Maybe make this automatic - from list of element id
-    const trainNumber = document.getElementById('train_number');
-    const wagonNumber = document.getElementById('wagon_number');
-    const displayDelayCheckbox = document.getElementById('delay');
-    const displayThemeSelect = document.getElementById("company_theme");
-    const stopSpeed = document.getElementById("stop_speed");
-    const prLayoutCheckbox = document.getElementById("pr_layout");
-    const mainStationsCheckbox = document.getElementById("main_stations");
-    const stopsNumber = document.getElementById("stops_number");
-
-    const trainNumberValue = trainNumber.value;
-    const wagonNumberValue = wagonNumber.value;
-    const showDelay = Number(displayDelayCheckbox.checked);
+    const elementIds = ['train_number', 'wagon_number', "pr_layout", "main_stations", "stops_number"];
+    const defaultValues = [null, null, 1, 20, 0, 0, 5]; // null -> send always
+    if (elementIds.length !== defaultValues.length) throw new ReferenceError("Different value / id number");
+    
     /** @type {('ic'|'pr'|'')} */
-    const displayTheme = displayThemeSelect.value;
-    const stopSpeedValue = parseInt(stopSpeed.value);
-    const prLayout = Number(prLayoutCheckbox.checked);
-    const mainStations = Number(mainStationsCheckbox.checked);
-    const stopsNumberValue = parseInt(stopsNumber.value);
+    const companyTheme = document.getElementById("company_theme")?.value || "";
+    const normalOptions = ['train_number', 'wagon_number', "stop_speed"]
+    const themeRelatedOptions = {
+        ic: ['delay', 'main_stations', 'stops_number'],
+        pr: ['pr_layout']
+    };
+
+    /** @type {HTMLInputElement[] | HTMLSelectElement[]} */
+    const elements = [];
+    elementIds.forEach(elementId => elements.push(document.getElementById(elementId)));
 
     const urlParams = new URLSearchParams();
-    urlParams.set("train", trainNumberValue);
-    urlParams.set("wagon", wagonNumberValue);
+    elements.forEach((inputElement, i) => {
+        /** @type {null | Number | string} */
+        let value = null;
+        if (inputElement?.type === "checkbox") {
+            value = Number(inputElement.checked);
+        } else if (inputElement?.type === "number") {
+            value = parseInt(inputElement.value);
+        } else if (inputElement.tagName === "SELECT") {
+            value = inputElement.value;
+        } else {
+            console.error("Wrong input element type!!!", inputElement);
+        }
 
-    if (showDelay !== 1) {
-        urlParams.set("delay", showDelay);
-    }
-    if (displayTheme !== "") {
-        urlParams.set("theme", displayTheme);
-    }
-    if (stopSpeedValue !== 20) {
-        urlParams.set("stopSpeed", stopSpeedValue);
-    }
+        if (themeRelatedOptions?.[companyTheme].includes(inputElement.id)) {
+            debugger;
+        }
+        if (defaultValues[i] === null || value !== defaultValues[i]) {
+            urlParams.set(inputElement.name, value);
+        }
+    });
 
     // IC ONLY
 

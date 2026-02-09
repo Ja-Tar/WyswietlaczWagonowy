@@ -20,11 +20,11 @@ Zmiana minimalnej prędkości, którą symulator uznaję za postój.
 #### Wyświetlaj opóźnienie
 WŁĄCZONE:
 
-**ZDJĘCIE**
+<img height="78" alt="obraz" src="https://github.com/user-attachments/assets/0978ba26-47a0-4f9c-b6d8-e01211a64911" />
 
 WYŁĄCZONE:
 
-**ZDJĘCIE**
+<img height="78" alt="obraz" src="https://github.com/user-attachments/assets/e3c1ba35-b5c1-4fe5-889c-676cc608b026" />
 
 #### Tylko główne stacje
 Pokazywane są tylko stację uznane za główne przez TD2.

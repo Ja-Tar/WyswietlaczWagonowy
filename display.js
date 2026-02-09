@@ -607,7 +607,7 @@ function renderStopMap(stopsList, nextStopsList) {
         return;
     }
 
-    if (newPrLayout) {
+    if (!newPrLayout) {
         stopCarousel();
         showContinuosLayout();
     } else {

@@ -77,24 +77,24 @@ While writing for YSWS, I did not use any AI at all (which was quite an interest
 #### Stop detection speed (`Prędkość wykrywania postoju`)
 Change the minimum speed at which the simulator considers the vehicle to be at a stop.
 
-### Tylko wersja IC
-#### Wyświetlaj opóźnienie
+### IC version only
+#### Show delay (`Wyświetlaj opóźnienie`)
 - **ON:**
 
     <img alt="obraz" src="https://github.com/user-attachments/assets/0978ba26-47a0-4f9c-b6d8-e01211a64911" />
 
-- **OFF:** (lub brak opóźnienia)
+- **OFF:** (or no delay)
 
     <img alt="obraz" src="https://github.com/user-attachments/assets/e3c1ba35-b5c1-4fe5-889c-676cc608b026" />
 
-#### Tylko główne stacje
-Pokazywane są tylko stację uznane za główne przez TD2.
+#### Only main stations (`Tylko główne stacje`)
+Only stations recognized as main ones by TD2 are displayed.
 
-#### Następne przystanki
-Pokazywana ilość przystanków na wyświetlaczu.
+#### Next stops (`Następne przystanki`)
+The number of stops displayed.
 
-### Tylko wersja PR
-#### Przewijaj pozostałe przystanki
+### PR version only
+#### Scroll through remaining stops
 - **ON:**
 
     <img height="150" width="400" alt="obraz" src="https://github.com/user-attachments/assets/4a06ea7c-47e8-4431-afef-7aadec14741c" />

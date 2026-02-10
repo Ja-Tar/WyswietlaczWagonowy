@@ -42,7 +42,7 @@ Pokazywana ilość przystanków na wyświetlaczu.
 
     <img height="150" alt="obraz" src="https://github.com/user-attachments/assets/4a06ea7c-47e8-4431-afef-7aadec14741c" />
 
-- **WYŁĄCZONE:**
+- **WYŁĄCZONE:** (lub brak opóźnienia)
 
     <img height="150" alt="obraz" src="https://github.com/user-attachments/assets/e2765f94-97bb-4033-8979-689f030b1578" />
 

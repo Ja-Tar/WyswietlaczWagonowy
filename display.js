@@ -950,6 +950,8 @@ function arraysEqual(a, b) {
     return true;
 }
 
+let error = false;
+
 async function changeValues() {
     if (!trainNumber || !wagonNumber) {
         return;
@@ -967,17 +969,28 @@ async function changeValues() {
 
     if (!success) {
         displayErrorBox();
+        error = true;
     } else {
         showMainDisplay();
+        if (error) {
+            hideErrorBox();
+        }
     }
 
     function displayErrorBox() {
         iframe.contentDocument.getElementById('main_display').style.visibility = 'hidden';
         iframe.contentDocument.getElementById('loader_box').style.display = 'none';
         iframe.contentDocument.getElementById('error_box').style.display = 'flex';
-
         if (displayTheme === Theme.PR) {
             iframe.contentDocument.getElementById('top_bar').style.color = "transparent";
+        }
+    }
+
+    function hideErrorBox() {
+        iframe.contentDocument.getElementById('main_display').style.visibility = 'visible';
+        iframe.contentDocument.getElementById('error_box').style.display = 'none';
+        if (displayTheme === Theme.PR) {
+            iframe.contentDocument.getElementById('top_bar').removeAttribute("style");
         }
     }
 

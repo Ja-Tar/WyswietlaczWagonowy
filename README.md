@@ -1,9 +1,13 @@
 # Wyswietlacz Wagonowy
 # PL 🇵🇱
+Taki tam poboczny projekt, który zaproponował mi mój kolega.
+Na początku do projektu używałem AI, a potem go porzuciłem. 
+Z powodu YSWS Hackclub (konkretnie Reboot), zdecydowałem się zaprogramować nowy wygląd (PR).
+Dodatkowo rewriteowałem kilka elementów, bo wersja AI miała z nimi problem.
+W trakcie pisania na YSWS nie używałem AI w ogóle (co było dość ciekawym doświatczeniem).
 
 <img height="600" width="400" alt="ic-0" src="https://github.com/user-attachments/assets/cfa54f34-2b68-445b-a3df-d4b71b916904" />
 <img height="600" width="400" alt="ic-0" src="https://github.com/user-attachments/assets/b30cdc7c-ac10-4e4f-9f07-feea8d3ee751" />
-
 
 ## Funkcje
 - [x] Symulacja wyświetlania

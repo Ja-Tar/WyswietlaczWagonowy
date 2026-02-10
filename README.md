@@ -6,8 +6,7 @@ Jednak z powodu YSWS Hackclub (konkretnie Reboot), zdecydowałem się zaprogramo
 Dodatkowo rewriteowałem kilka elementów, bo wersja AI nie funkcjonowała tak jak chciałem oraz była dość nie czytelna.
 W trakcie pisania na YSWS nie używałem AI w ogóle (co było dość ciekawym doświadczeniem).
 
-<img height="600" width="400" alt="ic-0" src="/readmeImg/IC.png" />
-<img height="600" width="400" alt="ic-0" src="/readmeImg/PR.gif" />
+<img height="600" width="400" alt="ic-0" src="/readmeImg/IC.png" /> <img height="600" width="400" alt="ic-0" src="/readmeImg/PR.gif" />
 
 ## Funkcje
 - [x] Symulacja wyświetlania
@@ -58,8 +57,7 @@ But because of YSWS Hackclub (Reboot, to be exact), I decided to code a new desi
 In addition, I rewritten several elements because the AI version did not function as I wanted it to and was quite unreadable.
 While writing for YSWS, I did not use any AI at all (which was quite an interesting experience).
 
-<img height="600" width="400" alt="ic-0" src="/readmeImg/IC.png" />
-<img height="600" width="400" alt="ic-0" src="/readmeImg/PR.gif" />
+<img height="600" width="400" alt="ic-0" src="/readmeImg/IC.png" /> <img height="600" width="400" alt="ic-0" src="/readmeImg/PR.gif" />
 
 ## Features
 

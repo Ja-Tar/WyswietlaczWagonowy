@@ -26,7 +26,7 @@ Zmiana minimalnej prędkości, którą symulator uznaję za postój.
 
     <img height="78" alt="obraz" src="https://github.com/user-attachments/assets/0978ba26-47a0-4f9c-b6d8-e01211a64911" />
 
-- **WYŁĄCZONE:**
+- **WYŁĄCZONE:** (lub brak opóźnienia)
 
     <img height="78" alt="obraz" src="https://github.com/user-attachments/assets/e3c1ba35-b5c1-4fe5-889c-676cc608b026" />
 
@@ -42,7 +42,7 @@ Pokazywana ilość przystanków na wyświetlaczu.
 
     <img height="150" alt="obraz" src="https://github.com/user-attachments/assets/4a06ea7c-47e8-4431-afef-7aadec14741c" />
 
-- **WYŁĄCZONE:** (lub brak opóźnienia)
+- **WYŁĄCZONE:**
 
     <img height="150" alt="obraz" src="https://github.com/user-attachments/assets/e2765f94-97bb-4033-8979-689f030b1578" />
 

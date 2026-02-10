@@ -45,6 +45,12 @@ img {
     padding-bottom: 1.8vw;
 }
 
+.stop_name.wrap:not(.side){
+    text-indent: -0.9em;
+    margin-bottom: 0.8em;
+    height: 17.5ch;
+}
+
 .stop_name {
     writing-mode: sideways-lr;
     align-self: end;

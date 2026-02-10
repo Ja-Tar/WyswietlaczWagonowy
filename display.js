@@ -1035,6 +1035,7 @@ function applyResponsiveStyles() {
         iframe.contentWindow.overflowRestStations();
     } else if (displayTheme === Theme.PR) {
         iframe.contentWindow.checkForWrap();
+        iframe.contentWindow.checkForStationWrap();
     }
 }
 

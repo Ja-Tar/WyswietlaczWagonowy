@@ -70,5 +70,17 @@ function checkForWrap() {
     }
 }
 
+function checkForStationWrap() {
+    const stationLabels = document.getElementsByClassName("stop_name");
+    for (const i of Object.keys(stationLabels)) {
+        const width = stationLabels[parseInt(i)].offsetWidth;
+        const textSize = parseFloat(getComputedStyle(stationLabels[parseInt(i)]).fontSize) + 0.4;
+        if (width > textSize + 2) {
+            stationLabels[parseInt(i)].classList.add("wrap");
+        }
+    }
+}
+
 window.scrollText = scrollText;
 window.checkForWrap = checkForWrap;
+window.checkForStationWrap = checkForStationWrap;

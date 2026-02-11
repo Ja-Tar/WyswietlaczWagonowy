@@ -377,7 +377,8 @@ function setRouteStations(train) {
     if (doneStopList.length < 1) {
         atDestination = true;
         if (displayTheme === Theme.IC) {
-            // ADD: End screen for IC display
+            renderNextStops([formattedTimetableStops.at(-1)]);
+            // TODO Make it so it looks like real one (with "dziękujemy za podróż")
         } else if (displayTheme === Theme.PR) {
             renderStopHeader(formattedTimetableStops.at(-1));
             renderStopMap(formattedTimetableStops, []);

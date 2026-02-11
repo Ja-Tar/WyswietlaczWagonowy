@@ -377,8 +377,12 @@ function setRouteStations(train) {
         if (displayTheme === Theme.IC) {
             // ADD: End screen for IC display
         } else if (displayTheme === Theme.PR) {
+            atStation = true;
+            renderStopHeader(formattedTimetableStops.at(-1));
             renderStopMap(formattedTimetableStops, []);
+            atStation = false; // REMOVE Maybe not needed 
         }
+        return;
     }
 
     if (displayTheme === Theme.IC) {
@@ -581,21 +585,22 @@ function renderStopMap(stopsList, nextStopsList) {
     setStop("start", stopsList.at(0));
     setStop("end", stopsList.at(-1));
 
+    // First station checks
+
+    if (nextStopsList[0]?.stopNameRAW !== stopsList[0].stopNameRAW) {
+        trainDeparted("start", DEPARTED_IMG.START);
+        moveTrainIndicator("start", true);
+    }
+
     // If timetable is done
 
     if (nextStopsList.length < 1) {
         // ADD: Implement no stations left / no stations
-        // showArrivedLayout();
+        showArrivedLayout();
+        moveTrainIndicator("end", false);
         // Also change data updates to 1m, don't show error screen on no data
         // Implement some kind of route continue when new timetable is given
-        throw new Error("No stations left!!!");
-    }
-
-    // First station checks
-
-    if (nextStopsList[0].stopNameRAW !== stopsList[0].stopNameRAW) {
-        trainDeparted("start", DEPARTED_IMG.START);
-        moveTrainIndicator("start", true);
+        return;
     }
 
     // Smaller layout for less then 9 stops
@@ -621,6 +626,19 @@ function renderStopMap(stopsList, nextStopsList) {
         showContinuosLayout();
     } else {
         showCarouselLayout();
+    }
+
+    /**
+     * Layout for arrived trains (all stops are confirmed === 1)
+     */
+    function showArrivedLayout() {
+        nextStopsList.push(stopsList.at(-1));
+        if (stopsList.length <= 9) {
+            showSmallerLayout();
+        } else {
+            showEndLayout();
+        }
+        return;
     }
 
     /**

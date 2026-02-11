@@ -374,11 +374,11 @@ function setRouteStations(train) {
     checking = true;
 
     if (doneStopList.length < 1) {
-        // ADD: Implement no stations left / no stations
-        // showArrivedLayout();
-        // Also change data updates to 1m, don't show error screen on no data
-        // Implement some kind of route continue when new timetable is given
-        throw new Error("No stations left!!!");
+        if (displayTheme === Theme.IC) {
+            // ADD: End screen for IC display
+        } else if (displayTheme === Theme.PR) {
+            renderStopMap(formattedTimetableStops, []);
+        }
     }
 
     if (displayTheme === Theme.IC) {
@@ -399,6 +399,7 @@ function monitorArrivalCondition(nextStopsList, train) {
     const currentTime = new Date().getTime();
 
     nextStopsList = nextStopsList.filter(stopPoint => !(removedStopsName?.[stopPoint.stopNameRAW] === stopPoint.arrivalTimestamp));
+    if (nextStopsList < 1) return [];
 
     if (checking === true) {
         // Normal flow
@@ -579,6 +580,16 @@ function renderStopMap(stopsList, nextStopsList) {
 
     setStop("start", stopsList.at(0));
     setStop("end", stopsList.at(-1));
+
+    // If timetable is done
+
+    if (nextStopsList.length < 1) {
+        // ADD: Implement no stations left / no stations
+        // showArrivedLayout();
+        // Also change data updates to 1m, don't show error screen on no data
+        // Implement some kind of route continue when new timetable is given
+        throw new Error("No stations left!!!");
+    }
 
     // First station checks
 

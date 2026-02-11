@@ -77,6 +77,9 @@ function checkForStationWrap() {
         const textSize = parseFloat(getComputedStyle(stationLabels[parseInt(i)]).fontSize) + 0.4;
         if (width > textSize + 2) {
             stationLabels[parseInt(i)].classList.add("wrap");
+            console.log(textSize + 2);
+        } else {
+            stationLabels[parseInt(i)].classList.remove("wrap");
         }
     }
 }

@@ -342,6 +342,9 @@ function formatStopsName(stopPoints) {
     return stopPoints;
 }
 
+/** @type {null | number} */
+let dataUpdateInterval = null;
+
 /** @type {{Object.<string, number>}} StopNameRaw, arrivalTimestamp */
 const removedStopsName = {};
 let checking = false;
@@ -384,12 +387,20 @@ function setRouteStations(train) {
             renderStopMap(formattedTimetableStops, []);
         }
 
-        if (valuesInterval) {
-            clearInterval(valuesInterval);
-            setInterval(changeValues, 60000);
+        if (dataUpdateInterval) {
+            clearInterval(dataUpdateInterval);
+            dataUpdateInterval = setInterval(changeValues, 60000);
         }
-        // ADD and test some kind of route continue when new timetable is given 
         return;
+    } else {
+        // If new timetable is set
+        if (atDestination === true) { // TODO: Test if it works
+            atDestination = false;
+            if (dataUpdateInterval) {
+                clearInterval(dataUpdateInterval);
+                dataUpdateInterval = setInterval(changeValues, 15000);
+            }
+        }
     }
 
     if (displayTheme === Theme.IC) {
@@ -1070,9 +1081,6 @@ function applyResponsiveStyles() {
     }
 }
 
-/** @type {null | number} */
-let valuesInterval = null;
-
 iframe.onload = function () {
     if (!trainNumber || !wagonNumber) {
         showDebugScreen();
@@ -1081,7 +1089,7 @@ iframe.onload = function () {
     setTemperature();
     setInterval(setDateAndTime, 1000); // 1 second
     setInterval(setTemperature, 600000); // 10 minutes
-    valuesInterval = (changeValues, 15000); // 15 seconds
+    dataUpdateInterval = (changeValues, 15000); // 15 seconds
 };
 
 window.addEventListener('resize', applyResponsiveStyles);

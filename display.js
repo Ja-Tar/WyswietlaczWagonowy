@@ -342,11 +342,15 @@ function formatStopsName(stopPoints) {
     return stopPoints;
 }
 
+/** @type {null | number} */
+let dataUpdateInterval = null;
+
 /** @type {{Object.<string, number>}} StopNameRaw, arrivalTimestamp */
 const removedStopsName = {};
 let checking = false;
 let atStation = false;
 let atOrigin = false;
+let atDestination = false;
 
 /**
  * @param {TrainInfo} train
@@ -374,11 +378,29 @@ function setRouteStations(train) {
     checking = true;
 
     if (doneStopList.length < 1) {
-        // ADD: Implement no stations left / no stations
-        // showArrivedLayout();
-        // Also change data updates to 1m, don't show error screen on no data
-        // Implement some kind of route continue when new timetable is given
-        throw new Error("No stations left!!!");
+        atDestination = true;
+        if (displayTheme === Theme.IC) {
+            renderNextStops([formattedTimetableStops.at(-1)]);
+            // TODO Make it so it looks like real one (with "dziękujemy za podróż")
+        } else if (displayTheme === Theme.PR) {
+            renderStopHeader(formattedTimetableStops.at(-1));
+            renderStopMap(formattedTimetableStops, []);
+        }
+
+        if (dataUpdateInterval) {
+            clearInterval(dataUpdateInterval);
+            dataUpdateInterval = setInterval(changeValues, 60000);
+        }
+        return;
+    } else {
+        // If new timetable is set
+        if (atDestination === true) { // TODO: Test if it works
+            atDestination = false;
+            if (dataUpdateInterval) {
+                clearInterval(dataUpdateInterval);
+                dataUpdateInterval = setInterval(changeValues, 15000);
+            }
+        }
     }
 
     if (displayTheme === Theme.IC) {
@@ -399,6 +421,7 @@ function monitorArrivalCondition(nextStopsList, train) {
     const currentTime = new Date().getTime();
 
     nextStopsList = nextStopsList.filter(stopPoint => !(removedStopsName?.[stopPoint.stopNameRAW] === stopPoint.arrivalTimestamp));
+    if (nextStopsList < 1) return [];
 
     if (checking === true) {
         // Normal flow
@@ -542,7 +565,7 @@ function renderStopHeader(nextStop) {
     const stationLabelElement = iframe.contentDocument.getElementById("station_label");
     const stationNameElement = iframe.contentDocument.getElementById("station");
 
-    if (atStation) {
+    if (atStation || atDestination) {
         // TRAIN ARRIVED AT STATION
         stationLabelElement.textContent = "Stacja/Station:";
     } else {
@@ -582,9 +605,17 @@ function renderStopMap(stopsList, nextStopsList) {
 
     // First station checks
 
-    if (nextStopsList[0].stopNameRAW !== stopsList[0].stopNameRAW) {
+    if (nextStopsList[0]?.stopNameRAW !== stopsList[0].stopNameRAW) {
         trainDeparted("start", DEPARTED_IMG.START);
         moveTrainIndicator("start", true);
+    }
+
+    // If timetable is done
+
+    if (nextStopsList.length < 1) {
+        showArrivedLayout();
+        moveTrainIndicator("end", false);
+        return;
     }
 
     // Smaller layout for less then 9 stops
@@ -610,6 +641,19 @@ function renderStopMap(stopsList, nextStopsList) {
         showContinuosLayout();
     } else {
         showCarouselLayout();
+    }
+
+    /**
+     * Layout for arrived trains (all stops are confirmed === 1)
+     */
+    function showArrivedLayout() {
+        nextStopsList.push(stopsList.at(-1));
+        if (stopsList.length <= 9) {
+            showSmallerLayout();
+        } else {
+            showEndLayout();
+        }
+        return;
     }
 
     /**
@@ -1045,7 +1089,7 @@ iframe.onload = function () {
     setTemperature();
     setInterval(setDateAndTime, 1000); // 1 second
     setInterval(setTemperature, 600000); // 10 minutes
-    setInterval(changeValues, 15000); // 15 seconds
+    dataUpdateInterval = (changeValues, 15000); // 15 seconds
 };
 
 window.addEventListener('resize', applyResponsiveStyles);

@@ -568,8 +568,6 @@ const DEPARTED_IMG = {
  */
 function renderStopMap(stopsList, nextStopsList) {
     const mainDisplay = iframe.contentDocument.getElementById("main_display");
-    // TODO: Better station name wrapping needed when it's too long
-
     const DISPLAY_CONFIG = {
         CAROUSEL_START: "repeat(7, 9.7vw) 15vw 9.7vw",
         CAROUSEL_CONTINUE: "13vw repeat(6, 9.7vw) 13vw 9.7vw",

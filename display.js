@@ -347,6 +347,7 @@ const removedStopsName = {};
 let checking = false;
 let atStation = false;
 let atOrigin = false;
+let atDestination = false;
 
 /**
  * @param {TrainInfo} train
@@ -374,14 +375,19 @@ function setRouteStations(train) {
     checking = true;
 
     if (doneStopList.length < 1) {
+        atDestination = true;
         if (displayTheme === Theme.IC) {
             // ADD: End screen for IC display
         } else if (displayTheme === Theme.PR) {
-            atStation = true;
             renderStopHeader(formattedTimetableStops.at(-1));
             renderStopMap(formattedTimetableStops, []);
-            atStation = false; // REMOVE Maybe not needed 
         }
+
+        if (valuesInterval) {
+            clearInterval(valuesInterval);
+            setInterval(changeValues, 60000);
+        }
+        // ADD and test some kind of route continue when new timetable is given 
         return;
     }
 
@@ -547,7 +553,7 @@ function renderStopHeader(nextStop) {
     const stationLabelElement = iframe.contentDocument.getElementById("station_label");
     const stationNameElement = iframe.contentDocument.getElementById("station");
 
-    if (atStation) {
+    if (atStation || atDestination) {
         // TRAIN ARRIVED AT STATION
         stationLabelElement.textContent = "Stacja/Station:";
     } else {
@@ -595,11 +601,8 @@ function renderStopMap(stopsList, nextStopsList) {
     // If timetable is done
 
     if (nextStopsList.length < 1) {
-        // ADD: Implement no stations left / no stations
         showArrivedLayout();
         moveTrainIndicator("end", false);
-        // Also change data updates to 1m, don't show error screen on no data
-        // Implement some kind of route continue when new timetable is given
         return;
     }
 
@@ -1066,6 +1069,9 @@ function applyResponsiveStyles() {
     }
 }
 
+/** @type {null | number} */
+let valuesInterval = null;
+
 iframe.onload = function () {
     if (!trainNumber || !wagonNumber) {
         showDebugScreen();
@@ -1074,7 +1080,7 @@ iframe.onload = function () {
     setTemperature();
     setInterval(setDateAndTime, 1000); // 1 second
     setInterval(setTemperature, 600000); // 10 minutes
-    setInterval(changeValues, 15000); // 15 seconds
+    valuesInterval = (changeValues, 15000); // 15 seconds
 };
 
 window.addEventListener('resize', applyResponsiveStyles);

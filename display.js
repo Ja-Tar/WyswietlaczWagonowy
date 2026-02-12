@@ -1089,7 +1089,7 @@ iframe.onload = function () {
     setTemperature();
     setInterval(setDateAndTime, 1000); // 1 second
     setInterval(setTemperature, 600000); // 10 minutes
-    dataUpdateInterval = (changeValues, 15000); // 15 seconds
+    dataUpdateInterval = setInterval(changeValues, 15000); // 15 seconds
 };
 
 window.addEventListener('resize', applyResponsiveStyles);
